@@ -1,0 +1,230 @@
+/// 基础数据类型为
+/// 基本数据类型
+
+VMT语言设计
+1.基础数据类型
+	bool void
+	i8 i16 i32 i64
+	ui8 ui16 ui32 ui64
+	f32
+	f64
+2.复杂数据类型
+	vec,mat,ten,array 
+3.自定义数据类型
+	struct
+	template<typename>
+	struct
+	
+4.支持运算符 /// 定义关键字作为运算符
+	* // 标量乘 ,向量点积 或者 向量的矩阵积 , 矩阵乘法,张量乘法
+	.* /// 标量乘, 向量个元素乘 ,矩阵各个元素乘 ,张量各个元素乘
+	+
+	-
+	/ // 标量除
+	./ 标量除,向量除,矩阵除,张量除
+	'函数导数
+	标量比较 < <= > >= != ==
+	位运算 << >> bitand bitor bitcompl
+	bool 运算 and or not 
+	条件运算 ?:
+	|| 长度 || ||长度平方
+	
+vec
+
+template<typename _T>
+struct A{
+	
+	
+};
+
+struct A{
+
+};
+
+vec<A,3> ;
+mat<A,3,4> ;
+ten<A,3,4,5> ;
+
+
+using 自定义类型 = ,,,;
+
+/// 不支持数组
+/// 只支持内建结构体
+i8[12] a.size();
+
+///为定义长度的结构体
+i8[] a;
+
+
+支持的运算
+ + - * / % ** () |a| A'导数
+名称空间 namespace std  /// 基本库
+		 namespace math /// 数学库
+名称空间 
+
+/// 无析构函数
+/// 无任何保护与非保护类型
+/// 支持运算符重载
+/// 以标量,向量,矩阵,张量为基础
+///
+struct A{
+	construct();
+};
+
+/// 定义求导 'fun * 'funB 
+/// 定义A函数
+f32 A(){
+
+}
+f32 A()=B();
+定义A函数的导数
+f32 'A(){
+}
+f32 'A(x)=B(.)
+
+in   输入公共数据
+out  输出公共数据
+
+void for_main( ui32 x, ui32 y,ui32 z ){
+	vec3f32 a;
+	f32 length = |a|;
+	f32 length2 = ||a||;
+	
+	/// 无法自动求的A函数的导数
+	lambda 名称 = [ 捕获列表](参数列表)->返回值{
+		/// 自动求导
+	};
+}
+
+/// VMT的程序文法
+
+
+//Programs -> Programs Program
+//         -> Program
+		
+/// 新增了一层,我们的结构就变好了,原因是什么
+		
+Program    -> top_elements
+top_elements -> top_elements top_element
+			 -> top_element
+
+		
+top_element  -> function
+         -> struct
+		 -> typename_struct
+		 
+		
+
+struct   -> strcut name { members };
+members  -> members mem_function
+         -> members mem_variable;
+
+mem_function -> function
+mem_variable -> decl_variable
+
+
+typename_structs -> typename_structs typename_struct
+typename_struct  -> template< template_typelist > struct
+
+函数可声明到任何里面,函数内部都可以,但是类不行,这里还需要偏导数
+// 我们先不考虑这个compute shader 后端
+// 矩阵函数 向量函数 张量函数
+function -> func func_name( ) -> return{ stmt }
+
+/// 可微后续加入把
+/// functions -> func func_name( ) -> return{ }
+
+
+stmt  -> { stmts }
+                  -> if( bool_expr ) stmt
+	  -> if( bool_expr ) stmt else stmt
+	  -> while( bool_expr) stmt
+	  -> do stmt wihle( bool_expr );
+	  -> break;
+	  -> continue;
+	  -> expr; 
+	  -> ;
+stmts ->stmts stmt 
+      ->empty
+	  
+
+expr -> bool_expr
+     -> num_expr
+	 -> void_expr
+	 -> assign_expr
+	 -> decls_expr 
+	 
+assign_expr -> assign_expr = 	 
+/// 按照逻辑,顶层产生式的优先级高于底层产生式	 
+bool_expr  -> bool_expr or join
+           -> join
+
+		   
+join       -> join and equality
+           -> equality
+
+		   
+		   
+		   
+		   
+equality   -> not bool_unary
+		   -> bool_unary
+		  
+bool_unary ->( bool_expr)
+		   -> true
+		   -> false
+		   -> bool_var
+		   -> num_bool_expr
+		   
+num_bool_expr -> num_expr == num_expr 
+              -> num_expr != num_expr 
+    	      -> num_bool_expr_second
+		   
+		   
+		   
+		   
+num_bool_expr_second -> num_expr < num_expr
+                     -> num_expr <= num_expr
+			         -> num_expr > num_expr
+			         -> num_expr >= num_expr
+			  
+			  
+num_expr -> num_expr + term
+         -> num_expr - term
+		 -> term
+		
+term ->  term * unary 
+     ->  term / unary
+     ->  unary
+
+unary -> -unary
+      -> factor
+	  
+foctor -> (num_expr) | id | num | real | object
+	  
+			  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

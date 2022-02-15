@@ -1,0 +1,76 @@
+/// 龙书 定义的语法
+program -> block
+block   -> {  int begin = newLable(); int after = newLable(); emitLable( begin ); } { decls stmts } { emitLable(after);}
+decls   -> decls decl | EPY
+decl    -> type id;
+type    -> type [num] | basic
+stmts   -> stmts stmt | EPY
+
+stmt    -> loc = bool;
+        |  if ( bool ) stmt
+		|  if ( bool ) stmt else stmt
+		|  while (bool ) stmt
+		|  do stmt while ( bool );
+		|  break;
+		|  block;
+loc     -> loc [bool] | id
+
+bool    -> bool || join | jion
+join    -> join && equality | equality
+equality-> equality == rel | equality != rel | rel
+rel     -> expr < expr | expr <= expr | expr >= expr | expr > expr | expr
+expr    -> expr + term | expr - term | term
+term    -> term * unary | term / unary | unary
+unary   -> !unary | - unary | factor
+factor  -> ( bool ) | loc | num | real | true | false
+
+/// 第一次修改的语法, 
+
+/// 这种情况就存在左递归
+/// 一个程序就为空
+programs -> program  programs | EPY
+
+program  -> function | define | dstruct 
+
+
+function -> type id ( args ) { stmts }
+args     -> arglist  | EPY
+arglist  -> arg | arg , arglist
+arg      -> type id
+
+
+/// 这两种定义的差别
+defines  -> defines define | EPY /// 左结合
+
+define   -> decl;
+decl     -> type idlist
+idlist   -> id id_init |id id_init , idlist
+id_init  -> = expr | EPY
+
+dstruct  -> struct Id { functions defines};
+
+stmts   -> stmts stmt | EPY
+
+stmt    -> loc = bool;
+        |  if ( bool ) stmt
+		|  if ( bool ) stmt else stmt
+		|  while (bool ) stmt
+		|  do stmt while ( bool );
+		|  break;
+		|  block;
+		|  defines
+		|  ;
+		
+block   -> { stmts }		
+		
+loc     -> loc [bool] | id
+
+bool    -> bool || join | jion | decl
+
+join    -> join && equality | equality
+equality-> equality == rel | equality != rel | rel
+rel     -> expr < expr | expr <= expr | expr >= expr | expr > expr | expr
+expr    -> expr + term | expr - term | term
+term    -> term * unary | term / unary | unary
+unary   -> !unary | - unary | factor
+factor  -> ( bool ) | loc | num | real | true | false

@@ -1,0 +1,9 @@
+
+#ifdef HANDLE_VALUE
+#define __ENUM_VALUE_TYPE_CLASS(name) kClass_##name,
+#else
+#define __ENUM_VALUE_TYPE_CLASS(name) 
+#endif /// HANDLE_VALUE
+
+__ENUM_VALUE_TYPE_CLASS( Instruction)
+__ENUM_VALUE_TYPE_CLASS( Constant )

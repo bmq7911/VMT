@@ -1,0 +1,156 @@
+#ifdef KEYWORD
+#undef KEYWORD
+#endif
+
+#ifdef ENUM_KEYWORD
+#define TAG(x) x,
+#define KEYWORD(x) TAG(kw_##x)
+#define PUNCTUATOR(x,y) TAG(kw_##x)
+#endif 
+
+#ifdef DEFINE_KEYWORD
+#define KEYWORD(x)      _InsertKeyWord(#x,Tag::kw_##x);
+#define PUNCTUATOR(x,y) _InsertKeyWord(y,Tag::kw_##x);
+#endif ///DEFINE_KEYWORD
+
+
+#ifdef TAG_TO_STRING
+#define TO_STR(x) #x
+#define KEYWORD(x) case kw_##x : return TO_STR(kw_##x);break;
+#define PUNCTUATOR(x,y) case kw_##x: return TO_STR(kw_##x);break;
+#define TAG(x) case x: return TO_STR(x);break;
+#endif// TAG_TO_STRING
+
+#ifdef KEYWORD
+KEYWORD(if)
+KEYWORD(else)
+KEYWORD(while)
+KEYWORD(do)
+KEYWORD(for)
+KEYWORD(break)
+KEYWORD(continue)
+KEYWORD(const)
+KEYWORD(return)
+KEYWORD(swith)
+KEYWORD(case)
+KEYWORD(using)
+KEYWORD(this)
+KEYWORD(template)
+KEYWORD(typename)
+KEYWORD(struct)
+KEYWORD(operator)
+KEYWORD(func)
+KEYWORD(true)
+KEYWORD(false)
+KEYWORD(temp)
+KEYWORD(vec)
+KEYWORD(mat)
+KEYWORD(ten)
+KEYWORD(and)
+KEYWORD(or)
+KEYWORD(not)
+KEYWORD(bitand)
+KEYWORD(bitor)
+KEYWORD(bitcompl)
+KEYWORD(void)
+KEYWORD(bool)
+KEYWORD(i8)
+KEYWORD(i16)
+KEYWORD(i32)
+KEYWORD(i64)
+KEYWORD(ui8)
+KEYWORD(ui16)
+KEYWORD(ui32)
+KEYWORD(ui64)
+KEYWORD(f32)
+KEYWORD(f64)
+KEYWORD(array)
+KEYWORD(in)
+KEYWORD(out)
+KEYWORD(sizeof)
+KEYWORD(std)
+
+
+#undef KEYWORD
+#endif ///KEYWORD
+
+#ifdef PUNCTUATOR
+
+PUNCTUATOR(l_square,            "[")
+PUNCTUATOR(r_square,            "]")
+PUNCTUATOR(l_paren,             "(")
+PUNCTUATOR(r_paren,             ")")
+PUNCTUATOR(l_brace,             "{")
+PUNCTUATOR(r_brace,             "}")
+PUNCTUATOR(period,              ".")
+//PUNCTUATOR(ellipsis,            "...")
+PUNCTUATOR(amp,                 "&")
+PUNCTUATOR(ampamp,              "&&")
+PUNCTUATOR(ampequal,            "&=")
+PUNCTUATOR(star,                "*")
+PUNCTUATOR(starstar,            "**")
+PUNCTUATOR(starequal,           "*=")
+PUNCTUATOR(plus,                "+")
+PUNCTUATOR(plusplus,            "++")
+PUNCTUATOR(plusequal,           "+=")
+PUNCTUATOR(minus,               "-")
+PUNCTUATOR(arrow,               "->")
+PUNCTUATOR(minusminus,          "--")
+PUNCTUATOR(minusequal,          "-=")
+PUNCTUATOR(tilde,               "~")
+PUNCTUATOR(exclaim,             "!")
+PUNCTUATOR(exclaimequal,        "!=")
+PUNCTUATOR(slash,               "/")
+PUNCTUATOR(slashequal,          "/=")
+PUNCTUATOR(percent,             "%")
+PUNCTUATOR(percentequal,        "%=")
+PUNCTUATOR(less,                "<")
+PUNCTUATOR(lessless,            "<<")
+PUNCTUATOR(lessequal,           "<=")
+PUNCTUATOR(lesslessequal,       "<<=")
+PUNCTUATOR(spaceship,           "<=>")
+PUNCTUATOR(greater,             ">")
+PUNCTUATOR(greatergreater,      ">>")
+PUNCTUATOR(greaterequal,        ">=")
+PUNCTUATOR(greatergreaterequal, ">>=")
+PUNCTUATOR(caret,               "^")
+PUNCTUATOR(caretequal,          "^=")
+PUNCTUATOR(pipe,                "|")
+PUNCTUATOR(pipepipe,            "||")
+PUNCTUATOR(pipeequal,           "|=")
+PUNCTUATOR(question,            "?")
+PUNCTUATOR(colon,               ":")
+PUNCTUATOR(semi,                ";")
+PUNCTUATOR(equal,               "=")
+PUNCTUATOR(equalequal,          "==")
+PUNCTUATOR(comma,               ",")
+PUNCTUATOR(hash,                "#")
+PUNCTUATOR(hashhash,            "##")
+PUNCTUATOR(hashat,              "#@")
+
+// C++ Support
+PUNCTUATOR(periodstar,          ".*")
+PUNCTUATOR(arrowstar,           "->*")
+PUNCTUATOR(coloncolon,          "::")
+
+#undef PUNCTUATOR
+#endif PUNCTUATOR
+
+#ifdef TAG
+
+TAG(basic_type)
+TAG(index)
+TAG(num)
+TAG(real)
+TAG(id)
+TAG(unknown)
+TAG(eof)
+TAG(arbitrary)
+
+#undef TAG
+#endif /// TAG
+
+
+
+
+
