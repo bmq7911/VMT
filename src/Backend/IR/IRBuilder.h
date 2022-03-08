@@ -5,7 +5,6 @@
 #include "Backend/IR/IRContext.h"
 #include "Backend/IR/Constant.h"
 #include "Backend/IR/Function.h"
-
 #include "Backend/IR/Type.h"
 
 namespace IR {
@@ -76,7 +75,6 @@ namespace IR {
         Value* emitInvert(Value* v);
         Value* emitInvert(Value* v, const char* name);
         Function* emitFunction(const char* name, FunctionType* type);
-        void emitEndFunction();
     private:
         template<typename T>
         Value* _EmitUnaryIns(Instruction::OpCode op, Value* v);

@@ -25,24 +25,24 @@ namespace IR {
         static std::shared_ptr<FlowGraphs> makeFlowGraphs( Function* function );
         
         size_t size() const {
-            return m_flowGraph.vertexSize();
+            return m_flowGraph.size();
         }
-        ADT::vertex<BasicBlock>* begin() {
-            return m_beginBasicBlock;
+        ADT::graph::adjacency_list<IR::BasicBlock>::iterator begin() {
+            return m_flowGraph.begin( );
         }
-        ADT::vertex<BasicBlock>* end() {
-            return m_endBasicBlock;
+        ADT::graph::adjacency_list<IR::BasicBlock>::iterator end() {
+            return m_flowGraph.end( );
         }
-        ADT::vertex<BasicBlock>const* begin() const {
-            return m_beginBasicBlock;
+        ADT::graph::adjacency_list<IR::BasicBlock>::const_iterator begin() const {
+            return m_flowGraph.begin( );
         }
-        ADT::vertex<BasicBlock> const* end() const {
-            return m_endBasicBlock;
+        ADT::graph::adjacency_list<IR::BasicBlock>::const_iterator end() const {
+            return m_flowGraph.end( );
         }
-        ADT::adjacency_list<std::set, IR::BasicBlock>& graphData() {
+        ADT::graph::adjacency_list<IR::BasicBlock>& graphData() {
             return m_flowGraph;
         }
-        ADT::adjacency_list<std::set, IR::BasicBlock> const& graphData() const {
+        ADT::graph::adjacency_list<IR::BasicBlock> const& graphData() const {
             return m_flowGraph;
         }
     private:
@@ -50,9 +50,10 @@ namespace IR {
             
         
     private:
-        ADT::vertex<BasicBlock>* m_beginBasicBlock;
-        ADT::vertex<BasicBlock>* m_endBasicBlock;
-        ADT::adjacency_list<std::set,IR::BasicBlock> m_flowGraph;
+        ADT::graph::adjacency_list<IR::BasicBlock>::vertex* m_beginBasicBlock;
+        ADT::graph::adjacency_list<IR::BasicBlock>::vertex* m_endBasicBlock;
+        ADT::graph::adjacency_list<IR::BasicBlock> m_flowGraph;
+
     };
 
 

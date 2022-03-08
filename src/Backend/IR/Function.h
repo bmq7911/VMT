@@ -52,8 +52,8 @@ namespace IR {
         friend class TextIRWriteVisitor;
         void _InsertIns(Instruction* ins);
     private:
-        std::string m_name;
-        std::vector<Value*> m_args;
+        std::string                    m_name;
+        std::vector<Value*>            m_args;
         std::shared_ptr<Scope>         m_scope;
         std::shared_ptr<Scope>         m_currentScope;
         std::shared_ptr<NameAlloc>     m_nameAlloc;

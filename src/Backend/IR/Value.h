@@ -71,10 +71,10 @@ namespace IR{
         std::string  m_name;
         const Type*  m_type;
         Instruction* m_ins;
-        uint32_t m_bLocal    : 1;
-        uint32_t m_bConstant : 1;
-        uint32_t m_bVolatile : 1;
-        uint32_t m_bStatic   : 1;
+        uint32_t  m_bLocal    : 1;
+        uint32_t  m_bConstant : 1;
+        uint32_t  m_bVolatile : 1;
+        uint32_t  m_bStatic   : 1;
         Users     m_users;
 	};
 
