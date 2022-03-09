@@ -114,10 +114,10 @@ namespace __detail{
         static const_reference __GetRef( type_const_iterator iter) = delete;
         static const_pointer   __GetPtr( type_const_iterator iter) = delete;
         static V* __GetVertex( type_iterator iter){
-            return iter->first;
+            return *iter;
         }
         static V const* __GetVertex(type_const_iterator iter) {
-            return iter->first;
+            return *iter;
         }
     };
 
@@ -265,7 +265,7 @@ namespace __detail{
         using pred_iterator        = typename std::unordered_set<__Vertex<V,E,true>*>::iterator;
         using pred_const_iterfator = typename std::unordered_set<__Vertex<V,E,true>*>::const_iterator;
 
-        using edge_continer = typename __graph_continer_trait<vertex,edge_property>::type;
+        using edge_continer        = typename __graph_continer_trait<vertex,edge_property>::type;
 
     public:
         //__Vertex(){  }
@@ -431,41 +431,6 @@ namespace __detail{
     __Pair<typename __Vertex<V1,E1,false>::pred_const_iterator> __GetPredIterPair( __Vertex<V1,E1,false>const *src){
         return std::make_pair( src->m_edges.begin(), src->m_edges.end());
     }
-    
-    template<typename V1,typename E1, bool direct>
-    struct __construct_link_ret {
-    public:
-        using ret_type = std::pair<__Vertex<V1, E1, direct>*, E1*>;
-        template<typename ... _Args>
-        static __Vertex<V1,E1,direct>* __Construct( __Vertex<V1,E1,direct> *dst, ret_type& ret, _Args && ... args) {
-            auto ptr_edge_property = std::allocator<typename __Vertex<V1,E1,direct>::edge_property>().allocate(1);
-            if (nullptr == ptr_edge_property) {
-                return nullptr;
-            }
-            std::allocator<typename __Vertex<V1, E1,direct>::edge_property>().construct( ptr_edge_property, std::forward<_Args>(args)... );
-            ret.first = dst;
-            ret.second = ptr_edge_property;
-            return ptr_edge_property;
-
-        }
-    };
-
-    template<typename V1,bool direct>
-    struct __construct_link_ret <V1,ADT::graph::no_property,direct >{
-    public:
-        using ret_type = __Vertex<V1, ADT::no_property, direct>*;
-        template<typename ... _Args>
-        static __Vertex<V1, E1, direct>* __Construct(__Vertex<V1, E1, direct>* dst, ret_type& ret, _Args && ... args) {
-            if (nullptr == dst) {
-                ret = nullptr;
-                return nullptr;
-            }
-            ret = dst;
-            return dst;
-        }
-
-    };
-
     template<typename V1, typename E1, typename ... _Args >
     __Pair<__Vertex<V1,E1,true>*> __Link( __Vertex<V1,E1,true> *src, __Vertex<V1,E1,true> *dst, _Args&& ... args){
         if( nullptr == src || nullptr == dst){
@@ -477,14 +442,7 @@ namespace __detail{
                 return __Pair<__Vertex<V1,E1,true>*>( nullptr, nullptr);
             }
             else{
-                __construct_link_ret<V1, E1, true>::ret_type ret;
-                auto ptr = __construct_link_ret<V1, E1, true>::__Construct(dst, ret, std::forward<_Args>(args)...);
-                if (nullptr != ptr) {
-                    src->edges.insert(ret);
-                    dst->m_predecessor.insert(src);
-                    return __Pair<__Vertex<V1, E1, true>*>(src, dst);
-                }
-                /*
+                
                 auto ptr_edge_property = std::allocator<typename __Vertex<V1,E1,true>::edge_property>().allocate(1);
                 if( nullptr == ptr_edge_property ){
                     return __Pair<__Vertex<V1,E1,true>*>( nullptr, nullptr);
@@ -492,20 +450,19 @@ namespace __detail{
                 else{
                     //std::_Construct( ptr_edge_property,std::forward<_Args>(args)...);
                     std::allocator<typename __Vertex<V1, E1,true>::edge_property>().construct( ptr_edge_property, std::forward<_Args>(args)... );
-
-
                     src->m_edges.insert( std::make_pair(dst, ptr_edge_property) );
                     dst->m_predecessor.insert( src);
                     return __Pair<__Vertex<V1,E1,true>*>( src,dst);
                 }
-                */
+                
             }
 
         }
     }
-
+    
     template<typename V1>
-    __Pair<__Vertex<V1,ADT::graph::no_property,true>*> __Link( __Vertex<V1,ADT::graph::no_property,true> *src, __Vertex<V1,ADT::graph::no_property,true> *dst){
+    __Pair<__Vertex<V1,ADT::graph::no_property,true>*> __Link( __Vertex<V1,ADT::graph::no_property,true> *src,
+                                                               __Vertex<V1,ADT::graph::no_property,true> *dst){
         using vertex = __Vertex<V1,ADT::graph::no_property,true>;
 
         if( nullptr == src || nullptr == dst){
@@ -525,6 +482,7 @@ namespace __detail{
         }
     }
     
+    
     template<typename V1, typename E1, typename ... _Args>
     __Pair<__Vertex<V1,E1,false>*> __Link( __Vertex<V1,E1,false> *src, __Vertex<V1,E1,false>* dst, _Args && ... args){
         if( nullptr == src || nullptr == dst)
@@ -534,22 +492,25 @@ namespace __detail{
         if( iter != src->m_edges.end() || kter != dst->m_edges.end()){
             return __Pair<__Vertex<V1,E1,false>*>( nullptr, nullptr);
         }
+        
         auto ptr_edge_property = std::allocator<typename __Vertex<V1,E1,false>::edge_property>().allocate(1);
         if( nullptr == ptr_edge_property)
             return __Pair<__Vertex<V1,E1,false>*>( nullptr, nullptr);
 
 
         std::allocator<typename __Vertex<V1, E1, false>::edge_property>().construct( ptr_edge_property, std::forward<_Args>(args)... );
+        
+
+
         src->m_edges.insert(std::make_pair(dst, ptr_edge_property));
         dst->m_edges.insert(std::make_pair(src, ptr_edge_property ));
-        
-        
         return __Pair<__Vertex<V1,E1,false>*>( src, dst);
 
     }
-
+    
     template<typename V1>
-    __Pair<__Vertex<V1,ADT::graph::no_property,false>*> __Link( __Vertex<V1,ADT::graph::no_property,false> *src, __Vertex<V1,ADT::graph::no_property,false>* dst){
+    __Pair<__Vertex<V1,ADT::graph::no_property,false>*> __Link( __Vertex<V1,ADT::graph::no_property,false> *src, 
+                                                                __Vertex<V1,ADT::graph::no_property,false>* dst){
         using vertex = __Vertex<V1,ADT::graph::no_property,false>;
         if( nullptr == src || nullptr == dst)
             return __Pair<vertex*>( nullptr, nullptr);
@@ -563,7 +524,7 @@ namespace __detail{
         return __Pair<vertex*>( src, dst);
 
     }
-
+    
     template<typename V1, typename E1>
     __Pair<__Vertex<V1,E1,true>*> __DisLink( __Vertex<V1,E1,true> *src, __Vertex<V1,E1,true> *dst){
         if( nullptr == src || nullptr == dst )

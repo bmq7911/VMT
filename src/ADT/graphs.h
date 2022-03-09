@@ -92,8 +92,10 @@ namespace graph{
                         __detail::__DisLink(pVertex, dst);
                         succ_pair = __detail::__GetIterPair(pVertex);
                     }
-                    __detail::__DestroyVertex( pVertex);
                 }
+            }
+            for( auto iter = m_vertex.begin(); iter != m_vertex.end(); ++iter){
+                __detail::__DestroyVertex( *iter);
             }
         }
         void _CopyGraph( adjacency_list const& g ) {
@@ -115,7 +117,7 @@ namespace graph{
                     for (auto kter = succ_pair.first; kter != succ_pair.second; ++kter) {
                         auto origin_dst = __detail::__get_vertex(kter);
                         auto dst_vertex = origin_new_map.find(origin_dst);
-                        __detail::__Link(src_vertex->second, dst_vertex->second, *kter );
+                        __Link(src_vertex->second, dst_vertex->second, kter, typename std::conditional<std::is_same<E, ADT::graph::no_property>::value, int, bool>::type{});
                     }
                 }
             }
@@ -123,7 +125,14 @@ namespace graph{
                 m_vertex.insert(iter->second);
             }
         }
-
+        void __Link(  __detail::__Vertex<V,E,direct> * src,__detail::__Vertex<V,E,direct> *dst,
+                      typename __detail::__Vertex<V,E,direct>::iterator & iter ,bool  ) {
+            __detail::__Link(src, dst, *iter);
+        }
+        void __Link(__detail::__Vertex<V, E, direct>* src, __detail::__Vertex<V, E, direct>* dst,
+            typename __detail::__Vertex<V, E, direct>::iterator& iter, int) {
+            __detail::__Link(src, dst);
+        }
     private:
         std::unordered_set<__detail::__Vertex<V,E,direct>* > m_vertex;
     };

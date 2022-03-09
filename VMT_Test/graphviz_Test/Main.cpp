@@ -40,6 +40,7 @@ int main( int argc, char *argv[]) {
 
         G g1(g);
     }
+    std::cout << "*************************************" << std::endl;
     {
         using G = ADT::graph::adjacency_list<vertex>;
         G g;
