@@ -33,7 +33,7 @@ namespace IR {
 			Value* m_value;
 		};
 		static std::shared_ptr<ValueDAG> makeValueDAG( BasicBlock* BB  );
-		ADT::adjacency_list<std::set, IR::ValueDAG::Node>& getAdjacency_list() {
+		ADT::graph::adjacency_list<IR::ValueDAG::Node>& getAdjacency_list() {
 			return m_dag;
 		}
 		IR::BasicBlock* getBasicBlock() const {
@@ -46,7 +46,7 @@ namespace IR {
 
 	private:
 		IR::BasicBlock* m_BB;
-		ADT::adjacency_list<std::set,IR::ValueDAG::Node> m_dag;
+		ADT::graph::adjacency_list<IR::ValueDAG::Node> m_dag;
 
 
 	};

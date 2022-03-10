@@ -42,11 +42,13 @@ namespace IR {
 	/// <param name="function"></param>
 	/// <returns></returns>
 	std::shared_ptr<FlowGraphs> FlowGraphs::makeFlowGraphs(Function* function) {
+		
+		std::shared_ptr<ADT::graph::adjacency_list<BasicBlock>> G = std::make_shared<ADT::graph::adjacency_list<BasicBlock>>();
+		using vertex = ADT::graph::adjacency_list<BasicBlock>::vertex;
 
-		std::shared_ptr<ADT::adjacency_list<std::set,BasicBlock>> G = std::make_shared<ADT::adjacency_list<std::set,BasicBlock>>();
 		auto begin = G->add_vertex(function);
 		auto end = G->add_vertex(function);
-
+		
 		begin->data().m_index = 0;
 		begin->data().m_bStart = true;
 		begin->data().m_bEnd = false;
@@ -108,10 +110,10 @@ namespace IR {
 
 
 		bFirstIns = true;
-		std::vector<ADT::vertex<BasicBlock>* > blocks;
+		std::vector< vertex  > blocks;
 		leaders.push_back(function->end());
 		blocks.push_back(begin);
-		std::map<std::string, ADT::vertex<BasicBlock>*>  mapBlocks;
+		std::map<std::string, vertex>  mapBlocks;
 		size_t index = 1;
 		for (size_t i = 0; i < leaders.size() -1; ++i, ++ index ) {
 			auto vertex = G->add_vertex(function);

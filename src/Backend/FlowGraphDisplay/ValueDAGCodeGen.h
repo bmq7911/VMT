@@ -7,18 +7,21 @@ namespace IR {
 	
 	class VertexValueDAGDotCodeGen {
 	public:
-		VertexValueDAGDotCodeGen(ADT::vertex<IR::ValueDAG::Node>* node) 
+		using G = ADT::graph::adjacency_list<IR::ValueDAG::Node>;
+		VertexValueDAGDotCodeGen(typename ADT::graph::adjacency_list_trait<G>::vertex node) 
 			: m_node( node )
 		{}
 		void operator()( std::stringstream& ss ) const {
 			ss << "shape=circle,label=\"" << m_node->data().getValue()->getValueName() << "\"";
 		}
 	private:
-		ADT::vertex<IR::ValueDAG::Node>* m_node;
+		typename ADT::graph::adjacency_list_trait<G>::vertex m_node;
 	};
 	class EdgeValueDAGDotCodeGen {
 	public:
-		EdgeValueDAGDotCodeGen(ADT::vertex<IR::ValueDAG::Node>* s, ADT::vertex<IR::ValueDAG::Node>* e) 
+		using G = ADT::graph::adjacency_list<IR::ValueDAG::Node>;
+		EdgeValueDAGDotCodeGen(typename ADT::graph::adjacency_list_trait<G>::vertex s,
+			                   typename ADT::graph::adjacency_list_trait<G>::vertex e) 
 			: m_s( s )
 			, m_e( e )
 		{}
@@ -26,8 +29,8 @@ namespace IR {
 			ss << "color=black";
 		}
 	private:
-		ADT::vertex<IR::ValueDAG::Node>* m_s;
-		ADT::vertex<IR::ValueDAG::Node>* m_e;
+		typename ADT::graph::adjacency_list_trait<G>::vertex m_s;
+		typename ADT::graph::adjacency_list_trait<G>::vertex m_e;
 	};
 
 }

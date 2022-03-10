@@ -22,22 +22,6 @@ namespace __detail{
     template<typename T>
     using __Pair = std::pair<T,T>;
 
-    template<typename V, typename E, bool direct>
-    typename __Vertex<V,E,direct>::vertex_property&       __GetVertexData( __Vertex<V,E,direct>* );
-    template<typename V, typename E, bool direct>
-    typename __Vertex<V,E,direct>::vertex_property const& __GetVertexData( __Vertex<V,E,direct> const* );
-
-    template<typename V1, typename E1, bool direct1>
-    __Pair<typename __Vertex<V1,E1,direct1>::iterator>       __GetIterPair( __Vertex<V1,E1,direct1> *src);
-
-    template<typename V1, typename E1, bool direct1>
-    __Pair<typename __Vertex<V1,E1,direct1>::const_iterator> __GetIterPair( __Vertex<V1,E1,direct1> const *src);
-
-    template<typename V1, typename E1, bool direct1>
-    __Pair<typename __Vertex<V1,E1,direct1>::pred_iterator>       __GetPredIterPair( __Vertex<V1,E1,direct1> *src);
-
-    template<typename V1, typename E1, bool direct1>
-    __Pair<typename __Vertex<V1,E1,direct1>::pred_const_iterator> __GetPredIterPair( __Vertex<V1,E1,direct1> const *src);
 
     template<typename V1, typename E1, bool direct1, typename ... _Args >
     __Pair<__Vertex<V1,E1,direct1>*> __Link( __Vertex<V1,E1,direct1> *src, __Vertex<V1,E1,direct1> *dst, _Args&& ... args);
@@ -65,6 +49,7 @@ namespace __detail{
     template<typename Vertex, typename E>
     Vertex const * __get_vertex( __const_iterator<Vertex,E> iter);
 
+    
 
 
     template<typename V, typename E>
@@ -97,7 +82,30 @@ namespace __detail{
             return iter->first;
         }
     };
+#ifdef _WIN32
+    template< typename V>
+    struct __graph_continer_trait<V,no_property>{
+        using type                = std::unordered_set<V*>;
+        using type_iterator       = typename std::unordered_set<V*>::iterator;
+        using type_const_iterator = typename std::unordered_set<V*>::const_iterator;
 
+        using value_type          = no_property;
+        using pointer             = no_property*;
+        using reference           = no_property&;
+        using const_reference     = no_property const&;
+        using const_pointer       = no_property const*;
+        static reference __GetRef( type_iterator iter) = delete;
+        static pointer   __GetPtr( type_iterator iter) = delete;
+        //static const_reference __GetRef( type_const_iterator iter) = delete;
+        //static const_pointer   __GetPtr( type_const_iterator iter) = delete;
+        static V* __GetVertex( type_iterator iter){
+            return *iter;
+        }
+        //static V const* __GetVertex(type_const_iterator iter) {
+        //    return *iter;
+        //}
+    };
+#else
     template< typename V>
     struct __graph_continer_trait<V,no_property>{
         using type                = std::unordered_set<V*>;
@@ -121,12 +129,14 @@ namespace __detail{
         }
     };
 
+#endif/// _WIN32
     template<typename V,typename E>
     class __iterator : public __graph_continer_trait<V,E>::type_iterator{
         public:
             using super = typename __graph_continer_trait<V,E>::type_iterator;
             typedef typename super::difference_type difference_type;
             typedef typename super::iterator_category iterator_category;
+            typedef V vertex;
             typedef E  value_type;
             typedef E* pointer;
             typedef E& reference;
@@ -144,9 +154,18 @@ namespace __detail{
             pointer operator->() const{
                 return __graph_continer_trait<V,E>::__GetPtr(*this);
             }
+            vertex * get_vertex() {
+                return __GetVertex();
+            }
+            vertex const* get_vertex() const {
+                return 
+            }
     private:
-            V* __GetVertex(){
+            vertex* __GetVertex(){
                 return __graph_continer_trait<V,E>::__GetVertex(*this);
+            }
+            vertex const* __GetVertex()const {
+                return __graph_continer_trait<V, E>::__GetVertex(*this);
             }
             template<typename V1,typename E1>
             friend V1* __get_vertex( __iterator<V1,E1> iter);
@@ -159,6 +178,7 @@ namespace __detail{
             using super = typename __graph_continer_trait<V,no_property>::type_iterator;
             typedef typename super::difference_type   difference_type;
             typedef typename super::iterator_category iterator_category;
+            typedef V vertex;
             typedef no_property  value_type;
             typedef no_property* pointer;
             typedef no_property& reference;
@@ -172,8 +192,17 @@ namespace __detail{
 
             reference operator*() const = delete;
             pointer operator->() const = delete;
+            vertex* get_vertex() {
+                return __GetVertex();
+            }
+            vertex const* get_vertex() const {
+                return __GetVertex();
+            }
     private:
             V* __GetVertex(){
+                return __graph_continer_trait<V,ADT::graph::no_property>::__GetVertex(*this);
+            }
+            V const* __GetVertex() const {
                 return __graph_continer_trait<V,ADT::graph::no_property>::__GetVertex(*this);
             }
             template<typename V1,typename E1>
@@ -186,12 +215,13 @@ namespace __detail{
             using super = typename __graph_continer_trait<V,E>::type_const_iterator;
             typedef typename super::difference_type difference_type;
             typedef typename super::iterator_category iterator_category;
+            typedef V vertex;
             typedef E value_type;
             typedef E const* pointer;
             typedef E const& reference;
 
             //using typename std::unordered_map<V*,E*>::const_iterator::_Node_const_iterator;
-            using typename __graph_continer_trait<V,E>::type_const_iterator::type_const_iterator;
+            using __graph_continer_trait<V,E>::type_const_iterator::type_const_iterator;
             //__const_iterator( typename std::unordered_map<V*,E*>::const_iterator i)
             __const_iterator( typename __graph_continer_trait<V,E>::type_const_iterator i)
                 : __graph_continer_trait<V,E>::type_const_iterator( i )
@@ -218,6 +248,7 @@ namespace __detail{
             using super = typename __graph_continer_trait<V,no_property>::type_const_iterator;
             typedef typename super::difference_type difference_type;
             typedef typename super::iterator_category iterator_category;
+            typedef V vertex;
             typedef no_property value_type;
             typedef no_property const* pointer;
             typedef no_property const& reference;
@@ -240,7 +271,9 @@ namespace __detail{
             friend V1 const* __get_vertex( __iterator<V1,E1> iter);
     };
 
-
+    ///
+    
+    
     template<typename Vertex, typename E>
     Vertex* __get_vertex( __iterator<Vertex,E> iter){
         return iter.__GetVertex();
@@ -256,41 +289,38 @@ namespace __detail{
         using vertex = __Vertex<V,E,true>;
         using vertex_property = typename std::remove_cv<V>::type;
         using edge_property   = typename std::remove_cv<E>::type;
-
-        using iterator        = __iterator<vertex, edge_property>;
-        using const_iterator  = __const_iterator<vertex, edge_property>;
-
-
-
+        using succ_iterator        = __iterator<vertex, edge_property>;
+        using succ_const_iterator  = __const_iterator<vertex, edge_property>;
         using pred_iterator        = typename std::unordered_set<__Vertex<V,E,true>*>::iterator;
-        using pred_const_iterfator = typename std::unordered_set<__Vertex<V,E,true>*>::const_iterator;
-
+        using pred_const_iterator  = typename std::unordered_set<__Vertex<V,E,true>*>::const_iterator;
         using edge_continer        = typename __graph_continer_trait<vertex,edge_property>::type;
-
+        static const bool direct_property = true;
     public:
         //__Vertex(){  }
         template<typename ... _Args>
         __Vertex( _Args && ...args)
             : m_data( std::forward<_Args>(args)...)
         {}
+ 
+        vertex_property& data() {
+            return m_data;
+        }
+        vertex_property const& data() const {
+            return m_data;
+        }
+        std::pair< succ_iterator, succ_iterator  > get_succ_iter() {
+            return std::make_pair(m_edges.begin(), m_edges.end());
+        }
+        std::pair< succ_const_iterator, succ_iterator> get_succ_iter() const {
+            return std::make_pair(m_edges.begin(), m_edges.end());
+        }
+        std::pair<pred_iterator, pred_iterator > get_pred_iter() {
+            return std::make_pair( m_predecessor.begin(), m_predecessor.end());
+        }
+        std::pair<pred_const_iterator, pred_const_iterator> get_pred_iter() const {
+            return std::make_pair(m_predecessor.begin(), m_predecessor.end());
+        }
     private:
-        template<typename V1, typename E1, bool direct>
-        friend typename __Vertex<V1,E1,direct>::vertex_property&       __GetVertexData( __Vertex<V1,E1,direct>* );
-        template<typename V1, typename E1, bool direct>
-        friend typename __Vertex<V1,E1,direct>::vertex_property const& __GetVertexData( __Vertex<V1,E1,direct> const* );
-
-
-        template<typename V1, typename E1, bool direct1>
-        friend __Pair<typename __Vertex<V1,E1,direct1>::iterator>       __GetIterPair( __Vertex<V1,E1,direct1> *src);
-
-        template<typename V1, typename E1, bool direct1>
-        friend __Pair<typename __Vertex<V1,E1,direct1>::const_iterator> __GetIterPair( __Vertex<V1,E1,direct1> const *src);
-
-        template<typename V1, typename E1>
-        friend __Pair<typename __Vertex<V1,E1,true>::pred_iterator>       __GetPredIterPair( __Vertex<V1,E1,true> *src);
-
-        template<typename V1, typename E1>
-        friend __Pair<typename __Vertex<V1,E1,true>::pred_const_iterator> __GetPredIterPair( __Vertex<V1,E1,true> const *src);
 
         template<typename V1, typename E1, typename ... _Args >
         friend __Pair<__Vertex<V1,E1,true>*> __Link( __Vertex<V1,E1,true> *src, __Vertex<V1,E1,true> *dst, _Args&& ... args);
@@ -308,7 +338,7 @@ namespace __detail{
         typename __graph_continer_trait<vertex,edge_property>::type m_edges;
         std::unordered_set<__Vertex<V,E,true>*>                     m_predecessor;
     };
-
+ 
     template<typename V, typename E>
     class __Vertex<V,E,false>{
     public:
@@ -316,40 +346,37 @@ namespace __detail{
         using vertex_property = typename std::remove_cv<V>::type;
         using edge_property   = typename std::remove_cv<E>::type;
 
-        using iterator        = __iterator<vertex, edge_property>;
-        using const_iterator  = __const_iterator<vertex, edge_property>;
-
-        using pred_iterator        = typename std::unordered_map<vertex*, edge_property*>::iterator;
-        using pred_const_iterfator = typename std::unordered_map<vertex*, edge_property*>::const_iterator;
-        using edge_continer      = typename __graph_continer_trait<vertex,edge_property>::type;
+        using succ_iterator        = __iterator<vertex, edge_property>;
+        using succ_const_iterator  = __const_iterator<vertex, edge_property>;
+        using pred_iterator        = __iterator<vertex, edge_property>;
+        using pred_const_iterator  = __const_iterator<vertex, edge_property>;
+        using edge_continer        = typename __graph_continer_trait<vertex,edge_property>::type;
+        static const bool direct_property = false;
     public:
         //__Vertex(){}
         template<typename ... _Args>
         __Vertex( _Args && ...args)
             : m_data( std::forward<_Args>(args)...)
         {}
-
-
+        vertex_property& data() {
+            return m_data;
+        }
+        vertex_property const& data() const {
+            return m_data;
+        }
+        std::pair< succ_iterator, succ_iterator  > get_succ_iter() {
+            return std::make_pair(m_edges.begin(), m_edges.end());
+        }
+        std::pair< succ_const_iterator, succ_iterator> get_succ_iter() const {
+            return std::make_pair(m_edges.begin(), m_edges.end());
+        }
+        std::pair<pred_iterator, pred_iterator > get_pred_iter() {
+            return std::make_pair(m_edges.begin(),m_edges.end());
+        }
+        std::pair<pred_const_iterator, pred_const_iterator> get_pred_iter() const {
+            return std::make_pair(m_edges.begin(),m_edges.end());
+        }
     private:
-
-        template<typename V1, typename E1, bool direct>
-        friend typename __Vertex<V1,E1,direct>::vertex_property& __GetVertexData( __Vertex<V1,E1,direct>* );
-        template<typename V1, typename E1, bool direct>
-        friend typename __Vertex<V1,E1,direct>::vertex_property const& __GetVertexData( __Vertex<V1,E1,direct> const* );
-
-
-
-        template<typename V1, typename E1, bool direct1>
-        friend __Pair<typename __Vertex<V1,E1,direct1>::iterator>       __GetIterPair( __Vertex<V1,E1,direct1> *src);
-
-        template<typename V1, typename E1, bool direct1>
-        friend __Pair<typename __Vertex<V1,E1,direct1>::const_iterator> __GetIterPair( __Vertex<V1,E1,direct1> const *src);
-
-        template<typename V1, typename E1>
-        friend __Pair<typename __Vertex<V1,E1,false>::pred_iterator>       __GetPredIterPair( __Vertex<V1,E1,false> *src);
-
-        template<typename V1, typename E1>
-        friend __Pair<typename __Vertex<V1,E1,false>::pred_const_iterator> __GetPredIterPair( __Vertex<V1,E1,false> const *src);
 
         template<typename V1, typename E1, typename ... _Args >
         friend __Pair<__Vertex<V1,E1,false>*> __Link( __Vertex<V1,E1,false> *src, __Vertex<V1,E1,false> *dst, _Args&& ... args);
@@ -365,7 +392,6 @@ namespace __detail{
         vertex_property m_data;
         typename __graph_continer_trait<vertex,edge_property>::type m_edges;
     };
-
 
     template<typename Vertex, typename ... _Args>
     Vertex* __GenVertex(_Args && ... args){
@@ -384,53 +410,7 @@ namespace __detail{
         }
     }
 
-    template<typename E, bool direct>
-    typename __Vertex<no_property,E,direct>::vertex_property& __GetVertexData( __Vertex<no_property,E,direct> * data ) = delete;
-    template<typename E, bool direct>
-    typename __Vertex<no_property,E,direct>::vertex_property const& __GetVertexData( __Vertex<no_property,E,direct> const * data ) = delete;
 
-
-
-    template<typename V, typename E, bool direct>
-    typename __Vertex<V,E,direct>::vertex_property& __GetVertexData( __Vertex<V,E,direct> * data ){
-        return data->m_data;
-    }
-
-    template<typename V, typename E, bool direct>
-    typename __Vertex<V,E,direct>::vertex_property const& __GetVertexData( __Vertex<V,E,direct> const * data ){
-        return data->m_data;
-    }
-
-
-    template<typename V1, typename E1, bool direct1>
-    __Pair<typename __Vertex<V1,E1,direct1>::iterator>       __GetIterPair( __Vertex<V1,E1,direct1> *src){
-        return std::make_pair<typename __Vertex<V1,E1,direct1>::iterator>( src->m_edges.begin(), src->m_edges.end());
-    }
-
-    template<typename V1, typename E1, bool direct1>
-    __Pair<typename __Vertex<V1,E1,direct1>::const_iterator> __GetIterPair( __Vertex<V1,E1,direct1> const *src){
-        return std::make_pair( src->m_edges.begin(), src->m_edges.end());
-    }
-
-    template<typename V1, typename E1>
-    __Pair<typename __Vertex<V1,E1,true>::pred_iterator>       __GetPredIterPair( __Vertex<V1,E1,true> *src){
-        return std::make_pair( src->m_predecessor.begin(), src->m_predecessor.end());
-    }
-
-    template<typename V1, typename E1>
-    __Pair<typename __Vertex<V1,E1,true>::pred_const_iterator> __GetPredIterPair( __Vertex<V1,E1,true> const *src){
-        return std::make_pair( src->m_predecessor.begin(), src->m_predecessor.end());
-    }
-
-    template<typename V1, typename E1>
-    __Pair<typename __Vertex<V1,E1,false>::pred_iterator>       __GetPredIterPair( __Vertex<V1,E1,false> *src){
-        return std::make_pair( src->m_edges.begin(), src->m_edges.end());
-    }
-
-    template<typename V1, typename E1>
-    __Pair<typename __Vertex<V1,E1,false>::pred_const_iterator> __GetPredIterPair( __Vertex<V1,E1,false>const *src){
-        return std::make_pair( src->m_edges.begin(), src->m_edges.end());
-    }
     template<typename V1, typename E1, typename ... _Args >
     __Pair<__Vertex<V1,E1,true>*> __Link( __Vertex<V1,E1,true> *src, __Vertex<V1,E1,true> *dst, _Args&& ... args){
         if( nullptr == src || nullptr == dst){

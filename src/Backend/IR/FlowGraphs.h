@@ -50,8 +50,8 @@ namespace IR {
             
         
     private:
-        ADT::graph::adjacency_list<IR::BasicBlock>::vertex* m_beginBasicBlock;
-        ADT::graph::adjacency_list<IR::BasicBlock>::vertex* m_endBasicBlock;
+        ADT::graph::adjacency_list<IR::BasicBlock>::vertex m_beginBasicBlock;
+        ADT::graph::adjacency_list<IR::BasicBlock>::vertex m_endBasicBlock;
         ADT::graph::adjacency_list<IR::BasicBlock> m_flowGraph;
 
     };

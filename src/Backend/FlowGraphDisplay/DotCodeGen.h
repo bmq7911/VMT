@@ -5,13 +5,14 @@
 
 
 namespace dot {
-	template<template<typename ..._Args> class C, typename  V, typename E= void, typename Key = void>
+	template< typename V, typename E = ADT::graph::no_property , bool direct = true >
 	class adjacency_list_dot_codegen {
 	public:
+		using adjacency_list = ADT::graph::adjacency_list<V, E, direct>;
 		adjacency_list_dot_codegen()
 			: m_G( nullptr )
 		{}
-		adjacency_list_dot_codegen(ADT::adjacency_list<C, V, E, Key>* G) 
+		adjacency_list_dot_codegen(adjacency_list * G) 
 			: m_G( G )
 		{}
 		template<typename VGen, typename EGen>
@@ -26,15 +27,16 @@ namespace dot {
 		template<typename VGen, typename EGen>
 		std::string _Codegen_Graph(  std::stringstream & ss ,std::string name) {
 			ss << "strict digraph " << name << "{\r\n";
-			auto iter = m_G->vertexBegin();
+			auto iter = m_G->begin();
+
 			uint32_t index = 0;
-			std::map<ADT::vertex<V>*, uint32_t> maps;
-			for (; iter != m_G->vertexEnd();++index, ++iter) {
+			std::map<ADT::graph::adjacency_list_trait<adjacency_list>::vertex, uint32_t> maps;
+			for (; iter != m_G->end();++index, ++iter) {
 				_Codegen_Vertex<VGen>(*iter,index, ss);
 				maps.insert( std::make_pair( * iter, index ));
 			}
-			iter = m_G->vertexBegin();
-			for (; iter != m_G->vertexEnd(); ++iter) {
+			iter = m_G->begin();
+			for (; iter != m_G->end(); ++iter) {
 				_Codegen_Edges<EGen>(*iter, maps, ss);
 			}
 
@@ -42,28 +44,35 @@ namespace dot {
 			return ss.str();
 		}
 		template<typename VGen>
-		void _Codegen_Vertex( ADT::vertex<V>* v, uint32_t index, std::stringstream& ss) {
+		void _Codegen_Vertex( typename ADT::graph::adjacency_list_trait<adjacency_list>::vertex v,
+						      uint32_t index, std::stringstream& ss) {
 			ss << "vertex_" << index <<"[";
 			VGen vgen( v );
 			vgen(ss);
 			ss << "];\r\n";
 		}
 		template<typename EGen>
-		void _Codegen_Edges(ADT::vertex<V>* v, std::map<ADT::vertex<V>*, uint32_t>& maps, std::stringstream& ss) {
+		void _Codegen_Edges( typename ADT::graph::adjacency_list_trait<adjacency_list>::vertex v,
+							 std::map<typename ADT::graph::adjacency_list_trait<adjacency_list>::vertex, uint32_t>& maps,
+							 std::stringstream& ss) {
 			auto iter = maps.find(v);
 			if (iter != maps.end()) {
-				auto kter = m_G->edgeBegin(v);
-				auto kend = m_G->edgeEnd(v);
-				if (kter != kend) {
-					for (; kter != kend; ++kter ) {
+				//auto pred_pair = ADT::graph::get_vertex_pred_iter(v);
+				auto succ_pair = v->get_succ_iter( );
+				if (succ_pair.first != succ_pair.second ) {
+					/// <summary>
+					/// 这里获取的是 边的属性
+					/// </summary>
+					for (auto kter = succ_pair.first; kter != succ_pair.second; ++kter ) {
+						auto dst = kter.get_vertex();
+
 						ss << "vertex_" << iter->second << " -> ";
-						auto dst = kter->dst();
 						auto dstV = maps.find(dst);
 						if (dstV != maps.end()) {
 							ss << " vertex_" << dstV->second<<" [";
 						}
 
-						EGen egen( kter->src(), kter->dst());
+						EGen egen( v, dst );
 						egen(ss);
 						ss << "];\r\n";
 					}
@@ -74,7 +83,11 @@ namespace dot {
 		/// <summary>
 		/// 由于这个已经有了图形结构,按道理我们使用递归下降就能正常实现代码
 		/// </summary>
-		ADT::adjacency_list<C, V, E, Key>* m_G;
+		adjacency_list * m_G;
 	};
 
+
+	void dot_display( std::string const& dotstring ) {
+		
+	}
 }

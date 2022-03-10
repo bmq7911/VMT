@@ -8,7 +8,7 @@
 #include "Backend/FlowGraphDisplay/DotCodeGen.h"
 #include "Backend/FlowGraphDisplay/BasicBlockDotCodeGen.h"
 #include "Backend/FlowGraphDisplay/ValueDAGCodeGen.h"
-#include "ADT/graphs_toposort.h"
+#include "ADT/graphs_algorithm.h"
 
 /// <summary>
 /// 我们的目标之一就是要做一个简单,好用的IR
@@ -91,84 +91,6 @@ TEST(test_ir, test_ir) {
     writer.write(func, std::cout );
 }
 
-TEST(test_ir, test_basicblock_emptyBlock) {
-
-    std::shared_ptr<IR::IRContext> TheContext = std::make_shared<IR::IRContext>( );
-    std::shared_ptr<IR::IRBuilder> TheBuilder = std::make_shared<IR::IRBuilder>( TheContext );
-    IR::FunctionType *funcType = new IR::FunctionType( TheContext->getTypeManger().getFloatType(4));
-    IR::Function* func = TheBuilder->emitFunction("MyFunction", funcType);
-
-    auto flowGraph = func->getFlowGraphs();
-
-    EXPECT_EQ(flowGraph->size(), 2);
-
-    EXPECT_NE(nullptr, flowGraph->begin());
-    EXPECT_NE(nullptr, flowGraph->end());
-    ADT::vertex<IR::BasicBlock>* bb = flowGraph->begin( );
-
-    auto edgeBegin = flowGraph->graphData().edgeBegin(bb);
-    auto edgeEnd = flowGraph->graphData().edgeEnd(bb);
-    auto dis = std::distance(edgeBegin, edgeEnd);
-
-    EXPECT_EQ(0, std::distance( flowGraph->graphData().preEdgeBegin(bb), flowGraph->graphData().preEdgeEnd(bb)));
-    EXPECT_EQ(1, std::distance(edgeBegin,edgeEnd));
-    ADT::vertex<IR::BasicBlock>* be = flowGraph->end();
-
-    EXPECT_EQ(1, std::distance(flowGraph->graphData().preEdgeBegin(be),flowGraph->graphData().preEdgeEnd(be)));
-    EXPECT_EQ(0, std::distance(flowGraph->graphData().edgeBegin(be), flowGraph->graphData().edgeEnd(be)));
-    dot::adjacency_list_dot_codegen<std::set, IR::BasicBlock> dotCodegen( &(flowGraph->graphData()));
-    std::string str = dotCodegen.codegen<IR::VertexBasicBlockDotCodeGen,IR::EdgeBasicBlockDotCodeGen>("BasicBlock");
-    std::cout << str << std::endl;
-
-}
-
-
-TEST(test_ir, test_basicblock_oneemptyBlock) {
-    std::shared_ptr<IR::IRContext> TheContext = std::make_shared<IR::IRContext>( );
-    std::shared_ptr<IR::IRBuilder> TheBuilder = std::make_shared<IR::IRBuilder>( TheContext );
-    IR::FunctionType *funcType = new IR::FunctionType( TheContext->getTypeManger().getFloatType(4));
-    IR::Function* func = TheBuilder->emitFunction("MyFunction", funcType);
-
-    IR::Value* t1= TheBuilder->emitAlloc(12.123f, "t1");
-    IR::Value* t2 = TheBuilder->emitAlloc(12.454f, "t2");
-    IR::Value* add = TheBuilder->emitAdd(t1,  t2, "add");
-    IR::Label* L1 = TheBuilder->emitLabel("L1");
-    IR::Value* t3 = TheBuilder->emitAlloc(12.34f, "t3");
-    IR::Value* add1 = TheBuilder->emitAdd(t2, t3, "add1");
-
-    auto flowGraph = func->getFlowGraphs();
-     
-    dot::adjacency_list_dot_codegen<std::set, IR::BasicBlock> dotCodegen( &(flowGraph->graphData()));
-    std::string str = dotCodegen.codegen<IR::VertexBasicBlockDotCodeGen, IR::EdgeBasicBlockDotCodeGen>("BasicBlock");
-    std::cout << str << std::endl;
-    
-}
-
-TEST(test_ir, test_basicblock_LabelBlock) {
-    std::shared_ptr<IR::IRContext> TheContext = std::make_shared<IR::IRContext>();
-    std::shared_ptr<IR::IRBuilder> TheBuilder = std::make_shared<IR::IRBuilder>(TheContext);
-    IR::FunctionType* funcType = new IR::FunctionType(TheContext->getTypeManger().getFloatType(4));
-
-
-    IR::Function* func = TheBuilder->emitFunction("MyFunction", funcType);
-
-    IR::Label* Ls   = TheBuilder->emitLabel("LStart");
-    IR::Value* t1   = TheBuilder->emitAlloc(12.123f, "t1");
-    IR::Value* t2   = TheBuilder->emitAlloc(12.454f, "t2");
-    IR::Value* add  = TheBuilder->emitAdd(t1, t2, "add");
-    IR::Label* L1   = TheBuilder->emitLabel("L1");
-    IR::Value* t3   = TheBuilder->emitAlloc(12.34f, "t3");
-    IR::Value* add1 = TheBuilder->emitAdd(t2, t3, "add1");
-        
-    
-
-    auto flowGraph = func->getFlowGraphs();
-    
-    dot::adjacency_list_dot_codegen<std::set, IR::BasicBlock> dotCodegen( &(flowGraph->graphData()));
-    std::string str = dotCodegen.codegen<IR::VertexBasicBlockDotCodeGen, IR::EdgeBasicBlockDotCodeGen>("BasicBlock");
-    std::cout << str << std::endl;
-
-}
 
 TEST(test_ir, test_basicblock_JmpBlock) {
 
@@ -193,7 +115,7 @@ TEST(test_ir, test_basicblock_JmpBlock) {
 
     auto flowGraph = func->getFlowGraphs();
 
-    dot::adjacency_list_dot_codegen<std::set, IR::BasicBlock> dotCodegen( &(flowGraph->graphData()));
+    dot::adjacency_list_dot_codegen<IR::BasicBlock> dotCodegen( &(flowGraph->graphData()));
     std::string str = dotCodegen.codegen<IR::VertexBasicBlockDotCodeGen, IR::EdgeBasicBlockDotCodeGen>("BasicBlock");
     std::cout << str << std::endl;
 }
@@ -221,22 +143,25 @@ TEST(test_ir, test_basicblock_valuedag) {
 
     auto flowGraph = func->getFlowGraphs();
     
-    for (auto begin = flowGraph->graphData().vertexBegin(); begin != flowGraph->graphData().vertexEnd(); ++begin) {
+    for (auto begin = flowGraph->graphData().begin(); begin != flowGraph->graphData().end(); ++begin) {
         auto ValueDAG = IR::ValueDAG::makeValueDAG(&((*begin)->data()));
-        dot::adjacency_list_dot_codegen<std::set, IR::ValueDAG::Node> dotCodegen(& ValueDAG->getAdjacency_list());
-        std::vector<ADT::vertex<IR::ValueDAG::Node>*> start = ADT::get_start_vertex(ValueDAG->getAdjacency_list());
-        std::vector<ADT::vertex<IR::ValueDAG::Node>*> end = ADT::get_end_vertex(ValueDAG->getAdjacency_list());
-        std::cout << "start vertex = ["<<std::endl;
-        for (size_t i = 0; i < start.size(); ++i) {
-            std::cout << start[i]->data().getValue()->getValueName()<<std::endl;
+        dot::adjacency_list_dot_codegen<IR::ValueDAG::Node> dotCodegen(& ValueDAG->getAdjacency_list());
+        std::vector<ADT::graph::vertex<IR::ValueDAG::Node>> start = ADT::graph::get_start_vertex(ValueDAG->getAdjacency_list());
+        std::vector<ADT::graph::vertex<IR::ValueDAG::Node>> end = ADT::graph::get_end_vertex(ValueDAG->getAdjacency_list());
+        if (start.size() != 0) {
+            std::cout << "start vertex = [" << std::endl;
+            for (size_t i = 0; i < start.size(); ++i) {
+                std::cout << start[i]->data().getValue()->getValueName() << std::endl;
+            }
+            std::cout << "]" << std::endl;
         }
-        std::cout << "]" << std::endl;
-
-        std::cout << "End vertex = ["<<std::endl;
-        for (size_t i = 0; i <end.size(); ++i) {
-            std::cout <<end[i]->data().getValue()->getValueName()<<std::endl;
+        if (end.size() != 0) {
+            std::cout << "End vertex = [" << std::endl;
+            for (size_t i = 0; i < end.size(); ++i) {
+                std::cout << end[i]->data().getValue()->getValueName() << std::endl;
+            }
+            std::cout << "]" << std::endl;
         }
-        std::cout << "]" << std::endl;
         std::string str = dotCodegen.codegen<IR::VertexValueDAGDotCodeGen, IR::EdgeValueDAGDotCodeGen>("BasicBlock");
         std::cout << str << std::endl;
     }

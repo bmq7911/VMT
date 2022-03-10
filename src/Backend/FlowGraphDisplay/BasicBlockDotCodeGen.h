@@ -7,7 +7,8 @@ namespace IR {
 
 	class VertexBasicBlockDotCodeGen {
 	public:
-		VertexBasicBlockDotCodeGen(ADT::vertex<IR::BasicBlock>* BB) 
+		using G = ADT::graph::adjacency_list<IR::BasicBlock>;
+		VertexBasicBlockDotCodeGen(ADT::graph::adjacency_list_trait<G>::vertex BB) 
 			: m_basicBlock( BB )
 		{}
 
@@ -23,12 +24,14 @@ namespace IR {
 			}
 		}
 	private:
-		ADT::vertex<IR::BasicBlock>* m_basicBlock;
+		ADT::graph::adjacency_list_trait<G>::vertex m_basicBlock;
 	
 	};
 	class EdgeBasicBlockDotCodeGen {
 	public:
-		EdgeBasicBlockDotCodeGen( ADT::vertex<IR::BasicBlock>*BS, ADT::vertex<IR::BasicBlock>*BE  ) 
+		using G = ADT::graph::adjacency_list<IR::BasicBlock>;
+		EdgeBasicBlockDotCodeGen( ADT::graph::adjacency_list_trait<G>::vertex BS,
+								  ADT::graph::adjacency_list_trait<G>::vertex BE  ) 
 			: m_BS(BS)
 			, m_BE(BE)
 		{
@@ -38,8 +41,8 @@ namespace IR {
 			ss << "color=black";
 		}
 	private:
-		ADT::vertex<IR::BasicBlock>* m_BS;
-		ADT::vertex<IR::BasicBlock>* m_BE;
+		ADT::graph::adjacency_list_trait<G>::vertex m_BS;
+		ADT::graph::adjacency_list_trait<G>::vertex m_BE;
 
 	};
 

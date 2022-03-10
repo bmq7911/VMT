@@ -70,7 +70,8 @@ namespace IR {
     }
 
     uint32_t Function::verifyFunction() {
-        return 0;
+        getFlowGraphs();
+        /// 代码结构体调整
     }
     
     std::shared_ptr<FlowGraphs> Function::getFlowGraphs() {

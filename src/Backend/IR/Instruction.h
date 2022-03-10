@@ -23,7 +23,7 @@ namespace IR {
     /// <summary>
     /// 在llvm之中,我们使用的Instruction继承与Value,在这里我分开了,因为一个代码的操作一个代表的数据
     /// </summary>
-    class Instruction : public ADT::list_node<Instruction>{
+    class Instruction :  public ADT::list_node<Instruction>{
     public:
 		enum OpCode : uint32_t {
 #define ENUM_IR_INSTRUCTION
@@ -66,6 +66,10 @@ namespace IR {
         static bool isBinaryOp(Instruction::OpCode op);
         static InstructionType getInsType(IR::Instruction::OpCode Op);
         static const char*     getOpStr(OpCode code);
+
+
+
+  
     protected:
         virtual ~Instruction() {
             

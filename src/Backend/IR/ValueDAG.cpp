@@ -9,16 +9,16 @@ namespace IR {
 	/// <param name="BB"></param>
 	/// <returns></returns>
 	std::shared_ptr<ValueDAG> ValueDAG::makeValueDAG( BasicBlock*BB) {
-		ADT::adjacency_list<std::set, IR::ValueDAG::Node> G;
-
-        std::map<Value*, ADT::vertex<IR::ValueDAG::Node>*> valueVertexMap;
+		ADT::graph::adjacency_list<IR::ValueDAG::Node> G;
+        using vertex = ADT::graph::adjacency_list<IR::ValueDAG::Node>::vertex;
+        std::map<Value*, vertex> valueVertexMap;
         
         for (auto ins = BB->begin(); ins != BB->end(); ins = ins->getNext()) {
 
             if (true == Instruction::isUnaryOp(ins->getOpCode())) {
                 IR::UnaryOpIns const* unaryIns = static_cast<IR::UnaryOpIns const*>(ins);
                 Value* r = unaryIns->getRetValue();
-                ADT::vertex<IR::ValueDAG::Node>* vr = nullptr;
+                vertex vr = nullptr;
                 /// 1.对于结果节点,我们一定会新建节点
                 {
                     vr = G.add_vertex( r );
@@ -36,7 +36,7 @@ namespace IR {
                 
                 auto iter = valueVertexMap.find(v);
                 if (iter == valueVertexMap.end()) { 
-                    ADT::vertex<IR::ValueDAG::Node>* vv1 = G.add_vertex(v);
+                    vertex vv1 = G.add_vertex(v);
                     valueVertexMap.insert(std::make_pair(v, vv1));
                     G.add_edge(vr, vv1);
                 }
@@ -47,7 +47,7 @@ namespace IR {
             else if (true == Instruction::isBinaryOp(ins->getOpCode())) {
                 IR::BinaryOpIns const* binaryIns = static_cast<IR::BinaryOpIns const*>(ins);
                 Value* r = binaryIns->getRetValue();
-                ADT::vertex<IR::ValueDAG::Node>* vr = nullptr;
+                vertex vr = nullptr;
                 /// 1.对于结果节点,我们一定会新建节点
                 {
                     vr = G.add_vertex(r);
@@ -64,7 +64,7 @@ namespace IR {
 
                 auto iter = valueVertexMap.find(v1);
                 if (iter == valueVertexMap.end()) {
-                    ADT::vertex<IR::ValueDAG::Node>* vv1 = G.add_vertex(v1);
+                    ADT::graph::adjacency_list<IR::ValueDAG::Node>::vertex vv1 = G.add_vertex(v1);
                     valueVertexMap.insert(std::make_pair(v1, vv1));
                     G.add_edge(vr, vv1);
                 }
@@ -75,7 +75,7 @@ namespace IR {
                 Value* v2 = binaryIns->getSecondOperand();
                 iter = valueVertexMap.find(v2);
                 if (iter == valueVertexMap.end()) {
-                    ADT::vertex<IR::ValueDAG::Node>* vv2 = G.add_vertex(v2);
+                    ADT::graph::adjacency_list<IR::ValueDAG::Node>::vertex vv2 = G.add_vertex(v2);
                     valueVertexMap.insert(std::make_pair(v2, vv2));
                     G.add_edge(vr, vv2);
                 }
@@ -88,7 +88,7 @@ namespace IR {
                 if (Instruction::OpCode::kAssign == ins->getOpCode()) {
                     IR::AssignIns const* unaryIns = static_cast<IR::AssignIns const*>(ins);
                     Value* r = unaryIns->getRetValue();
-                    ADT::vertex<IR::ValueDAG::Node>* vr = nullptr;
+                    ADT::graph::adjacency_list<IR::ValueDAG::Node>::vertex vr = nullptr;
                     /// 1.对于结果节点,我们一定会新建节点
                     {
                         vr = G.add_vertex(r);
@@ -105,7 +105,7 @@ namespace IR {
 
                     auto iter = valueVertexMap.find(v);
                     if (iter == valueVertexMap.end()) {
-                        ADT::vertex<IR::ValueDAG::Node>* vv1 = G.add_vertex(v);
+                        ADT::graph::adjacency_list<IR::ValueDAG::Node>::vertex vv1 = G.add_vertex(v);
                         valueVertexMap.insert(std::make_pair(v, vv1));
                         G.add_edge(vr, vv1);
                     }
