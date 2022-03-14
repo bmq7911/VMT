@@ -191,4 +191,21 @@ namespace IR {
 		return std::vector<FlowGraphs::LoopPath>();
 	}
 
+	void FlowGraphs::_ConvertSSA(ADT::graph::vertex<IR::BasicBlock> vertex) {
+		IR::BasicBlock& BB = vertex->data( );
+		std::set<Value*>& importSet = BB.getImportValueSet();
+		std::set<Value*>& assignSet = BB.getAssignValueSet();
+
+		auto succ_pair = vertex->get_pred_iter( );
+		/// ´æÔÚÇ°Çý
+		if (succ_pair.first != succ_pair.second) {
+			for (auto iter = succ_pair.first; iter != succ_pair.second; ++iter) {
+				ADT::graph::vertex<IR::BasicBlock> predcessor = *iter;
+				IR::BasicBlock& pred_BB = predcessor->data( );
+
+			}
+		}
+
+	
+	}
 }

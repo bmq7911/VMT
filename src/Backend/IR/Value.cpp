@@ -9,6 +9,7 @@ namespace IR {
 		, m_bConstant( false )
 		, m_bVolatile( false )
 		, m_bStatic( false )
+		, m_nameIndex( 0 )
 	{
 	
 	}

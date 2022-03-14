@@ -1,11 +1,14 @@
 #pragma once
 #include <stdint.h>
 #include <string>
+#include <vector>
+
 #include "Backend/IR/Value.h"
 #include "Backend/IR/Constant.h"
 #include "ADT/plist.h"
 
 namespace IR {
+
     enum class InstructionType : uint32_t {
         kControl    = 0, /// 控制指令
         kArithmetic = 1, /// 数学指令
@@ -23,27 +26,30 @@ namespace IR {
     /// <summary>
     /// 在llvm之中,我们使用的Instruction继承与Value,在这里我分开了,因为一个代码的操作一个代表的数据
     /// </summary>
-    class Instruction :  public ADT::list_node<Instruction>{
+    class Instruction : public ADT::list_node<Instruction> {
     public:
-		enum OpCode : uint32_t {
+        enum OpCode : uint32_t {
 #define ENUM_IR_INSTRUCTION
 #include "Backend/IR/IROpCode.inl"
 #undef ENUM_IR_INSTRUCTION
-		};
+        };
     public:
-        Instruction(OpCode op  ) 
+        Instruction(OpCode op)
             : m_Op(op)
-            , m_BasicBlock( nullptr )
+            , m_BasicBlock(nullptr)
+            , m_IRContext( nullptr )
+            , m_Result( nullptr )
         {}
+
         void setBasicBlock(BasicBlock* block) {
             m_BasicBlock = block;
         }
-        
+
         BasicBlock* getBasicBlock() {
             return m_BasicBlock;
         }
 
-        const BasicBlock * getBasicBlock() const {
+        const BasicBlock* getBasicBlock() const {
             return m_BasicBlock;
         }
 
@@ -53,6 +59,9 @@ namespace IR {
 
         bool isUnaryOp() const;
         bool isBinaryOp() const;
+        bool isInsHaveResult() const {
+            return isInsHaveResult(m_Op);
+        }
         InstructionType getInsType() const;
         OpCode getOpCode() const {
             return m_Op;
@@ -60,14 +69,54 @@ namespace IR {
         char const* getOpStr()const {
             return getOpStr(m_Op);
         }
-        virtual Value* getRetValue() const = 0;
+        Value* getRetValue() const {
+            return m_Result;
+        }
 
         static bool isUnaryOp(Instruction::OpCode op);
         static bool isBinaryOp(Instruction::OpCode op);
+        static bool isInsHaveResult( Instruction::OpCode op);
         static InstructionType getInsType(IR::Instruction::OpCode Op);
-        static const char*     getOpStr(OpCode code);
+        static const char* getOpStr(OpCode code);
 
+        using OperandIterator = std::vector<Value*>::iterator;
+        using constOperandIterator = std::vector<Value*>::const_iterator;
+        
+        OperandIterator operandBegin() {
+            return m_Operands.begin();
+        }
+        
+        OperandIterator operandEnd() {
+            return m_Operands.end();
+        }
+        
+        constOperandIterator operandBegin() const {
+            return m_Operands.begin();
+        }
+        
+        constOperandIterator operandEnd() const {
+            return m_Operands.end();
+        }
+        
+        size_t oprandSize() const {
+            return m_Operands.size();
+        }
+        
+        Value* operandAt(size_t index) {
+            return m_Operands.at(index);
+        }
 
+        void addOperand(Value* operand) {
+            m_Operands.push_back(operand);
+        }
+
+        Value* getResult() {
+            return m_Result;
+        }
+
+        Value* getResult() const {
+            return m_Result;
+        }
 
   
     protected:
@@ -80,7 +129,11 @@ namespace IR {
         BasicBlock* m_BasicBlock;
         IRContext*  m_IRContext;
         Function*   m_Function;
+        std::vector<Value*> m_Operands;
+        Value*              m_Result;
     };
+
+
 
     class ArithmeticIns : public Instruction {
     public:
@@ -96,51 +149,21 @@ namespace IR {
             m_RetValue = retValue;
         }
 
-        Value* getRetValue()  const override{
-            return m_RetValue;
-        }
     private:
         Value* m_RetValue;
     };
         
-    class ControlIns : public Instruction {
-    public:
-        ControlIns(OpCode op) 
-            : Instruction( op )
-        {}
-
-    };
-
-    class Pseudo : public Instruction {
-    public:
-        Pseudo(OpCode op ) 
-            : Instruction( op )
-        {}
-    public:
-        Value* getRetValue() const {
-            return nullptr;
-        }
-    };
-
-    class ErrorIns : public Pseudo{
+    /// <summary>
+    class ErrorIns : public Instruction{
     public:
         explicit ErrorIns( ) 
-            : Pseudo( OpCode::kError)
-        {}
-    };
-
-    /// <summary>
-    /// 
-    /// </summary>
-    class IndicateIns : public Pseudo {
-    public:
-        explicit IndicateIns() 
-            : Pseudo( IR::Instruction::OpCode::kIndicate )
+            : Instruction( Instruction::OpCode::kError )
         {
         }
     private:
-
+        OpCode m_readCode;
     };
+    
     class UnaryOpIns : public ArithmeticIns{
     public:
         explicit UnaryOpIns(OpCode op, char const* name, Type const* type,Value* v) 
@@ -250,9 +273,6 @@ namespace IR {
             m_RetValue = new Value(name.c_str(), type, this);
         }
 
-        Value* getRetValue() const override {
-            return m_RetValue;
-        }
 
         Value* getFirstOperand() const {
             return m_FirstOperand;
@@ -271,9 +291,7 @@ namespace IR {
             , m_FirstOperand( v )
         {
         }
-        Value* getRetValue() const override {
-            return m_RetValue;
-        }
+
         Value* getFirstOperand() const {
             return m_FirstOperand;
         }
@@ -284,18 +302,16 @@ namespace IR {
 
 
     /// Label 也是一条指令
-    class Label : public Instruction {
+    class Label : public Instruction , public Value {
     public:
         explicit Label(std::string const& label)
-            : Instruction( IR::Instruction::OpCode::kLabel )
+            :Value( label.c_str(), nullptr, this )
+            ,Instruction( IR::Instruction::OpCode::kLabel )
             , m_label( label )
         {
             
         }
         
-        Value* getRetValue() const override {
-            return nullptr;
-        }
         
         std::string getLabelName() const {
             return m_label;
@@ -319,11 +335,8 @@ namespace IR {
             : Instruction( IR::Instruction::OpCode::kJmp )
             , m_label( label )
         {
-        
         }
-        Value* getRetValue() const override {
-            return nullptr;
-        }
+
         const std::string& getJmpLabel() const {
             return m_label;
         }
@@ -333,17 +346,15 @@ namespace IR {
 
     class Br : public Instruction {
     public:
-        explicit Br( Value* value, std::string const& trueLabel, std::string const& falseLabel)
+        explicit Br( Value* value,
+                     std::string const& trueLabel ,
+                     std::string const& falseLabel)
             : Instruction( IR::Instruction::OpCode::kBr )
             , m_value( value )
             , m_trueLabel( trueLabel)
             , m_falseLabel( falseLabel )
         {
         }
-        Value* getRetValue() const override {
-            return nullptr;
-        }
-
 
         std::string const& getTrueLabel() const {
             return m_trueLabel;
@@ -373,13 +384,12 @@ namespace IR {
             : Instruction( IR::Instruction::OpCode::kRet )
             , m_value( value )
         {}
-        Value* getRetValue() const override{
-            return m_value;
-        }
+
         Value* getInsRetValue() const{
             return m_value;
         }
     private:
         Value* m_value;
     };
+
 }

@@ -34,6 +34,16 @@ namespace IR {
 #undef  RANGE_ARITHMETIC_IR_INSTRUCTION
     }
 
+    bool Instruction::isInsHaveResult(Instruction::OpCode op) {
+        switch ( op) {
+#define EMIT_IR_INS(x, name, haveRet,...) case Instruction::OpCode::k##name: return haveRet;break;
+#include "Backend/IR/IROpCode.inl"
+#undef EMIT_IR_INS
+        default:
+            return false;
+            break;
+        }
+    }
     IR::InstructionType Instruction::getInsType(IR::Instruction::OpCode Op) {
 #define RANGE_IR_INSTRUCTION
 #include "Backend/IR/IROpCode.inl"

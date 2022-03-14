@@ -12,7 +12,7 @@ namespace IR {
         : m_name(name)
         , m_type(funcType)
     {
-        m_scope         = std::make_shared<Scope>();
+        m_functionScope         = std::make_shared<Scope>();
         m_nameAlloc     = std::make_shared<NameAlloc>();
         m_constantTable = std::make_shared<ConstantTable>();
         m_labelTable    = std::make_shared<LabelTable>();
@@ -22,7 +22,7 @@ namespace IR {
         : m_name(name)
         , m_type(funcType)
     {
-        m_scope         = std::make_shared<Scope>(up);
+        m_functionScope = std::make_shared<Scope>(up);
         m_nameAlloc     = std::make_shared<NameAlloc>();
         m_constantTable = std::make_shared<ConstantTable>();
         m_labelTable    = std::make_shared<LabelTable>();
@@ -53,8 +53,12 @@ namespace IR {
         return false;
     }
 
-    std::shared_ptr<Scope> Function::getCurrentScope() const {
-        return m_currentScope;
+    void   Function::insertValue(Value* value) {
+        std::string name = value->getValueName();
+        m_functionScope->insertValue(name, value);
+    }
+    std::shared_ptr<Scope> Function::getFunctionScope() const {
+        return m_functionScope;
     }
 
     FunctionType const* Function::getFunctionType() const {
@@ -71,7 +75,8 @@ namespace IR {
 
     uint32_t Function::verifyFunction() {
         getFlowGraphs();
-        /// 代码结构体调整
+        /// 代码结构体调整,将结构转化为SSA形式
+        return 0;
     }
     
     std::shared_ptr<FlowGraphs> Function::getFlowGraphs() {

@@ -45,9 +45,10 @@ namespace IR {
         ADT::graph::adjacency_list<IR::BasicBlock> const& graphData() const {
             return m_flowGraph;
         }
+        
     private:
         static std::vector<LoopPath> _InitLoop(std::vector<BasicBlock*> const& blocks);
-            
+        void _ConvertSSA( ADT::graph::vertex<IR::BasicBlock> vertex );
         
     private:
         ADT::graph::adjacency_list<IR::BasicBlock>::vertex m_beginBasicBlock;

@@ -12,7 +12,7 @@ namespace IR {
     /// 1.通过脚本系统来实现
     /// 2.优化的主要目的是什么,就是在不影响结果的前提下减少指令的冗余
     /// 我们先不考虑IRBuilder
-
+    /// 
     class IRBuilder {
     public:
         IRBuilder(std::shared_ptr<IR::IRContext>& context);
@@ -34,7 +34,7 @@ namespace IR {
         Value* emitAlloc(Value* v, const char* name);
         Value* emitAlloc(const Type* type, const char* name);
         Value* emitAssign(Value* src, Value* dst);
-
+        Value* emitAssign(const char* strSrc, const char* strDst);
         Br* emitBr(Value* v, const char* trueLabel, const char* falseLabel);
         Br* emitBr(Value* v, std::string const& trueLabel, std::string const& falseLabel);
         Ret* emitRet( Value *v);

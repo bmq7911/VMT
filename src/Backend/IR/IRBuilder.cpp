@@ -107,6 +107,14 @@ namespace IR {
         return ins->getRetValue();
     }
 
+    Value* IRBuilder::emitAssign(const char* strSrc, const char* strDst) {
+        auto cfunc = m_context->getCurrentFunction();
+        auto scope = cfunc->getFunctionScope();
+        Value* srcValue = scope->findValueByName(strSrc);
+        Value* dstValue = scope->genValueByName(strDst, srcValue->getType());
+        auto ins = _AddInsToIRContext( IR::allocator<AssignIns>().alloc());
+    }
+
     Br* IRBuilder::emitBr(Value* v, const char* trueLabel, const char* falseLabel) {
         IR::Br* br = IR::allocator<IR::Br>().alloc(v, trueLabel, falseLabel);
         _AddInsToIRContext(br);
@@ -369,8 +377,9 @@ namespace IR {
                 valueName = nameAlloc->allocName(name);
             }
             auto ins = _AddInsToIRContext(IR::allocator<T>().alloc(op, valueName, v1->getType(), v1, v2));
-            auto value = ins->getRetValue();
+            auto value = ins->getRetValue( );
             if (nullptr != value) {
+                cfunc->insertValue(value);
                 v1->addUser(value);
                 v2->addUser(value);
             }

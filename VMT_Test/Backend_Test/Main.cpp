@@ -128,7 +128,9 @@ TEST(test_ir, test_basicblock_valuedag) {
     std::shared_ptr<IR::IRContext> TheContext = std::make_shared<IR::IRContext>();
     std::shared_ptr<IR::IRBuilder> TheBuilder = std::make_shared<IR::IRBuilder>(TheContext);
     IR::FunctionType* funcType = new IR::FunctionType(TheContext->getTypeManger().getFloatType(4));
+    
     IR::Function* func = TheBuilder->emitFunction("MyFunction", funcType);
+
     IR::Value* b = TheBuilder->emitAlloc( TheContext->getTypeManger().getIntegerType(4), "b");
     IR::Value* c = TheBuilder->emitAlloc( TheContext->getTypeManger().getIntegerType(4), "c");
     IR::Value* d = TheBuilder->emitAlloc( TheContext->getTypeManger().getIntegerType(4), "d");
@@ -165,6 +167,25 @@ TEST(test_ir, test_basicblock_valuedag) {
         std::string str = dotCodegen.codegen<IR::VertexValueDAGDotCodeGen, IR::EdgeValueDAGDotCodeGen>("BasicBlock");
         std::cout << str << std::endl;
     }
+
+}
+
+
+TEST(test_quick_sort, test_basicblock) {
+    std::shared_ptr<IR::IRContext> TheContext = std::make_shared<IR::IRContext>();
+    std::shared_ptr<IR::IRBuilder> TheBuilder = std::make_shared<IR::IRBuilder>(TheContext);
+    IR::FunctionType* funcType = new IR::FunctionType( TheContext->getTypeManger().getFloatType(4));
+    IR::Function* func = TheBuilder->emitFunction("MyFunction", funcType);
+    TheBuilder->emitAlloc(0.0f, "m");
+    TheBuilder->emitAlloc(0.0f, "n");
+    
+    TheBuilder->emitAssign( "m", "i");
+
+    TheBuilder->emitMinus("m", 1, "i");
+    
+    TheBuilder->emitAssign("n", "j");
+
+
 
 }
 

@@ -17,6 +17,11 @@ namespace IR{
 #include "Backend/IR/Value.def"
 #undef HANDLE_VALUE
         };
+
+        /// <summary>
+        ///  Value ±»¸³ÖµµÄÓï¾ä
+        /// </summary>
+        
         Value(const char* name, Type const* type, Instruction* ins);
 
         /*
@@ -44,7 +49,14 @@ namespace IR{
             return m_type;
         }
 
-        const std::string& getValueName() const {
+        std::string getValueName() const {
+            if (0 == m_nameIndex)
+                return m_name;
+            else
+                return m_name + '@' + std::to_string(m_nameIndex);
+        }
+        
+        const std::string& getOriginName() const {
             return m_name;
         }
 
@@ -65,6 +77,9 @@ namespace IR{
         virtual std::string emitStr() const {
             return m_name;
         }
+        void setNameIndex( uint32_t index ) {
+            
+        }
     protected:
 
     protected:
@@ -75,6 +90,7 @@ namespace IR{
         uint32_t  m_bConstant : 1;
         uint32_t  m_bVolatile : 1;
         uint32_t  m_bStatic   : 1;
+        uint32_t  m_nameIndex;
         Users     m_users;
 	};
 

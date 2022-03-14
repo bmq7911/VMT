@@ -15,6 +15,7 @@ namespace IR {
 		}
 		else {
 			m_lableMaps.insert(std::make_pair( name, label));
+			return true;
 		}
 	}
 	bool LabelTable::empty() const {

@@ -1,6 +1,6 @@
 
 #if !defined( EMIT_IR_INS)
-#define EMIT_IR_INS(x, name,...)
+#define EMIT_IR_INS(x, name, haveRet,...)
 #endif /// !defined( EMIT_IR_INS)
 
 #define DEFINE_IR_RANGE_BEG(x,name,...) 
@@ -33,7 +33,7 @@
 //// enum IR
 #ifdef ENUM_IR_INSTRUCTION 
 #undef  EMIT_IR_INS
-#define EMIT_IR_INS(x,name, ... ) k##name = x,
+#define EMIT_IR_INS(x,name, haveRet, ... ) k##name = x,
 #endif /// ENUM_IR_INSTRUCTION
 
 ///
@@ -59,70 +59,69 @@
 #endif //// IR_INSTRUCTION_TO_STR
 
 FIRST_CONTROL_IR_INS(0,ControlIRInsBeg )
-EMIT_IR_INS( 0, Jmp )
-EMIT_IR_INS( 1, Br  )
-EMIT_IR_INS( 3, Call)
-EMIT_IR_INS( 4, Ret )
+EMIT_IR_INS( 0, Jmp,               false )
+EMIT_IR_INS( 1, Br,                false )
+EMIT_IR_INS( 3, Call,              false )
+EMIT_IR_INS( 4, Ret,               false )
 LAST_CONTROL_IR_INS( 4,ControlIRInsEnd )
 
 FIRST_EMIT_IR_INS( 5,ArithmeticIRInsBeg )
 FIRST_UNARY_IR_INS( 5, UnaryIRInsBeg )
-EMIT_IR_INS( 5,   Sin,            UNARY)
-EMIT_IR_INS( 6,   Cos,            UNARY)
-EMIT_IR_INS( 7,   Tan,            UNARY)
-EMIT_IR_INS( 8,   Exp,            UNARY)
-EMIT_IR_INS( 9,   Log,            UNARY)
-EMIT_IR_INS( 10,  Not,            UNARY)
-EMIT_IR_INS( 11,  T,              UNARY)
-EMIT_IR_INS( 12,  Invert,         UNARY)
-EMIT_IR_INS( 13,  BitNegate,      UNARY )
+EMIT_IR_INS( 5,   Sin,            true,           UNARY)
+EMIT_IR_INS( 6,   Cos,            true,           UNARY)
+EMIT_IR_INS( 7,   Tan,            true,           UNARY)
+EMIT_IR_INS( 8,   Exp,            true,           UNARY)
+EMIT_IR_INS( 9,   Log,            true,           UNARY)
+EMIT_IR_INS( 10,  Not,            true,           UNARY)
+EMIT_IR_INS( 11,  T,              true,           UNARY)
+EMIT_IR_INS( 12,  Invert,         true,           UNARY)
+EMIT_IR_INS( 13,  BitNegate,      true,           UNARY )
 LAST_UNARY_IR_INS( 13, UnaryIRInsEnd )
 
 FIRST_BINARY_IR_INS(14, BinaryIRInsBeg)
-EMIT_IR_INS( 14, Add,             BINARY )
-EMIT_IR_INS( 15, Minus,           BINARY )
-EMIT_IR_INS( 16, Mul,             BINARY )
-EMIT_IR_INS( 17, Div,             BINARY )
-EMIT_IR_INS( 18, Mod,             BINARY )
+EMIT_IR_INS( 14, Add,             true,           BINARY )
+EMIT_IR_INS( 15, Minus,           true,           BINARY )
+EMIT_IR_INS( 16, Mul,             true,           BINARY )
+EMIT_IR_INS( 17, Div,             true,           BINARY )
+EMIT_IR_INS( 18, Mod,             true,           BINARY )
 
-EMIT_IR_INS( 19, DotAdd,          BINARY )
-EMIT_IR_INS( 20, DotMinus,        BINARY )
-EMIT_IR_INS( 21, DotMul,          BINARY )
-EMIT_IR_INS( 22, DotDiv,          BINARY )
-EMIT_IR_INS( 23, DotMod,          BINARY )
+EMIT_IR_INS( 19, DotAdd,          true,           BINARY )
+EMIT_IR_INS( 20, DotMinus,        true,           BINARY )
+EMIT_IR_INS( 21, DotMul,          true,           BINARY )
+EMIT_IR_INS( 22, DotDiv,          true,           BINARY )
+EMIT_IR_INS( 23, DotMod,          true,           BINARY )
 
 /// for bool datatype 
-EMIT_IR_INS( 24, And,             BINARY )
-EMIT_IR_INS( 25, Or,              BINARY )
-EMIT_IR_INS( 26, Xor,             BINARY )
+EMIT_IR_INS( 24, And,             true,           BINARY )
+EMIT_IR_INS( 25, Or,              true,           BINARY )
+EMIT_IR_INS( 26, Xor,             true,           BINARY )
 /// for bit datatpye
-EMIT_IR_INS( 27, BitAnd,          BINARY )
-EMIT_IR_INS( 28, BitOr,           BINARY )
-EMIT_IR_INS( 29, BitXor,          BINARY )
+EMIT_IR_INS( 27, BitAnd,          true,           BINARY )
+EMIT_IR_INS( 28, BitOr,           true,           BINARY )
+EMIT_IR_INS( 29, BitXor,          true,           BINARY )
 
-EMIT_IR_INS( 30, Dot,             BINARY )
-EMIT_IR_INS( 31, Length2,         BINARY )
-EMIT_IR_INS( 32, Cross,           BINARY )
+EMIT_IR_INS( 30, Dot,             true,           BINARY )
+EMIT_IR_INS( 31, Length2,         true,           BINARY )
+EMIT_IR_INS( 32, Cross,           true,           BINARY )
 LAST_BINARY_IR_INS(32, BinaryIRInsEnd )
 LAST_EMIT_IR_INS(32, ArithmeticIRInsEnd )
 
 
 FIRST_MEMORY_IR_INS( 33, MemoryIRInsBeg )
-EMIT_IR_INS( 33, Alloc )
-EMIT_IR_INS( 34, Assign  )
+EMIT_IR_INS( 33, Alloc,          true )
+EMIT_IR_INS( 34, Assign,         true )
 LAST_MEMORY_IR_INS(34, MemoryIRInsEnd)
 
 
 FIRST_CAST_IR_INS(35, CastIRInsBeg)
-EMIT_IR_INS(35, Cast)
+EMIT_IR_INS(35, Cast,            true )
 LAST_CAST_IR_INS(35, CastIRInsEnd)
 
 
 FIRST_PSEUDO_IR_INS( 36, PseudoIRInsBeg)
-EMIT_IR_INS( 36, Label)
-EMIT_IR_INS( 37, Error)
-EMIT_IR_INS( 38, Indicate)
-LAST_PSEUDO_IR_INS(38, PseudoIRInsEnd )
+EMIT_IR_INS( 36, Label,          false)
+EMIT_IR_INS( 37, Error,          true )
+LAST_PSEUDO_IR_INS(37, PseudoIRInsEnd )
 
 #undef EMIT_IR_INS
 #undef DEFINE_IR_RANGE_BEG

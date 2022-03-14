@@ -201,9 +201,6 @@ namespace IR {
 	
 	}
 
-	void TextIRWriteVisitor::writeIndicate(IR::Instruction* ins) {
-	
-	}
 
 	void TextIRWriteVisitor::_WriteBinaryIns(IR::BinaryOpIns* ins ) {
 		m_ss << "\t" << _GetTypeNamePair(ins->getRetValue()) << " = " << ins->getOpStr() << " " << _GetTypeNamePair(ins->getFirstOperand()) << "	" << _GetTypeNamePair(ins->getSecondOperand());

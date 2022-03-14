@@ -33,6 +33,22 @@ namespace IR {
             return m_index;
         }
 
+        std::set<Value*>& getImportValueSet() {
+            return m_importValue;
+        }
+        std::set<Value*>& getAssignValueSet() {
+            return m_assignValue;
+        }
+        /// <summary>
+        ///  这里同时要改写成SSA形式
+        /// </summary>
+        void verifyBasicBlock() {
+            _AnalysisValueType( );
+
+        }
+    private:
+        void _AnalysisValueType();
+        void _AnalysisValueLive( );
         /// 
     private:
         friend class FlowGraphs;
@@ -44,6 +60,13 @@ namespace IR {
         Instruction* m_firstIns;
         Instruction* m_lastIns;
         Function*    m_func;
+
+        std::set<Value*> m_allValues;/// 所有变量
+        std::set<Value*> m_importValue;   /// 引入的变量
+        std::set<Value*> m_assignValue; /// 内部定义的变量
+        std::set<Value*> m_outportValue;  /// 引出的变量
+        std::set<Instruction*> m_needSSAChangedIns; /// 变量的活跃性分析
+
     };
 
 }

@@ -33,7 +33,8 @@ namespace IR {
         std::shared_ptr<NameAlloc> getNameAlloc() const;
         Label* findLabel(std::string const& label) const;
         bool   insertLabel(std::string const& name, Label* label);
-        std::shared_ptr<Scope> getCurrentScope() const;
+        void   insertValue( Value * value);
+        std::shared_ptr<Scope> getFunctionScope() const;
         FunctionType const*    getFunctionType() const;
         size_t getArgsSize() const;
         Value* getArgsAt(size_t i) const;
@@ -54,8 +55,8 @@ namespace IR {
     private:
         std::string                    m_name;
         std::vector<Value*>            m_args;
-        std::shared_ptr<Scope>         m_scope;
-        std::shared_ptr<Scope>         m_currentScope;
+
+        std::shared_ptr<Scope>         m_functionScope;
         std::shared_ptr<NameAlloc>     m_nameAlloc;
         std::shared_ptr<ConstantTable> m_constantTable;
         std::shared_ptr<LabelTable>    m_labelTable;
