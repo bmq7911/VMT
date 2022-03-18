@@ -19,9 +19,15 @@ namespace IR {
 
 	class IntegerConstant : public Constant {
 	public:
-		
+		IntegerConstant( Type const* type, uint64_t value)
+			: Constant( type)
+			, m_value( value )
+		{}
+		std::string getValueStr() const override {
+			return std::to_string(m_value);
+		}
 	private:
-		
+		uint64_t m_value;
 	};
 
 	class FloatConstant : public Constant {
@@ -39,7 +45,7 @@ namespace IR {
 			return std::to_string(m_value);
 		}
 	private:
-		double m_value;
+		float m_value;
 	};
 
 	class StringConstant : public Constant {

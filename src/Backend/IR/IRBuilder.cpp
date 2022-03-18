@@ -112,7 +112,8 @@ namespace IR {
         auto scope = cfunc->getFunctionScope();
         Value* srcValue = scope->findValueByName(strSrc);
         Value* dstValue = scope->genValueByName(strDst, srcValue->getType());
-        auto ins = _AddInsToIRContext( IR::allocator<AssignIns>().alloc());
+        auto ins = _AddInsToIRContext( IR::allocator<AssignIns>().alloc( dstValue, srcValue ));
+        return ins->getResult();
     }
 
     Br* IRBuilder::emitBr(Value* v, const char* trueLabel, const char* falseLabel) {

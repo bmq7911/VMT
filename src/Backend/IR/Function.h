@@ -12,6 +12,7 @@
 #include "Backend/IR/Variable.h"
 
 namespace IR {
+
     class FunctionType;
     class Value;
     class Label;

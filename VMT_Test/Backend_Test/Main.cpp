@@ -176,12 +176,13 @@ TEST(test_quick_sort, test_basicblock) {
     std::shared_ptr<IR::IRBuilder> TheBuilder = std::make_shared<IR::IRBuilder>(TheContext);
     IR::FunctionType* funcType = new IR::FunctionType( TheContext->getTypeManger().getFloatType(4));
     IR::Function* func = TheBuilder->emitFunction("MyFunction", funcType);
-    TheBuilder->emitAlloc(0.0f, "m");
+    IR::Value* vm = TheBuilder->emitAlloc(0.0f, "m");
     TheBuilder->emitAlloc(0.0f, "n");
     
+    IR::IntegerConstant* IC_1 = new IR::IntegerConstant(TheContext->getTypeManger().getIntegerType(4), 1);
     TheBuilder->emitAssign( "m", "i");
-
-    TheBuilder->emitMinus("m", 1, "i");
+    
+    TheBuilder->emitMinus( vm, IC_1, "i");
     
     TheBuilder->emitAssign("n", "j");
 
