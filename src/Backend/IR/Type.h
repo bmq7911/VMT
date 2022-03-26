@@ -99,6 +99,12 @@ namespace IR {
 
     class FloatType : public Type{
     public:
+        FloatType( uint32_t size) 
+            : m_size(size) 
+        {}
+        bool isVoidType() const override {
+            return false;
+        }
         bool isBoolType() const override {
             return false;
         }
@@ -243,15 +249,16 @@ namespace IR {
         Type* m_retType;
         std::vector<Type*> m_paramsType;
     };
-
+    /*
+     * 容器类,支持当前Context之中所有的类型
+     */
     class TypeManger {
     public:
         TypeManger( ) 
             : m_boolType ( new BoolType() )
             , m_voidType( new VoidType() )
         {
-            _InitIntegerType();
-            _InitFloatType();
+            _InitBasicType();
         }
 
         Type * getFloatType( uint32_t size) const{
@@ -276,6 +283,23 @@ namespace IR {
             return m_boolType;
         }
 
+        Type* getTypeFromName(std::string_view const& name) const {
+            std::string strName(name);
+            auto iter = m_typeMap.find(strName);
+            if (iter != m_typeMap.end()) {
+                return iter->second;
+            }
+            return nullptr;
+        }
+
+        Type* getTypeFromName(std::string const& name) const {
+            return nullptr;
+        }
+
+        Type* getTypeFromName(const char* name) const {
+            return nullptr;
+        }
+
         Type* getVectorType(Type* type, size_t n)  const {
             return nullptr;
         }
@@ -296,27 +320,57 @@ namespace IR {
         
         }
     private:
+        void _InitBasicType() {
+            _InitIntegerType();
+            _InitFloatType();
+            
+            m_typeMap.insert(std::make_pair( "bool", m_boolType));
+            m_typeMap.insert(std::make_pair( "void", m_voidType));
+
+
+        }
         void _InitIntegerType() {
-            m_integerTypeMap.insert( std::make_pair(1, new IntegerType(1)) );
-            m_integerTypeMap.insert( std::make_pair(2, new IntegerType(2)) );
-            m_integerTypeMap.insert( std::make_pair(4, new IntegerType(4)) );
-            m_integerTypeMap.insert( std::make_pair(8, new IntegerType(8)) );
-            m_integerTypeMap.insert( std::make_pair(16, new IntegerType(16)) );
-            m_integerTypeMap.insert( std::make_pair(32, new IntegerType(32)) );
-            m_integerTypeMap.insert(std::make_pair(64, new IntegerType(64)) );
+#define __IR_INSERT_INTEGER_TYPE(x)\
+            auto ptr_##x = new IntegerType( x );\
+            m_integerTypeMap.insert(std::make_pair(x, ptr_##x));\
+            m_typeMap.insert(std::make_pair("i"#x, ptr_##x ));
+
+            __IR_INSERT_INTEGER_TYPE(1)
+            __IR_INSERT_INTEGER_TYPE(8)
+            __IR_INSERT_INTEGER_TYPE(16)
+            __IR_INSERT_INTEGER_TYPE(32)
+            __IR_INSERT_INTEGER_TYPE(64)
+            __IR_INSERT_INTEGER_TYPE(128)
+            __IR_INSERT_INTEGER_TYPE(256)
+            __IR_INSERT_INTEGER_TYPE(512)
+            __IR_INSERT_INTEGER_TYPE(1024)
+            __IR_INSERT_INTEGER_TYPE(2048)
+            __IR_INSERT_INTEGER_TYPE(4096)
+#undef __INSERT_INTEGER_TYPE
+
         }
         void _InitFloatType() {
-            m_floatTypeMap.insert( std::make_pair(4, new IntegerType(4)) );
-            m_floatTypeMap.insert( std::make_pair(8, new IntegerType(8)) );
-            m_floatTypeMap.insert( std::make_pair(16, new IntegerType(16)) );
-            m_floatTypeMap.insert( std::make_pair(32, new IntegerType(32)) );
-            m_floatTypeMap.insert( std::make_pair(64, new IntegerType(64)) );
+#define __IR_INSERT_FLOAT_TYPE(x)\
+            auto ptr_##x = new FloatType( x );\
+            m_floatTypeMap.insert(std::make_pair(x, ptr_##x));\
+            m_typeMap.insert(std::make_pair("f"#x, ptr_##x ));
+
+                __IR_INSERT_FLOAT_TYPE(32)
+                __IR_INSERT_FLOAT_TYPE(64)
+                __IR_INSERT_FLOAT_TYPE(128)
+                __IR_INSERT_FLOAT_TYPE(256)
+                __IR_INSERT_FLOAT_TYPE(512)
+                __IR_INSERT_FLOAT_TYPE(1024)
+                __IR_INSERT_FLOAT_TYPE(2048)
+                __IR_INSERT_FLOAT_TYPE(4096)
+#undef __INSERT_INTEGER_TYPE
         }
     private:
         std::map<uint32_t, Type*> m_floatTypeMap;
         std::map<uint32_t, Type*> m_integerTypeMap;
         BoolType*       m_boolType;
         VoidType*       m_voidType;
+        std::map<std::string, Type*> m_typeMap;
 
     };
 

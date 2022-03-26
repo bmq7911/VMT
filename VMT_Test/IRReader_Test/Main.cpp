@@ -3,6 +3,7 @@
 #include <stack>
 #include "gtest/gtest.h"
 #include "Backend/IRReader/Lexer.h"
+#include "Backend/IRReader/Parser.h"
 
 
 TEST(test_ir_reader_lexer, ir_reader_lexer) {
@@ -113,7 +114,7 @@ TEST(test_ir_reader_lexer, ir_reader_lexer) {
     std::cout << tok.to_string() << std::endl;
     EXPECT_EQ(tok.getTokenId(), IR::IRReaderLexer::TokenId::kEof);
 
-
+    
 
 
 }
@@ -121,7 +122,7 @@ TEST(test_ir_reader_lexer, ir_reader_lexer) {
 
 
 TEST(test_ir_reader_lexer_link, ir_reader_lexer) {
-    const char* strSRC = "\r\ndefine@fun@123(i32%0,i32%1,i32%2)#0{\n"
+    const char* strSRC = "\r\ndefine  @fun@123(i32%0,i32%1,i32%2)#0{\n"
         "%add = add i32%0@123,i32%1;this is a commnet\r"
         "\"hello world\"\r"
         "}";
@@ -240,6 +241,20 @@ TEST(test_ir_reader_lexer_link, ir_reader_lexer) {
 
 
 }
+
+TEST(test_ir_reader_parser, ir_reader_lexer) {
+    const char* strSRC = "\r\ndefine i32 @fun@123(i32%0,i32%1,i32%2)#0{\n"
+        "%add = add i32%0@123,i32%1;this is a commnet\r"
+        "\"hello world\"\r"
+        "}";
+
+    std::shared_ptr<IR::IRReaderLexer> lexer = std::make_shared<IR::IRReaderLexer>(strSRC);
+
+    IR::IRReaderParser parser( lexer);
+    parser.praseFunction();
+
+}
+
 
 
 int main( int argc, char * argv[]) {

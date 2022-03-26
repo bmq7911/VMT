@@ -1,70 +1,20 @@
 #pragma once
 #include <vector>
 #include <string>
+#include <string_view>
 
 namespace IR {
 	
-	class string_view {
-	public:	
-		string_view() 
-			: m_ptr( nullptr )
-			, m_length( 0 )
-		{}
-		string_view(const char* str)
-			: m_ptr( nullptr)
-			, m_length( 0 )
-		{
-			if (nullptr != str) {
-				m_ptr = str;
-				m_length = strlen(str);
-			}
-		}
-
-		string_view(const char* str, size_t length)
-			: m_ptr( nullptr)
-			, m_length( 0 )
-		{
-			if (nullptr != str) {
-				m_ptr = str;
-				m_length = length;
-			}
-		}
-		string_view(string_view const& view)
-			: string_view()
-		{
-			m_ptr = view.m_ptr;
-			m_length = view.m_length;
-		}
-		string_view& operator=(string_view const& view) {
-			if (this != &view) {
-				m_ptr = view.m_ptr;
-				m_length = view.m_length;
-				return *this;
-			}
-			return *this;
-		}
-		
-		operator bool() const {
-			return nullptr != m_ptr && 0 != m_length;
-		}
-		std::string to_string() const {
-			if (*this) {
-				return std::string(m_ptr, m_length);
-			}
-			return std::string();
-		}
-
-	private:
-		const char* m_ptr;
-		size_t      m_length;
-	};
-	
+	/// <summary>
+	/// 不计划字节写数据结构,不是不愿意,而是C++ STL支持的基本东西都没学好
+	/// </summary>
 	class IRReaderLexer {
 	public:
 		enum TokenId {
 			kKeyWord,
 			kGrobalId,
 			kLocalId,
+			kLabel,
 			kAttribute,
 			kNumConst,
 			kComma,
@@ -78,7 +28,9 @@ namespace IR {
 			kEof,
 			kError,
 		};
-		
+		static const char* getTokenIdString( TokenId id){
+			return nullptr;
+		}
 
 		class Token {
 		public:
@@ -104,16 +56,16 @@ namespace IR {
 				}
 				return *this;
 			}
-			TokenId getTokenId() {
+			TokenId getTokenId() const {
 				return m_id;
 			}
 			std::string to_string() const {
 				if (m_id != TokenId::kEof && m_id != TokenId::kError) {
-					return m_strView.to_string();
+					return std::string(m_strView.data( ), m_strView.length());
 				}
 				return std::string();
 			}
-			string_view getStringView() const {
+			std::string_view getStringView() const {
 				return m_strView;
 			}
 			std::pair<size_t, size_t> get_location() const {
@@ -122,7 +74,7 @@ namespace IR {
 		private:
 			friend class IRReaderLexer;
 			TokenId m_id;
-			string_view m_strView;
+			std::string_view m_strView;
 			size_t m_lineNumber;
 			size_t m_colNumber;
 		};
@@ -342,8 +294,8 @@ namespace IR {
 			m_colNumber--;
 			m_scanIndex--;
 		}
-		string_view _GetStringView(size_t start, size_t end) {
-			return string_view(m_src.data() + start, end - start + 1);
+		std::string_view _GetStringView(size_t start, size_t end) {
+			return std::string_view(m_src.data() + start, end - start + 1);
 		}
 		Token _GenToken(TokenId tokId, size_t start, size_t end) {
 			Token tok(tokId);

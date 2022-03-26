@@ -78,6 +78,20 @@ namespace IR {
             break;
         }
     }
+
+    Instruction::OpCode Instruction::getOpCode(std::string_view const& view) {
+        static std::map<std::string_view, Instruction::OpCode> __s_maps;
+        if (__s_maps.empty()) {
+#define EMIT_IR_INS(x,name, haveRet,...) __s_maps.insert( std::make_pair(std::string_view(#name), Instruction::OpCode::k##name ) );
+#include "Backend/IR/IROpCode.inl"
+#undef EMIT_IR_INS
+        }
+        auto iter = __s_maps.find(view);
+        if (iter == __s_maps.end()) {
+            return Instruction::OpCode::kError;
+        }
+        return iter->second;
+    }
 }
 
 namespace IR {

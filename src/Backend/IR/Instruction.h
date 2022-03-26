@@ -78,7 +78,7 @@ namespace IR {
         static bool isInsHaveResult( Instruction::OpCode op);
         static InstructionType getInsType(IR::Instruction::OpCode Op);
         static const char* getOpStr(OpCode code);
-
+        static Instruction::OpCode getOpCode(std::string_view const& view);
         using OperandIterator = std::vector<Value*>::iterator;
         using constOperandIterator = std::vector<Value*>::const_iterator;
         
