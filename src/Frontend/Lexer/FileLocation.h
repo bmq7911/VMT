@@ -1,14 +1,12 @@
 #pragma once
-#include "ADT/StringRef.h"
-
-
+#include <string_view>
 class FileLocation {
     friend class Lexer;
 public:
     FileLocation() 
         : m_row(0)
         , m_col(0)
-        , m_lexeme()
+        , m_lexeme( )
     {
     }
     FileLocation(uint32_t row, uint32_t col, const char* ptr, uint32_t length)
@@ -18,9 +16,9 @@ public:
     {
     }
     std::string toString() const {
-        return m_lexeme.to_string();
+        return std::string( m_lexeme.data(), m_lexeme.length());
     }
-    ADT::StringRef toStringRef() const {
+    std::string_view getStringView() const {
         return m_lexeme;
     }
     uint32_t row() const {
@@ -34,5 +32,6 @@ public:
 private:
     uint32_t       m_row;
     uint32_t       m_col;
-    ADT::StringRef m_lexeme;
+    std::string_view m_lexeme;
+    uint32_t       m_fileId; /// 0是终端,非0为文件
 };

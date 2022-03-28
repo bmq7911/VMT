@@ -28,6 +28,7 @@ namespace IR {
 			kEof,
 			kError,
 		};
+
 		static const char* getTokenIdString( TokenId id){
 			return nullptr;
 		}

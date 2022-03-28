@@ -1,7 +1,7 @@
 #include "Frontend/Lexer/Lexer.h"
 
 Lexer::Lexer() {
-    m_keyWord = std::make_shared<KeyWord>();
+
 }
 
 Lexer::Lexer(const char * filePath)
@@ -57,7 +57,7 @@ Token Lexer::scan() {
         return _ScanIdentifier();
     }
     else if (char(0) == m_peek) {
-        return _GenToken(Tag::eof);
+        return _GenToken(TokenId::kw_eof);
     }
     /// 处理各种标点符号
     else { ///非下划线开头的字符
@@ -121,10 +121,10 @@ char Lexer::_OffsetRead(int32_t offset) {
     return m_strSrc[m_readPtr+offset];
 }
 
-Token Lexer::_GenToken(Tag tag) const {
+Token Lexer::_GenToken(TokenId TokenId) const {
     Token tok;
     tok.m_location = _GenFileLocation();
-    tok.m_tag = tag;
+    tok.m_tokenId = TokenId;
     return tok;
 }
 
@@ -139,9 +139,6 @@ void  Lexer::_ResumeReadPtr() {
     m_readPtr = m_forwardPtr;
 }
 
-void Lexer::_Reserve(Identifier * w) {
-    m_Identifier.insert(std::pair(w->m_lexeme, w));
-}
 
 ///
 ///
@@ -153,7 +150,7 @@ Token Lexer::_ScanConstant() {
         _ForwardSearch();
     } while (std::isdigit(m_peek));
     if (m_peek != '.') {
-        Token tok =  _GenToken(Tag::num);
+        Token tok =  _GenToken(TokenId::kw_integer);
         ///
         _ResumeReadPtr();
         return tok;
@@ -167,7 +164,7 @@ Token Lexer::_ScanConstant() {
             d = d * 10;
             _ForwardSearch( );
         }
-        Token  tok = _GenToken(Tag::real);
+        Token  tok = _GenToken(TokenId::kw_real);
         _ResumeReadPtr();
         return tok;
     }
@@ -182,15 +179,15 @@ Token Lexer::_ScanIdentifier() {
     } while (std::isalpha(m_peek) || std::isdigit(m_peek));
     std::string s = b.str();
 
-    auto tag = m_keyWord->findTagFormStr(s.c_str());
-    if (tag != Tag::unknown) {
+    auto TokenId = m_keyWord->findTokenIdFormStr(s.c_str());
+    if (TokenId != TokenId::kw_Unknown) {
         /// 构造一个 Token,插入TokenStream之中
-        Token tok = _GenToken(tag);
+        Token tok = _GenToken(TokenId);
         _ResumeReadPtr();
         return tok;
     }
     else {
-        Token tok = _GenToken(Tag::id);
+        Token tok = _GenToken(TokenId::kw_id);
         _ResumeReadPtr();
         return tok;
     }
@@ -198,7 +195,7 @@ Token Lexer::_ScanIdentifier() {
     //if (iter != m_Identifier.end()) {
     //    return iter->second;
     //}
-    //Identifier * w = new Identifier(s, Tag::id);
+    //Identifier * w = new Identifier(s, TokenId::id);
     //m_Identifier.insert(std::pair(s, w));
     //return w;
 }
@@ -208,43 +205,43 @@ Token Lexer::_ScanPunctuation() {
     switch (m_peek) {
     case '[': {
         _ForwardSearch();
-        Token tok = _GenToken(Tag::kw_l_square);
+        Token tok = _GenToken(TokenId::kw_l_square);
         _ResumeReadPtr();
         return tok;
     }break;
     case ']': {
         _ForwardSearch();
-        Token tok = _GenToken(Tag::kw_r_square);
+        Token tok = _GenToken(TokenId::kw_r_square);
         _ResumeReadPtr();
         return tok;
     }break;
     case '(': {
         _ForwardSearch();
-        Token tok = _GenToken(Tag::kw_l_paren);
+        Token tok = _GenToken(TokenId::kw_l_paren);
         _ResumeReadPtr();
         return tok;
     }break;
     case ')': {
         _ForwardSearch();
-        Token tok = _GenToken(Tag::kw_r_paren);
+        Token tok = _GenToken(TokenId::kw_r_paren);
         _ResumeReadPtr();
         return tok;
     }break;
     case '{': {
         _ForwardSearch();
-        Token tok = _GenToken(Tag::kw_l_brace);
+        Token tok = _GenToken(TokenId::kw_l_brace);
         _ResumeReadPtr();
         return tok;
     }break;
     case '}': {
         _ForwardSearch();
-        Token tok = _GenToken(Tag::kw_r_brace);
+        Token tok = _GenToken(TokenId::kw_r_brace);
         _ResumeReadPtr();
         return tok;
     }break;
     case '.': {
         _ForwardSearch();
-        Token tok = _GenToken(Tag::kw_period);
+        Token tok = _GenToken(TokenId::kw_period);
         _ResumeReadPtr();
         return tok;
     }break;
@@ -253,12 +250,12 @@ Token Lexer::_ScanPunctuation() {
         _ForwardSearch();
         if ('&' == m_peek) {
             _ForwardSearch();
-            Token tok = _GenToken(Tag::kw_ampamp);
+            Token tok = _GenToken(TokenId::kw_ampamp);
             _ResumeReadPtr();
             return tok;
         }
         else {
-            Token tok = _GenToken(Tag::kw_amp);
+            Token tok = _GenToken(TokenId::kw_amp);
             _ResumeReadPtr();
             return tok;
         }
@@ -267,18 +264,18 @@ Token Lexer::_ScanPunctuation() {
         _ForwardSearch();
         if ('*' == m_peek) {
             _ForwardSearch();
-            Token tok = _GenToken(Tag::kw_starstar);
+            Token tok = _GenToken(TokenId::kw_starstar);
             _ResumeReadPtr();
             return tok;
         }
         else if ('=' == m_peek) {
             _ForwardSearch();
-            Token tok = _GenToken(Tag::kw_starequal);
+            Token tok = _GenToken(TokenId::kw_starequal);
             _ResumeReadPtr();
             return tok;
         }
         else {
-            Token tok = _GenToken(Tag::kw_star);
+            Token tok = _GenToken(TokenId::kw_star);
             _ResumeReadPtr();
             return tok;
         }
@@ -287,18 +284,18 @@ Token Lexer::_ScanPunctuation() {
         _ForwardSearch();
         if ('+' == m_peek) {
             _ForwardSearch();
-            Token tok = _GenToken(Tag::kw_plusplus);
+            Token tok = _GenToken(TokenId::kw_plusplus);
             _ResumeReadPtr();
             return tok;
         }
         else if ('=' == m_peek) {
             _ForwardSearch();
-            Token tok = _GenToken(Tag::kw_plusequal);
+            Token tok = _GenToken(TokenId::kw_plusequal);
             _ResumeReadPtr();
             return tok;
         }
         else {
-            Token tok = _GenToken(Tag::kw_plus);
+            Token tok = _GenToken(TokenId::kw_plus);
             _ResumeReadPtr();
             return tok;
         }
@@ -307,31 +304,31 @@ Token Lexer::_ScanPunctuation() {
         _ForwardSearch();
         if ('>' == m_peek) {
             _ForwardSearch();
-            Token tok = _GenToken(Tag::kw_arrow);
+            Token tok = _GenToken(TokenId::kw_arrow);
             _ResumeReadPtr();
             return tok;
         }
         else if ('-' == m_peek) {
             _ForwardSearch();
-            Token tok = _GenToken(Tag::kw_minusminus);
+            Token tok = _GenToken(TokenId::kw_minusminus);
             _ResumeReadPtr();
             return tok;
         }
         else if ('=' == m_peek) {
             _ForwardSearch();
-            Token tok = _GenToken(Tag::kw_minusequal);
+            Token tok = _GenToken(TokenId::kw_minusequal);
             _ResumeReadPtr();
             return tok;
         }
         else {
-            Token tok = _GenToken(Tag::kw_minus);
+            Token tok = _GenToken(TokenId::kw_minus);
             _ResumeReadPtr();
             return tok;
         }
     }break;
     case '~': {
         _ForwardSearch();
-        Token tok = _GenToken(Tag::kw_tilde);
+        Token tok = _GenToken(TokenId::kw_tilde);
         _ResumeReadPtr();
         return tok;
     }break;
@@ -339,12 +336,12 @@ Token Lexer::_ScanPunctuation() {
         _ForwardSearch();
         if ('=' == m_peek) {
             _ForwardSearch();
-            Token tok = _GenToken(Tag::kw_exclaimequal);
+            Token tok = _GenToken(TokenId::kw_exclaimequal);
             _ResumeReadPtr();
             return tok;
         }
         else {
-            Token tok = _GenToken(Tag::kw_exclaim);
+            Token tok = _GenToken(TokenId::kw_exclaim);
             _ResumeReadPtr();
             return tok;
         }
@@ -353,12 +350,12 @@ Token Lexer::_ScanPunctuation() {
         _ForwardSearch();
         if ('=' == m_peek) {
             _ForwardSearch();
-            Token tok = _GenToken(Tag::kw_slashequal);
+            Token tok = _GenToken(TokenId::kw_slashequal);
             _ResumeReadPtr();
             return tok;
         }
         else {
-            Token tok = _GenToken(Tag::kw_slash);
+            Token tok = _GenToken(TokenId::kw_slash);
             _ResumeReadPtr();
             return tok;
         }
@@ -367,12 +364,12 @@ Token Lexer::_ScanPunctuation() {
         _ForwardSearch();
         if ('=' == m_peek) {
             _ForwardSearch();
-            Token tok = _GenToken(Tag::kw_percentequal);
+            Token tok = _GenToken(TokenId::kw_percentequal);
             _ResumeReadPtr();
             return tok;
         }
         else {
-            Token tok = _GenToken(Tag::kw_percent);
+            Token tok = _GenToken(TokenId::kw_percent);
             _ResumeReadPtr();
             return tok;
         }
@@ -383,12 +380,12 @@ Token Lexer::_ScanPunctuation() {
             _ForwardSearch();
             if ('=' == m_peek) {
                 _ForwardSearch();
-                Token tok = _GenToken(Tag::kw_lessless);
+                Token tok = _GenToken(TokenId::kw_lessless);
                 _ResumeReadPtr();
                 return tok;
             }
             else {
-                Token tok = _GenToken(Tag::kw_lessless);
+                Token tok = _GenToken(TokenId::kw_lessless);
                 _ResumeReadPtr();
                 return tok;
             }
@@ -397,19 +394,19 @@ Token Lexer::_ScanPunctuation() {
             _ForwardSearch();
             if ('>' == m_peek) {
                 _ForwardSearch();
-                Token tok = _GenToken(Tag::kw_spaceship);
+                Token tok = _GenToken(TokenId::kw_spaceship);
                 _ResumeReadPtr();
                 return tok;
             }
             else {
-                Token tok = _GenToken(Tag::kw_lessequal);
+                Token tok = _GenToken(TokenId::kw_lessequal);
                 _ResumeReadPtr();
                 return tok;
             }
 
         }
         else {
-            Token tok = _GenToken(Tag::kw_less);
+            Token tok = _GenToken(TokenId::kw_less);
             _ResumeReadPtr();
             return tok;
         }
@@ -420,24 +417,24 @@ Token Lexer::_ScanPunctuation() {
             _ForwardSearch();
             if ('=' == m_peek) {
                 _ForwardSearch();
-                Token tok = _GenToken(Tag::kw_greatergreaterequal);
+                Token tok = _GenToken(TokenId::kw_greatergreaterequal);
                 _ResumeReadPtr();
                 return tok;
             }
             else {
-                Token tok = _GenToken(Tag::kw_greatergreater);
+                Token tok = _GenToken(TokenId::kw_greatergreater);
                 _ResumeReadPtr();
                 return tok;
             }
         }
         else if ('=' == m_peek) {
             _ForwardSearch();
-            Token tok = _GenToken(Tag::kw_greaterequal);
+            Token tok = _GenToken(TokenId::kw_greaterequal);
             _ResumeReadPtr();
             return tok; 
         }
         else {
-            Token tok = _GenToken(Tag::kw_greater);
+            Token tok = _GenToken(TokenId::kw_greater);
             _ResumeReadPtr();
             return tok;
         }
@@ -446,12 +443,12 @@ Token Lexer::_ScanPunctuation() {
         _ForwardSearch();
         if ('=' == m_peek) {
             _ForwardSearch();
-            Token tok = _GenToken(Tag::kw_caretequal);
+            Token tok = _GenToken(TokenId::kw_caretequal);
             _ResumeReadPtr();
             return tok;
         }
         else {
-            Token tok = _GenToken(Tag::kw_caret);
+            Token tok = _GenToken(TokenId::kw_caret);
             _ResumeReadPtr();
             return tok;
         }
@@ -460,25 +457,25 @@ Token Lexer::_ScanPunctuation() {
         _ForwardSearch();
         if ('|' == m_peek) {
             _ForwardSearch();
-            Token tok = _GenToken(Tag::kw_pipepipe);
+            Token tok = _GenToken(TokenId::kw_pipepipe);
             _ResumeReadPtr();
             return tok;
         }
         else if ('=' == m_peek) {
             _ForwardSearch();
-            Token tok = _GenToken(Tag::kw_pipeequal);
+            Token tok = _GenToken(TokenId::kw_pipeequal);
             _ResumeReadPtr();
             return tok;
         }
         else {
-            Token tok = _GenToken(Tag::kw_pipe);
+            Token tok = _GenToken(TokenId::kw_pipe);
             _ResumeReadPtr();
             return tok;
         }
     }break;
     case '?': {
         _ForwardSearch();
-        Token tok = _GenToken(Tag::kw_question);
+        Token tok = _GenToken(TokenId::kw_question);
         _ResumeReadPtr();
         return tok;
     }break;
@@ -486,19 +483,19 @@ Token Lexer::_ScanPunctuation() {
         _ForwardSearch();
         if (':' == m_peek) {
             _ForwardSearch();
-            Token tok = _GenToken(Tag::kw_coloncolon);
+            Token tok = _GenToken(TokenId::kw_coloncolon);
             _ResumeReadPtr();
             return tok;
         }
         else {
-            Token tok = _GenToken(Tag::kw_colon);
+            Token tok = _GenToken(TokenId::kw_colon);
             _ResumeReadPtr();
             return tok;
         }
     }break;
     case ';': {
         _ForwardSearch();
-        Token tok = _GenToken(Tag::kw_semi);
+        Token tok = _GenToken(TokenId::kw_semi);
         _ResumeReadPtr();
         return tok;
     }break;
@@ -506,19 +503,19 @@ Token Lexer::_ScanPunctuation() {
         _ForwardSearch();
         if ('=' == m_peek) {
             _ForwardSearch();
-            Token tok = _GenToken(Tag::kw_equalequal);
+            Token tok = _GenToken(TokenId::kw_equalequal);
             _ResumeReadPtr();
             return tok;
         }
         else {
-            Token tok = _GenToken(Tag::kw_equal);
+            Token tok = _GenToken(TokenId::kw_equal);
             _ResumeReadPtr();
             return tok;
         }
     }break;
     case ',': {
         _ForwardSearch();
-        Token tok = _GenToken(Tag::kw_comma);
+        Token tok = _GenToken(TokenId::kw_comma);
         _ResumeReadPtr();
         return tok;
     }break;
@@ -526,25 +523,25 @@ Token Lexer::_ScanPunctuation() {
         _ForwardSearch();
         if ('#' == m_peek) {
             _ForwardSearch();
-            Token tok = _GenToken(Tag::kw_hashhash);
+            Token tok = _GenToken(TokenId::kw_hashhash);
             _ResumeReadPtr();
             return tok;
         }
         else if('@' == m_peek){
             _ForwardSearch();
-            Token tok = _GenToken(Tag::kw_hashat);
+            Token tok = _GenToken(TokenId::kw_hashat);
             _ResumeReadPtr();
             return tok;
         }
         else {
-            Token tok = _GenToken(Tag::kw_hash);
+            Token tok = _GenToken(TokenId::kw_hash);
             _ResumeReadPtr();
             return tok;
         }
     }break;
     default: {
         _ForwardSearch();
-        Token tok = _GenToken(Tag::unknown);
+        Token tok = _GenToken(TokenId::kw_Unknown);
         _ResumeReadPtr();
         return tok;
     }break;

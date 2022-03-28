@@ -1,27 +1,13 @@
-#ifdef KEYWORD
-#undef KEYWORD
-#endif
-
-#ifdef ENUM_KEYWORD
-#define TAG(x) x,
-#define KEYWORD(x) TAG(kw_##x)
-#define PUNCTUATOR(x,y) TAG(kw_##x)
+#ifndef DECL_KEY_WORD
+#define DECL_KEY_WORD( x, name , __is_keyword , __is_punctuator )
+#endif /// DECL_KEY_WORD
+#ifdef DECL_KEY_WORD
+#define KEYWORD(x) DECL_KEY_WORD(x, #x, true,false)
+#define PUNCTUATOR(x, y) DECL_KEY_WORD(x, y, false,true)
+#define KEY_TAG(x) DECL_KEY_WORD(x, #x, false,false)
 #endif 
 
-#ifdef DEFINE_KEYWORD
-#define KEYWORD(x)      _InsertKeyWord(#x,Tag::kw_##x);
-#define PUNCTUATOR(x,y) _InsertKeyWord(y,Tag::kw_##x);
-#endif ///DEFINE_KEYWORD
 
-
-#ifdef TAG_TO_STRING
-#define TO_STR(x) #x
-#define KEYWORD(x) case kw_##x : return TO_STR(kw_##x);break;
-#define PUNCTUATOR(x,y) case kw_##x: return TO_STR(kw_##x);break;
-#define TAG(x) case x: return TO_STR(x);break;
-#endif// TAG_TO_STRING
-
-#ifdef KEYWORD
 KEYWORD(if)
 KEYWORD(else)
 KEYWORD(while)
@@ -71,10 +57,6 @@ KEYWORD(sizeof)
 KEYWORD(std)
 
 
-#undef KEYWORD
-#endif ///KEYWORD
-
-#ifdef PUNCTUATOR
 
 PUNCTUATOR(l_square,            "[")
 PUNCTUATOR(r_square,            "]")
@@ -133,22 +115,12 @@ PUNCTUATOR(periodstar,          ".*")
 PUNCTUATOR(arrowstar,           "->*")
 PUNCTUATOR(coloncolon,          "::")
 
-#undef PUNCTUATOR
-#endif PUNCTUATOR
 
-#ifdef TAG
-
-TAG(basic_type)
-TAG(index)
-TAG(num)
-TAG(real)
-TAG(id)
-TAG(unknown)
-TAG(eof)
-TAG(arbitrary)
-
-#undef TAG
-#endif /// TAG
+KEY_TAG(id)
+KEY_TAG(string)
+KEY_TAG(integer)
+KEY_TAG(real)
+KEY_TAG(eof)
 
 
 

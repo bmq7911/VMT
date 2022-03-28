@@ -210,7 +210,10 @@ namespace IR {
 					if (IR::IRReaderLexer::kComma != tok.getTokenId()) {
 						return;
 					}
-					tok = m_lexer
+					tok = m_lexer->scan();
+					if (IR::IRReaderLexer::kKeyWord != tok.getTokenId()) {
+						return;
+					}
 				}
 			}
 			else if (IR::Instruction::isUnaryOp(op)) {
@@ -227,8 +230,9 @@ namespace IR {
 		
 	private:
 		std::shared_ptr<IR::ErrorDiagnose> m_errorDiagnose;
-		std::shared_ptr<IR::IRContext> m_context;
-		std::shared_ptr<IRReaderLexer> m_lexer;
+		std::shared_ptr<IR::IRContext>     m_context;
+		std::shared_ptr<IRReaderLexer>     m_lexer;
 		std::map<std::string_view,IR::Value*>   m_variableMaps;
 	};
+
 }
