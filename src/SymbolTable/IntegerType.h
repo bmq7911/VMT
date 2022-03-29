@@ -20,50 +20,50 @@ namespace ENV {
             
         }
         /// v1 op v2
-        std::shared_ptr<TypeId> Op(Tag tag)  override {
-            const static Tag tagSupport[] = { Tag::kw_plus,
-                                              Tag::kw_plusplus,
-                                              Tag::kw_minus,
-                                              Tag::kw_minusminus,};
+        std::shared_ptr<TypeId> Op(TokenId tag)  override {
+            const static TokenId tagSupport[] = { TokenId::kw_plus,
+                                              TokenId::kw_plusplus,
+                                              TokenId::kw_minus,
+                                              TokenId::kw_minusminus,};
             for (size_t i = 0; i < sizeof(tagSupport) / sizeof(tagSupport[0]); ++i) {
                 if (tag == tagSupport[i])
                     return shared_from_this();
             }
             return getTopEnv()->getBasicType(ENV::BasicType::kArbitrary);
         }
-        std::shared_ptr<TypeId> Op(Tag tag, std::shared_ptr<TypeId> type)  override {
+        std::shared_ptr<TypeId> Op(TokenId tag, std::shared_ptr<TypeId> type)  override {
             if (type.get() != this) {
                 return getTopEnv()->getBasicType(ENV::BasicType::kArbitrary);
             }
             else {
-                const static Tag tagSupport1[] = {
-                                           Tag::kw_equal,
-                                           Tag::kw_plus,
-                                           Tag::kw_minus,
-                                           Tag::kw_plusequal,
-                                           Tag::kw_minusequal,
-                                           Tag::kw_star,
-                                           Tag::kw_starequal,
-                                           Tag::kw_starstar,
-                                           Tag::kw_slash,
-                                           Tag::kw_slashequal,
-                                           Tag::kw_percent,
-                                           Tag::kw_percentequal,
-                                           Tag::kw_lessless,
-                                           Tag::kw_lesslessequal,
-                                           Tag::kw_greatergreater,
-                                           Tag::kw_greatergreaterequal,
-                                           Tag::kw_bitand,
-                                           Tag::kw_bitor,
-                                           Tag::kw_bitcompl,
+                const static TokenId tagSupport1[] = {
+                                           TokenId::kw_equal,
+                                           TokenId::kw_plus,
+                                           TokenId::kw_minus,
+                                           TokenId::kw_plusequal,
+                                           TokenId::kw_minusequal,
+                                           TokenId::kw_star,
+                                           TokenId::kw_starequal,
+                                           TokenId::kw_starstar,
+                                           TokenId::kw_slash,
+                                           TokenId::kw_slashequal,
+                                           TokenId::kw_percent,
+                                           TokenId::kw_percentequal,
+                                           TokenId::kw_lessless,
+                                           TokenId::kw_lesslessequal,
+                                           TokenId::kw_greatergreater,
+                                           TokenId::kw_greatergreaterequal,
+                                           TokenId::kw_bitand,
+                                           TokenId::kw_bitor,
+                                           TokenId::kw_bitcompl,
                 };
 
-                const static Tag tagSupport2[]={
-                                           Tag::kw_less,
-                                           Tag::kw_lessequal,
-                                           Tag::kw_spaceship,
-                                           Tag::kw_greater,
-                                           Tag::kw_greaterequal,
+                const static TokenId tagSupport2[]={
+                                           TokenId::kw_less,
+                                           TokenId::kw_lessequal,
+                                           TokenId::kw_spaceship,
+                                           TokenId::kw_greater,
+                                           TokenId::kw_greaterequal,
                 };
                 for (size_t i = 0; i < sizeof(tagSupport1) / sizeof(tagSupport1[0]); ++i) {
                     if (tagSupport1[i] == tag) {
@@ -81,7 +81,7 @@ namespace ENV {
                         return ENV::getTopEnv()->getBasicType(ENV::BasicType::kBool);
                     }
                 }
-                if (tag == Tag::kw_comma) {
+                if (tag == TokenId::kw_comma) {
                     return type;
                 }
                 return ENV::getTopEnv()->getBasicType(ENV::BasicType::kArbitrary);

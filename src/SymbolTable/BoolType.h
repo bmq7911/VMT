@@ -6,32 +6,32 @@ namespace ENV {
     public:
         
         using TypeId::TypeId;
-        std::shared_ptr<TypeId> Op(Tag tag)  override {
-            if (Tag::kw_not == tag) {
+        std::shared_ptr<TypeId> Op(TokenId TokenId)  override {
+            if (TokenId::kw_not == TokenId) {
                 auto p = shared_from_this();
                 return p;
             }
             return getTopEnv()->getBasicType(ENV::BasicType::kArbitrary);
         }
-        std::shared_ptr<TypeId> Op(Tag tag, std::shared_ptr<TypeId> type)  override {
+        std::shared_ptr<TypeId> Op(TokenId tok, std::shared_ptr<TypeId> type)  override {
             if (type.get() != this) {
                 return getTopEnv()->getBasicType(ENV::BasicType::kArbitrary);
             }
             else {
-                const static Tag tagSupport1[] = {
-                                           Tag::kw_and,
-                                           Tag::kw_or,
+                const static TokenId TokenIdSupport1[] = {
+                                           TokenId::kw_and,
+                                           TokenId::kw_or,
                 };
 
-                for (size_t i = 0; i < sizeof(tagSupport1) / sizeof(tagSupport1[0]); ++i) {
-                    if (tagSupport1[i] == tag) {
+                for (size_t i = 0; i < sizeof(TokenIdSupport1) / sizeof(TokenIdSupport1[0]); ++i) {
+                    if (TokenIdSupport1[i] == tok) {
                         if (this != type.get()) {
                             ENV::getTopEnv()->getBasicType(ENV::BasicType::kArbitrary);
                         }
                         return shared_from_this();
                     }
                 }
-                if (tag == Tag::kw_comma) {
+                if ( tok == TokenId::kw_comma) {
                     return type;
                 }
                 return ENV::getTopEnv()->getBasicType(ENV::BasicType::kArbitrary);

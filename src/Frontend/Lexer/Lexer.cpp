@@ -29,6 +29,9 @@ Token Lexer::scan() {
         if ( m_peek == ' ' || m_peek == '\t') {
             continue;
         }
+        else if (m_peek == EOF) {
+            return _GenToken(TokenId::kw_eof);
+        }
         else if (m_peek == '\r') {
             char c = _OffsetRead(1);
             if (c == '\n') {
@@ -62,14 +65,17 @@ Token Lexer::scan() {
     /// 处理各种标点符号
     else { ///非下划线开头的字符
         // 开始处理各种标点符号
-        
         return _ScanPunctuation( );
-        
         ///  这里是最复杂的
     }
     //Token* tok = new Token(peek); 
     //peek = ' ';
     //return tok;
+}
+
+
+void Lexer::startToken() {
+
 }
 
 uint32_t Lexer::getLineNum() const {
@@ -108,7 +114,7 @@ bool Lexer::_Readch(char c) {
     return true;
 }
 
-void Lexer::_ForwardSearch() {
+void Lexer::_ForwardSearch( ) {
     m_forwardPtr++;
     m_peek = m_strSrc[m_forwardPtr];
     m_col++;
@@ -179,10 +185,10 @@ Token Lexer::_ScanIdentifier() {
     } while (std::isalpha(m_peek) || std::isdigit(m_peek));
     std::string s = b.str();
 
-    auto TokenId = m_keyWord->findTokenIdFormStr(s.c_str());
-    if (TokenId != TokenId::kw_Unknown) {
+    auto tokid = m_keyWord->findTokenIdFormStr(s.c_str());
+    if (tokid != TokenId::kw_Unknown) {
         /// 构造一个 Token,插入TokenStream之中
-        Token tok = _GenToken(TokenId);
+        Token tok = _GenToken(tokid);
         _ResumeReadPtr();
         return tok;
     }

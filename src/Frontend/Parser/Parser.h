@@ -20,7 +20,7 @@ public:
     virtual std::shared_ptr<TokenReader> getTokenReader() = 0;
     virtual std::shared_ptr<ENV::Env>    getEnv() = 0;
     virtual std::shared_ptr<ENV::Env>    setEnv(std::shared_ptr<ENV::Env> env) = 0;
-    virtual void                         error( uint32_t line, uint32_t col, Tag expect, Tag but) = 0;
+    virtual void                         error( uint32_t line, uint32_t col, TokenId expect, TokenId but) = 0;
     virtual void                         error(const char *msg) = 0;
-    virtual bool                         match( Token const& tok, Tag tag) = 0;
+    virtual bool                         match( Token const& tok, TokenId tag) = 0;
 };

@@ -21,6 +21,7 @@ public:
     Lexer(const char * filePath);
 public:
     virtual Token scan();
+    virtual void  startToken();
     uint32_t getLineNum() const;
     uint32_t getColNum() const;
     std::string getLine() const;
@@ -39,7 +40,7 @@ private:
     Token _ScanIdentifier();
     Token _ScanPunctuation();
 private:
-    char m_peek{ ' ' };
+    uint32_t m_peek{ ' ' };
     int m_line{1};
     int m_col{1};
 

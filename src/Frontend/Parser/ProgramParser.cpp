@@ -15,15 +15,15 @@ void ProgramParser::startParser() {
 void ProgramParser::program() {
     Token tok = readToken();
     
-    while (!tok.match(Tag::eof )) {
-        if (tok.match(Tag::kw_func)) {
+    while (!tok.match(TokenId::kw_eof )) {
+        if (tok.match(TokenId::kw_func)) {
              std::shared_ptr<AST::TopElement> top = ParseFunction();
              m_program->addTopElement( top );
         }
-        else if (tok.match(Tag::kw_template)) {
+        else if (tok.match(TokenId::kw_template)) {
         
         }
-        else if (tok.match(Tag::kw_struct)) {
+        else if (tok.match(TokenId::kw_struct)) {
             
         }
         tok = readToken();
@@ -32,7 +32,7 @@ void ProgramParser::program() {
 
 std::shared_ptr<AST::Function> ProgramParser::ParseFunction( ) {
     Token tok = getToken( );
-    if (tok.match(Tag::kw_func)) {
+    if (tok.match(TokenId::kw_func)) {
         std::shared_ptr<FunctionParser> funcParser = std::make_shared<FunctionParser>( get());
         return funcParser->begin();
     }

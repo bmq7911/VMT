@@ -5,34 +5,6 @@
 
 class FileLexer : public Lexer {
 public:
-    Token scan( ) override {
-        char ch = char(0);
-        /// 1. 处理掉空格和'\t'
-        do {
-            int32_t t = _Readch();
-            if (t == EOF) {
-                return _GenToken(TokenId::kw_eof);
-            }
-            else if( t == ' '|| t == '\t') {
-                continue;
-            }
-            else {
-                ch = t;
-                break;
-            }
-        } while ( true );
-        /// 2. 处理数字的情况
-        if (std::isdigit(ch)) {
-            
-        }
-        else if (std::isalpha(ch) || '_' == ch) {
-            
-        }
-        else {
-            
-        }
-
-    }
 private:
     int32_t _Readch() {
         m_scanIndex++;

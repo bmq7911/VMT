@@ -11,9 +11,9 @@ public:
     std::shared_ptr<ENV::Env> getEnv() override final;
     std::shared_ptr<ENV::Env> setEnv(std::shared_ptr<ENV::Env> env) override final;
 
-    void                      error( uint32_t line, uint32_t col, Tag expect, Tag but) override final;
+    void                      error( uint32_t line, uint32_t col, TokenId expect, TokenId but) override final;
     void                      error(const char *msg) override final;
-    bool                      match( Token const& tok, Tag tag) override;
+    bool                      match( Token const& tok, TokenId tag) override;
     Token readToken();
     Token fallbackToken();
     Token getToken() const;

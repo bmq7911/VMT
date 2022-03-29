@@ -18,29 +18,29 @@ std::shared_ptr<AST::Function> FunctionParser::begin( ) {
 
     setEnv(f_env);
     Token tok = readToken();
-    match(tok, Tag::id);
+    match(tok, TokenId::kw_id);
     Token funcname = tok;
 
     tok = readToken();
-    match(tok, Tag::kw_l_paren);
+    match(tok, TokenId::kw_l_paren);
     std::shared_ptr<AST::ParamList> paramlist = paramList();
     tok = readToken();
-    match(tok, Tag::kw_arrow);
+    match(tok, TokenId::kw_arrow);
     tok = readToken();
     std::shared_ptr<ENV::TypeId> returnType = getEnv()->getTypeId(tok.toString());
     
-    if (tok.match(Tag::id)) { /// 类型名
+    if (tok.match(TokenId::kw_id)) { /// 类型名
         /// 检查时否是已知类型
     }
-    else if(tok.match(Tag::basic_type) ){ /// 基础数据类新型
+    else if(tok.match(TokenId::kw_basic_type) ){ /// 基础数据类新型
         
     }
     tok = readToken();
     std::shared_ptr<AST::Stmt> stmts;
-    if (tok.match(Tag::kw_l_brace)) {
+    if (tok.match(TokenId::kw_l_brace)) {
         stmts = parseFunctionBlock();
     }
-    else if (tok.match(Tag::kw_equal)) {
+    else if (tok.match(TokenId::kw_equal)) {
         //
 
     }
@@ -78,7 +78,7 @@ std::shared_ptr<AST::Param> FunctionParser::param() {
     getEnv()->put(token.toString(), objectId);
     token = readToken();
     /// 
-    while ( token.match(Tag::kw_comma)) {
+    while ( token.match(TokenId::kw_comma)) {
         token = readToken();
         std::shared_ptr<ENV::TypeId> type = getEnv()->getTypeId(token.toString());
         if (type && ENV::IdType::kIdType == type->getIdType()) {
@@ -88,7 +88,7 @@ std::shared_ptr<AST::Param> FunctionParser::param() {
         
         }
         token = readToken();
-        token.match(Tag::id);
+        token.match(TokenId::kw_id);
         /// 这个是AST上的信息,AST上的Object需要知道自己在符号表之中吗??需要知道符号表这个东西嘛???
         std::shared_ptr<ENV::ObjectId> objectId = std::make_shared<ENV::ObjectId>(token.toString().c_str(),type);
         std::shared_ptr<AST::VariableObjExpr> idExpr = std::make_shared<AST::VariableObjExpr>(token, type, objectId );
@@ -104,7 +104,7 @@ std::shared_ptr<AST::ParamList>  FunctionParser::paramList() { /// 这里可能为空,
     std::shared_ptr<AST::ParamList> paramList = std::make_shared<AST::ParamList>();
     Token token = readToken();
     std::shared_ptr<AST::Param> param = std::make_shared<AST::Param>();
-    if (!token.match(Tag::kw_r_paren)) {
+    if (!token.match(TokenId::kw_r_paren)) {
         param = this->param();
     }
     paramList->setParam(param);
@@ -117,7 +117,7 @@ std::shared_ptr<AST::ParamList>  FunctionParser::paramList() { /// 这里可能为空,
 /// <returns></returns>
 std::shared_ptr<AST::Stmt>     FunctionParser::parseFunctionBlock() {
     Token tok = getToken();
-    if (match(tok, Tag::kw_l_brace)) {
+    if (match(tok, TokenId::kw_l_brace)) {
         return parseBlock();
     }
     return nullptr;
@@ -129,52 +129,52 @@ std::shared_ptr<AST::Stmt> FunctionParser::parseStmt() {
     Token tok = readToken();
     std::shared_ptr<AST::Stmt> stmt;
     switch (tok.getTag()) {
-    case Tag::kw_l_brace: {
+    case TokenId::kw_l_brace: {
         stmt = parseBlock();
     }break;
-    case Tag::kw_if: {
+    case TokenId::kw_if: {
         stmt = parseIf();
     }break;
-    case Tag::kw_for: {
+    case TokenId::kw_for: {
         stmt = parseFor();
     }break;
-    case Tag::kw_while: {
+    case TokenId::kw_while: {
         stmt = parseWhile();
     }break;
-    case Tag::kw_do: {
+    case TokenId::kw_do: {
         stmt = parseDoWhile();
     }break;
-    case Tag::kw_continue: {
+    case TokenId::kw_continue: {
         if (false == _IsInLoop()) {
             error("continue must in loop stmts");
         }
         tok = readToken();
-        match(tok, Tag::kw_semi);
+        match(tok, TokenId::kw_semi);
         return std::make_shared<AST::ContinueStmt>();
     }break;
-    case Tag::kw_break: {
+    case TokenId::kw_break: {
         if (false == _IsInLoop()) {
             error("break must in loop stmts else switch stmts");
         }
         tok = readToken();
-        match(tok, Tag::kw_semi);
+        match(tok, TokenId::kw_semi);
         return std::make_shared<AST::BreakStmt>();
     }break;
-    case Tag::kw_semi: { /// semikolon
+    case TokenId::kw_semi: { /// semikolon
         tok = readToken();
         return nullptr;
     }break;
-    case Tag::kw_return: {
+    case TokenId::kw_return: {
         stmt = parseReturn();
         tok = readToken();
-        match(tok, Tag::kw_semi);
+        match(tok, TokenId::kw_semi);
     }break;
     default: { /// 考虑表达式
         std::shared_ptr<AST::Expr> expr = parseDeclOrExpr();
         if (expr) {
             stmt = std::make_shared<AST::ExprStmt>(expr);
             tok = readToken();
-            match(tok, Tag::kw_semi);
+            match(tok, TokenId::kw_semi);
         }
         else {
             return stmt;
@@ -189,36 +189,36 @@ std::shared_ptr<AST::Stmt>                FunctionParser::parseBlock() {
     std::shared_ptr<ENV::Env> savedEnv = getEnv();
     std::shared_ptr<ENV::Env> f_env = std::make_shared<ENV::Env>(savedEnv);
     Token tok = getToken();
-    match(tok, Tag::kw_l_brace);
+    match(tok, TokenId::kw_l_brace);
     std::shared_ptr<AST::Stmts> stmts = std::make_shared<AST::Stmts>();
     do {
         std::shared_ptr<AST::Stmt> stmt = parseStmt();
         stmts->add(stmt);
         tok = readToken();
-        if (tok.match(Tag::kw_r_brace)) {
+        if (tok.match(TokenId::kw_r_brace)) {
             break;
         }
         else {
             fallbackToken();
         }
     } while (true);
-    match(tok, Tag::kw_r_brace);
+    match(tok, TokenId::kw_r_brace);
     setEnv(savedEnv);
     return stmts;
 }
 
 std::shared_ptr<AST::IfStmt>                  FunctionParser::parseIf() {
     Token tok = getToken();
-    match(tok.getTag(), Tag::kw_if);
+    match(tok.getTag(), TokenId::kw_if);
     tok = readToken();
-    match(tok.getTag(), Tag::kw_l_paren);
+    match(tok.getTag(), TokenId::kw_l_paren);
     std::shared_ptr<AST::Expr> boolexpr = parseCommaExpr();
     tok = readToken();
-    match(tok.getTag(),Tag::kw_r_paren);
+    match(tok.getTag(),TokenId::kw_r_paren);
     std::shared_ptr<AST::Stmt> stmt = parseStmt();
     tok = readToken();
     std::shared_ptr<AST::ElseStmt>  elseStmt;
-    if (match(tok, Tag::kw_else)) {
+    if (match(tok, TokenId::kw_else)) {
         elseStmt = parseElse();
     }
     std::shared_ptr< AST::IfStmt> ifStmt = std::make_shared<AST::IfStmt>(boolexpr, stmt, elseStmt);
@@ -227,7 +227,7 @@ std::shared_ptr<AST::IfStmt>                  FunctionParser::parseIf() {
 
 std::shared_ptr<AST::ElseStmt>                FunctionParser::parseElse() {
     Token tok = getToken();
-    match(tok, Tag::kw_else);
+    match(tok, TokenId::kw_else);
     std::shared_ptr<AST::Stmt> stmt = parseStmt();
     
     std::shared_ptr<AST::ElseStmt> elsestmt = std::make_shared<AST::ElseStmt>(stmt);
@@ -236,11 +236,11 @@ std::shared_ptr<AST::ElseStmt>                FunctionParser::parseElse() {
 std::shared_ptr<AST::ForStmt>             FunctionParser::parseFor(){
     _EntryLoop();
     Token tok = readToken();
-    match(tok.getTag(), Tag::kw_l_paren );
+    match(tok.getTag(), TokenId::kw_l_paren );
     readToken();
     std::shared_ptr< AST::Expr> initExpr = parseDeclOrExpr();
     tok = readToken();
-    match(tok, Tag::kw_semi);
+    match(tok, TokenId::kw_semi);
     readToken();
     std::shared_ptr<AST::Expr> boolExpr = parseDeclOrExpr();
     std::shared_ptr<ENV::TypeId> boolType = boolExpr->getTypeId();
@@ -252,11 +252,11 @@ std::shared_ptr<AST::ForStmt>             FunctionParser::parseFor(){
         std::cout <<"the bool expr must bool type in for loop stmt" <<std::endl;
     }
     tok = readToken();
-    match(tok, Tag::kw_semi);
+    match(tok, TokenId::kw_semi);
     readToken();
     std::shared_ptr<AST::Expr> tailExpr = parseDeclOrExpr();
     tok = readToken();
-    match(tok, Tag::kw_r_paren);
+    match(tok, TokenId::kw_r_paren);
 
     std::shared_ptr<AST::Stmt> stmt = parseStmt();
 
@@ -268,7 +268,7 @@ std::shared_ptr<AST::ForStmt>             FunctionParser::parseFor(){
 std::shared_ptr<AST::WhileStmt>           FunctionParser::parseWhile() {
     _EntryLoop();
     Token tok = readToken();
-    match(tok.getTag(), Tag::kw_l_paren);
+    match(tok.getTag(), TokenId::kw_l_paren);
     std::shared_ptr<AST::Expr> boolexpr = parseCommaExpr();
     auto type = boolexpr->getTypeId();
     //if (type != ENV::getTopEnv()->getBasicType(ENV::BasicType::kBool)) {
@@ -276,7 +276,7 @@ std::shared_ptr<AST::WhileStmt>           FunctionParser::parseWhile() {
     //    std::cout << "&&&&&&&&&&&&&&\nnot bool Expr\n&&&&&&&&&&&&" <<std::endl;
     //}
     tok = getToken();
-    match(tok, Tag::kw_r_paren);
+    match(tok, TokenId::kw_r_paren);
     readToken();
     std::shared_ptr<AST::Stmt> stmt = parseStmt();
     _LeaveLoop();
@@ -288,14 +288,14 @@ std::shared_ptr<AST::DoWhileStmt>              FunctionParser::parseDoWhile() {
     _EntryLoop();
     std::shared_ptr<AST::Stmt> stmt = parseStmt();
     Token tok = readToken();
-    match(tok, Tag::kw_while);
+    match(tok, TokenId::kw_while);
     tok = readToken();
-    match(tok, Tag::kw_l_paren);
+    match(tok, TokenId::kw_l_paren);
     std::shared_ptr<AST::Expr> whileExpr = parseCommaExpr();
     tok = readToken();
-    match(tok, Tag::kw_r_paren);
+    match(tok, TokenId::kw_r_paren);
     tok = readToken();
-    match(tok, Tag::kw_semi);
+    match(tok, TokenId::kw_semi);
     _LeaveLoop();
     return std::make_shared<AST::DoWhileStmt>( whileExpr, stmt);
 
@@ -304,7 +304,7 @@ std::shared_ptr<AST::DoWhileStmt>              FunctionParser::parseDoWhile() {
 std::shared_ptr<AST::Stmt>                FunctionParser::parseReturn() {
     std::shared_ptr<AST::Expr> expr = parseCommaExpr();
     Token tok = getToken();
-    match(tok, Tag::kw_semi);
+    match(tok, TokenId::kw_semi);
     std::shared_ptr<AST::ExprStmt> exprStmt = std::make_shared<AST::ExprStmt>( expr);
     std::shared_ptr<AST::ReturnStmt> returnStmt = std::make_shared<AST::ReturnStmt>( exprStmt);
     return returnStmt;
@@ -314,21 +314,21 @@ std::shared_ptr<AST::Expr>                FunctionParser::parseDeclOrExpr() {
     Token tok = getToken();
     std::shared_ptr<AST::Expr> expr;
     switch (tok.getTag()) {
-    case Tag::kw_i8:
-    case Tag::kw_i16:
-    case Tag::kw_i32:
-    case Tag::kw_i64:
-    case Tag::kw_ui8:
-    case Tag::kw_ui16:
-    case Tag::kw_ui32:
-    case Tag::kw_ui64:
-    case Tag::kw_f32:
-    case Tag::kw_f64:
-    case Tag::kw_bool: { /// 这里是声明
+    case TokenId::kw_i8:
+    case TokenId::kw_i16:
+    case TokenId::kw_i32:
+    case TokenId::kw_i64:
+    case TokenId::kw_ui8:
+    case TokenId::kw_ui16:
+    case TokenId::kw_ui32:
+    case TokenId::kw_ui64:
+    case TokenId::kw_f32:
+    case TokenId::kw_f64:
+    case TokenId::kw_bool: { /// 这里是声明
         std::shared_ptr<ENV::TypeId> type = getEnv()->getTypeId(tok.toString());
         expr = parseDecl(type);
     }break;
-    case Tag::id: {
+    case TokenId::kw_id: {
         std::shared_ptr<ENV::TypeId> type = getEnv()->getTypeId( tok.toString() );
         if (type) { /// 声明
             expr = parseDecl(type);
@@ -338,7 +338,7 @@ std::shared_ptr<AST::Expr>                FunctionParser::parseDeclOrExpr() {
             expr= parseCommaExpr();
         }
     }break;
-    case Tag::kw_void: 
+    case TokenId::kw_void: 
     default: {/// 这里应该报错
         expr = nullptr;
     } break;
@@ -352,9 +352,9 @@ std::shared_ptr<AST::Expr>            FunctionParser::parseDecl(std::shared_ptr<
     std::shared_ptr<AST::Exprs> exprs = std::make_shared<AST::Exprs>();
     do {
         Token id = readToken();
-        match(id, Tag::id);
+        match(id, TokenId::kw_id);
         mark = readToken();
-        if (mark.match(Tag::kw_equal)) {
+        if (mark.match(TokenId::kw_equal)) {
             std::shared_ptr<AST::Expr> assignExpr = parseAssignExpr();
             std::shared_ptr<ENV::ObjectId> obj = std::make_shared<ENV::ObjectId>( id.toString().c_str(), type);
             std::shared_ptr<AST::VariableObjExpr> objExpr = std::make_shared<AST::VariableObjExpr>(id, type, obj);
@@ -372,7 +372,7 @@ std::shared_ptr<AST::Expr>            FunctionParser::parseDecl(std::shared_ptr<
             getEnv()->put(id.toString(), obj);
             exprs->add(objExpr);
         }
-    } while (mark.match(Tag::kw_comma));
+    } while (mark.match(TokenId::kw_comma));
 
 
     return exprs;
@@ -381,9 +381,9 @@ std::shared_ptr<AST::Expr>            FunctionParser::parseDecl(std::shared_ptr<
 std::shared_ptr<AST::Expr>                FunctionParser::parseCommaExpr() {
     std::shared_ptr<AST::Expr> expr = parseAssignExpr();
     Token tok = readToken();
-    if (tok.match(Tag::kw_comma)) {
+    if (tok.match(TokenId::kw_comma)) {
         std::shared_ptr<AST::Expr> binaryOpExpr  = expr;
-        while (tok.match(Tag::kw_comma)) {
+        while (tok.match(TokenId::kw_comma)) {
             std::shared_ptr<AST::Expr> right = parseAssignExpr();
             //binaryOpExpr = std::make_shared<AST::BinaryOpExpr>(binaryOpExpr, right, tok);
             binaryOpExpr = AST::BinaryOpExpr::makeBinaryOpExpr(binaryOpExpr, right, tok);
@@ -401,18 +401,18 @@ std::shared_ptr<AST::Expr>                FunctionParser::parseAssignExpr() {
     Token tok = readToken();
 
     switch (tok.getTag()){
-        case Tag::kw_equal: {
+        case TokenId::kw_equal: {
             std::shared_ptr<AST::Expr> right = parseAssignExpr(); /// 这是一种递归的形式
             //return returnExpr( std::make_shared<AST::BinaryOpExpr>( expr, right, tok));
             return returnExpr(AST::BinaryOpExpr::makeBinaryOpExpr(expr, right, tok));
         }break;
-        case Tag::kw_starequal:
-        case Tag::kw_slashequal:
-        case Tag::kw_plusequal:
-        case Tag::kw_minusequal:
-        case Tag::kw_percentequal:
-        case Tag::kw_lesslessequal:
-        case Tag::kw_greatergreaterequal: {
+        case TokenId::kw_starequal:
+        case TokenId::kw_slashequal:
+        case TokenId::kw_plusequal:
+        case TokenId::kw_minusequal:
+        case TokenId::kw_percentequal:
+        case TokenId::kw_lesslessequal:
+        case TokenId::kw_greatergreaterequal: {
             std::shared_ptr<AST::Expr> right = parseConditionExpr();
 
             //std::shared_ptr<AST::BinaryOpExpr> binaryOpExpr = std::make_shared<AST::BinaryOpExpr>( expr, binaryOpExpr, tok );
@@ -429,10 +429,10 @@ std::shared_ptr<AST::Expr>                FunctionParser::parseConditionExpr() {
     std::shared_ptr<AST::Expr> condition = parseBool();
     Token tok = readToken();
     /// 条件表达式
-    if (tok.match(Tag::kw_question)) {
+    if (tok.match(TokenId::kw_question)) {
         std::shared_ptr<AST::Expr> True = parseBool();
         Token tok = readToken();
-        match(tok, Tag::kw_colon);
+        match(tok, TokenId::kw_colon);
         std::shared_ptr<AST::Expr> False = parseBool();
         return returnExpr( std::make_shared<AST::ConditionExpr>(condition, True, False));
     }
@@ -447,7 +447,7 @@ std::shared_ptr<AST::Expr>                FunctionParser::parseConditionExpr() {
 std::shared_ptr<AST::Expr>                FunctionParser::parseBool() {
     std::shared_ptr<AST::Expr>  binaryOpExpr = parseJoin();
     Token tok = readToken();
-    while (tok.match(Tag::kw_or)) {
+    while (tok.match(TokenId::kw_or)) {
         std::shared_ptr<AST::Expr> right = parseJoin();
         //binaryOpExpr = std::make_shared<AST::BinaryOpExpr>(binaryOpExpr, right, tok);
         binaryOpExpr = AST::BinaryOpExpr::makeBinaryOpExpr(binaryOpExpr, right, tok);
@@ -459,7 +459,7 @@ std::shared_ptr<AST::Expr>                FunctionParser::parseBool() {
 std::shared_ptr<AST::Expr>                FunctionParser::parseJoin() {
     std::shared_ptr<AST::Expr>  binaryOpExpr = parseEquality();
     Token tok = readToken();
-    while (tok.match(Tag::kw_and) ) {
+    while (tok.match(TokenId::kw_and) ) {
         std::shared_ptr<AST::Expr> right = parseEquality();
         //binaryOpExpr = std::make_shared<AST::BinaryOpExpr>(binaryOpExpr, right, tok);
         binaryOpExpr = AST::BinaryOpExpr::makeBinaryOpExpr(binaryOpExpr, right, tok);
@@ -471,7 +471,7 @@ std::shared_ptr<AST::Expr>                FunctionParser::parseJoin() {
 std::shared_ptr<AST::Expr>                FunctionParser::parseEquality() {
     std::shared_ptr<AST::Expr>  binaryOpExpr = parseRel();
     Token tok = readToken();
-    if (tok.match(Tag::kw_equalequal) || tok.match(Tag::kw_exclaimequal) ) {
+    if (tok.match(TokenId::kw_equalequal) || tok.match(TokenId::kw_exclaimequal) ) {
         std::shared_ptr<AST::Expr> right = parseRel();
         //binaryOpExpr = std::make_shared<AST::BinaryOpExpr>(binaryOpExpr, right, tok);
         binaryOpExpr = AST::BinaryOpExpr::makeBinaryOpExpr(binaryOpExpr, right, tok);
@@ -482,7 +482,7 @@ std::shared_ptr<AST::Expr>                FunctionParser::parseEquality() {
 std::shared_ptr<AST::Expr>                FunctionParser::parseRel() {
     std::shared_ptr<AST::Expr>  binaryOpExpr = parseExpr();
     Token tok = readToken();
-    if (tok.match(Tag::kw_less) || tok.match(Tag::kw_lessequal) || tok.match(Tag::kw_greater) || tok.match(Tag::kw_greaterequal)) {
+    if (tok.match(TokenId::kw_less) || tok.match(TokenId::kw_lessequal) || tok.match(TokenId::kw_greater) || tok.match(TokenId::kw_greaterequal)) {
         std::shared_ptr<AST::Expr> right = parseExpr();
         auto type = binaryOpExpr->getTypeId( );
         //binaryOpExpr = std::make_shared<AST::BinaryOpExpr>(binaryOpExpr, right, tok);
@@ -494,7 +494,7 @@ std::shared_ptr<AST::Expr>                FunctionParser::parseRel() {
 std::shared_ptr<AST::Expr>                FunctionParser::parseExpr() {
     std::shared_ptr<AST::Expr>  binaryOpExpr = parseTerm();
     Token tok = readToken();
-    while (tok.match(Tag::kw_plus) || tok.match(Tag::kw_minus)) {
+    while (tok.match(TokenId::kw_plus) || tok.match(TokenId::kw_minus)) {
         std::shared_ptr<AST::Expr> right = parseTerm();
         //binaryOpExpr = std::make_shared<AST::BinaryOpExpr>(binaryOpExpr, right, tok);
         binaryOpExpr = AST::BinaryOpExpr::makeBinaryOpExpr(binaryOpExpr, right, tok);
@@ -513,7 +513,7 @@ std::shared_ptr<AST::Expr>                FunctionParser::parseTerm() {
     /// 4.像 stmts -> stmts stmt 就是串行不相关结构,这个时候我们可用 leftPair ,而不用实现 Stmts这个AST
     std::shared_ptr<AST::Expr>  binaryOpExpr = parseUnary();
     Token tok = readToken( ); ///难点是什么时候该read,什么时候该get
-    while (tok.match(Tag::kw_star) || tok.match(Tag::kw_slash)) {
+    while (tok.match(TokenId::kw_star) || tok.match(TokenId::kw_slash)) {
         std::shared_ptr<AST::Expr> right = parseUnary();
         //binaryOpExpr = std::make_shared<AST::BinaryOpExpr>(binaryOpExpr, right, tok);
         binaryOpExpr = AST::BinaryOpExpr::makeBinaryOpExpr(binaryOpExpr, right, tok);
@@ -524,7 +524,7 @@ std::shared_ptr<AST::Expr>                FunctionParser::parseTerm() {
 
 std::shared_ptr<AST::Expr>                FunctionParser::parseUnary() {
     Token tok = readToken();
-    if (tok.getTag() == Tag::kw_not || tok.getTag() == Tag::kw_minus) {
+    if (tok.getTag() == TokenId::kw_not || tok.getTag() == TokenId::kw_minus) {
         std::shared_ptr<AST::Expr> factor = parseFactor();
         std::shared_ptr<AST::UnaryOpExpr> expr = AST::UnaryOpExpr::makeUnaryOpExpr( factor, tok);
         readToken();
@@ -541,13 +541,13 @@ std::shared_ptr<AST::Expr>                FunctionParser::parseUnary() {
 std::shared_ptr<AST::Expr>                FunctionParser::parseFactor() {
     Token tok = getToken();
     switch (tok.getTag()) {
-    case Tag::kw_l_paren: {
+    case TokenId::kw_l_paren: {
         std::shared_ptr<AST::Expr> expr = parseCommaExpr();
         tok = readToken();
-        match(tok, Tag::kw_r_paren);
+        match(tok, TokenId::kw_r_paren);
         return expr;
     }break;
-    case Tag::id: {
+    case TokenId::kw_id: {
         std::shared_ptr<ENV::ObjectId> id= getEnv()->getObjectId(tok.toString());
         if (nullptr == id) {
             std::string errMsg = "the id " + tok.toString() + " not found";
@@ -558,26 +558,26 @@ std::shared_ptr<AST::Expr>                FunctionParser::parseFactor() {
         
         return objExpr;
     }break;
-    case Tag::kw_true: {
+    case TokenId::kw_true: {
         std::shared_ptr<ENV::TypeId> type = ENV::TopEnv::getBasicType(ENV::BasicType::kBool);
         //std::shared_ptr<ENV::ObjectId> id = getEnv()->getObjectId("true");
         //std::shared_ptr<ENV::TypeId>   type = id->getObjType();
         std::shared_ptr<AST::ConstantExpr<bool>> objExpr = std::make_shared<AST::ConstantExpr<bool>>( type,tok, true);
         return objExpr;
     }break;
-    case Tag::kw_false: {
+    case TokenId::kw_false: {
         //std::shared_ptr<ENV::ObjectId> id = getEnv()->getObjectId("false");
         //std::shared_ptr<ENV::TypeId> type = id->getObjType();
         std::shared_ptr<ENV::TypeId> type = ENV::TopEnv::getBasicType(ENV::BasicType::kBool);
         std::shared_ptr<AST::ConstantExpr<bool>> objExpr = std::make_shared<AST::ConstantExpr<bool>>(type,tok,false);
         return objExpr;
     }break;
-    case Tag::num: {
+    case TokenId::kw_integer: {
         std::shared_ptr<ENV::TypeId> type = ENV::TopEnv::getBasicType(ENV::BasicType::kI32);
         std::shared_ptr<AST::ConstantExpr<int8_t>> constId = std::make_shared<AST::ConstantExpr<int8_t>>( type,tok,1 );
         return constId;
     }break;
-    case Tag::real: {
+    case TokenId::kw_real: {
         std::shared_ptr<ENV::TypeId> type = ENV::TopEnv::getBasicType(ENV::BasicType::kF32);
         std::shared_ptr<AST::ConstantExpr<float>> constId = std::make_shared<AST::ConstantExpr<float>>(type, tok, 1.0f);
         return constId;
