@@ -1,8 +1,8 @@
 #include "Frontend/Lexer/TokenId.h"
 
-std::string_view toStingView(TokenId tag) {
-    switch (tag) {
-#define DECL_KEY_WORD(x,y,...) return std::string_view(#y,sizeof(#y));
+std::string_view toTokenIdString(TokenId tokid) {
+    switch (tokid) {
+#define DECL_KEY_WORD(x,y,...) case TokenId::kw_##x:return std::string_view(#y,sizeof(#y));
 #include "Frontend/Lexer/KeyWord.def"
 #undef DECL_KEY_WORD
     case kw_Unknown:
@@ -11,7 +11,6 @@ std::string_view toStingView(TokenId tag) {
     }break;
     }
 }
-
 
 bool             isKeyWord(TokenId tok) {
     switch (tok) {

@@ -22,7 +22,7 @@ namespace DECL_AST_SPACE(UnaryOpExpr) {
     }
     std::shared_ptr<UnaryOpExpr> UnaryOpExpr::makeUnaryOpExpr(std::shared_ptr<AST::Expr> expr, Token tok) {
         auto typeId = expr->getTypeId();
-        auto newType = typeId->Op(tok.getTag());
+        auto newType = typeId->Op(tok.getTokenId());
         return std::make_shared<UnaryOpExpr>(expr, tok, newType);
     }
     std::shared_ptr<AST::Expr> UnaryOpExpr::getExpr() const {
@@ -51,7 +51,7 @@ namespace DECL_AST_SPACE(BinaryOpExpr) {
 
     std::shared_ptr<BinaryOpExpr> BinaryOpExpr::makeBinaryOpExpr(std::shared_ptr<Expr> left, std::shared_ptr<Expr> right, Token tok) {
         auto type = left->getTypeId();
-        auto newType = type->Op(tok.getTag(), right->getTypeId());
+        auto newType = type->Op(tok.getTokenId(), right->getTypeId());
         return std::make_shared<AST::BinaryOpExpr>(left, right, tok, newType);
     }
 

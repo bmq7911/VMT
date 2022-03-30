@@ -3,11 +3,12 @@
 #include <memory>
 #include "SymbolTable/Id.h"
 
-
 namespace ENV {
     class ObjectId;
     class TypeId;
     class FunctionId;
+    
+
     class Env : public std::enable_shared_from_this<Env> {
     public:
         Env(std::shared_ptr<Env> n);

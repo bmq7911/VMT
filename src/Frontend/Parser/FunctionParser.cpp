@@ -10,7 +10,9 @@ FunctionParser::FunctionParser(std::shared_ptr<TokenReader> reader)
 {}
 
 // 符号表该记录什么,怎么记录都是值得考虑的问题
+// 同样的,我们面临着回退的问题
 std::shared_ptr<AST::Function> FunctionParser::begin( ) {
+
     std::shared_ptr<ENV::Env> savedEnv = getEnv();
     /// 这个目标是为了更好查询使用
     std::shared_ptr<ENV::Env> f_env = std::make_shared<ENV::Env>(savedEnv);
@@ -32,9 +34,9 @@ std::shared_ptr<AST::Function> FunctionParser::begin( ) {
     if (tok.match(TokenId::kw_id)) { /// 类型名
         /// 检查时否是已知类型
     }
-    else if(tok.match(TokenId::kw_basic_type) ){ /// 基础数据类新型
-        
-    }
+    //else if(tok.match(TokenId::kw_basic_type) ){ /// 基础数据类新型
+    //    
+    //}
     tok = readToken();
     std::shared_ptr<AST::Stmt> stmts;
     if (tok.match(TokenId::kw_l_brace)) {
@@ -128,7 +130,7 @@ std::shared_ptr<AST::Stmt>     FunctionParser::parseFunctionBlock() {
 std::shared_ptr<AST::Stmt> FunctionParser::parseStmt() {
     Token tok = readToken();
     std::shared_ptr<AST::Stmt> stmt;
-    switch (tok.getTag()) {
+    switch (tok.getTokenId()) {
     case TokenId::kw_l_brace: {
         stmt = parseBlock();
     }break;
@@ -207,14 +209,14 @@ std::shared_ptr<AST::Stmt>                FunctionParser::parseBlock() {
     return stmts;
 }
 
-std::shared_ptr<AST::IfStmt>                  FunctionParser::parseIf() {
+std::shared_ptr<AST::IfStmt>                  FunctionParser::parseIf( ) {
     Token tok = getToken();
-    match(tok.getTag(), TokenId::kw_if);
+    match(tok.getTokenId(), TokenId::kw_if);
     tok = readToken();
-    match(tok.getTag(), TokenId::kw_l_paren);
+    match(tok.getTokenId(), TokenId::kw_l_paren);
     std::shared_ptr<AST::Expr> boolexpr = parseCommaExpr();
     tok = readToken();
-    match(tok.getTag(),TokenId::kw_r_paren);
+    match(tok.getTokenId(),TokenId::kw_r_paren);
     std::shared_ptr<AST::Stmt> stmt = parseStmt();
     tok = readToken();
     std::shared_ptr<AST::ElseStmt>  elseStmt;
@@ -236,7 +238,7 @@ std::shared_ptr<AST::ElseStmt>                FunctionParser::parseElse() {
 std::shared_ptr<AST::ForStmt>             FunctionParser::parseFor(){
     _EntryLoop();
     Token tok = readToken();
-    match(tok.getTag(), TokenId::kw_l_paren );
+    match(tok.getTokenId(), TokenId::kw_l_paren );
     readToken();
     std::shared_ptr< AST::Expr> initExpr = parseDeclOrExpr();
     tok = readToken();
@@ -247,8 +249,6 @@ std::shared_ptr<AST::ForStmt>             FunctionParser::parseFor(){
     if (boolType != ENV::getTopEnv()->getBasicType(ENV::BasicType::kBool)) {
         /// 这里是一个错误,怎么提示这个错误
         /// 如何进行错误处理
-        std::cout << get()->getLine() << std::endl;
-
         std::cout <<"the bool expr must bool type in for loop stmt" <<std::endl;
     }
     tok = readToken();
@@ -268,7 +268,7 @@ std::shared_ptr<AST::ForStmt>             FunctionParser::parseFor(){
 std::shared_ptr<AST::WhileStmt>           FunctionParser::parseWhile() {
     _EntryLoop();
     Token tok = readToken();
-    match(tok.getTag(), TokenId::kw_l_paren);
+    match(tok.getTokenId(), TokenId::kw_l_paren);
     std::shared_ptr<AST::Expr> boolexpr = parseCommaExpr();
     auto type = boolexpr->getTypeId();
     //if (type != ENV::getTopEnv()->getBasicType(ENV::BasicType::kBool)) {
@@ -313,7 +313,7 @@ std::shared_ptr<AST::Stmt>                FunctionParser::parseReturn() {
 std::shared_ptr<AST::Expr>                FunctionParser::parseDeclOrExpr() {
     Token tok = getToken();
     std::shared_ptr<AST::Expr> expr;
-    switch (tok.getTag()) {
+    switch (tok.getTokenId()) {
     case TokenId::kw_i8:
     case TokenId::kw_i16:
     case TokenId::kw_i32:
@@ -400,7 +400,7 @@ std::shared_ptr<AST::Expr>                FunctionParser::parseAssignExpr() {
     std::shared_ptr<AST::Expr> expr = parseConditionExpr();
     Token tok = readToken();
 
-    switch (tok.getTag()){
+    switch (tok.getTokenId()){
         case TokenId::kw_equal: {
             std::shared_ptr<AST::Expr> right = parseAssignExpr(); /// 这是一种递归的形式
             //return returnExpr( std::make_shared<AST::BinaryOpExpr>( expr, right, tok));
@@ -524,7 +524,7 @@ std::shared_ptr<AST::Expr>                FunctionParser::parseTerm() {
 
 std::shared_ptr<AST::Expr>                FunctionParser::parseUnary() {
     Token tok = readToken();
-    if (tok.getTag() == TokenId::kw_not || tok.getTag() == TokenId::kw_minus) {
+    if (tok.getTokenId() == TokenId::kw_not || tok.getTokenId() == TokenId::kw_minus) {
         std::shared_ptr<AST::Expr> factor = parseFactor();
         std::shared_ptr<AST::UnaryOpExpr> expr = AST::UnaryOpExpr::makeUnaryOpExpr( factor, tok);
         readToken();
@@ -540,7 +540,7 @@ std::shared_ptr<AST::Expr>                FunctionParser::parseUnary() {
 /// 这里实际是最高优先级
 std::shared_ptr<AST::Expr>                FunctionParser::parseFactor() {
     Token tok = getToken();
-    switch (tok.getTag()) {
+    switch (tok.getTokenId()) {
     case TokenId::kw_l_paren: {
         std::shared_ptr<AST::Expr> expr = parseCommaExpr();
         tok = readToken();

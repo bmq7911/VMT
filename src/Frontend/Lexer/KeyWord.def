@@ -55,7 +55,7 @@ KEYWORD(in)
 KEYWORD(out)
 KEYWORD(sizeof)
 KEYWORD(std)
-
+KEYWORD(class)
 
 
 PUNCTUATOR(l_square,            "[")

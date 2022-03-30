@@ -19,7 +19,7 @@ std::shared_ptr<ENV::Env> ParserProxy::setEnv(std::shared_ptr<ENV::Env>env)  {
     return m_env = env;
 }
 void                      ParserProxy::error(uint32_t line, uint32_t col, TokenId expect, TokenId but) {
-    std::cout<<"in ["<< line<<","<<col<<"] expect "<< toString(expect)<<",but give "<< toString(but)  <<std::endl;
+    //std::cout<<"in ["<< line<<","<<col<<"] expect "<< toString(expect)<<",but give "<< toString(but)  <<std::endl;
     abort();
 }
 
@@ -32,7 +32,7 @@ bool                      ParserProxy::match(Token const& tok, TokenId tokid) {
     if (tok.match(tokid)) {
         return true;
     }
-    error(tok.m_location.row(), tok.m_location.col(), tok, tokid );
+    //error(tok.m_location.row(), tok.m_location.col(), tok, tokid );
     return false;
 }
 Token ParserProxy::readToken() {

@@ -4,11 +4,11 @@
 class FunctionParser : public ParserProxy {
 public:
     FunctionParser(std::shared_ptr<TokenReader>);
-    std::shared_ptr<AST::Function>  begin ( );
-    std::shared_ptr<AST::Param>     param( );
-    std::shared_ptr<AST::ParamList> paramList( );
-    std::shared_ptr<AST::Stmt>      parseFunctionBlock();
-    std::shared_ptr<AST::Stmt>      parseStmt();
+    std::shared_ptr<AST::Function>        begin ( );
+    std::shared_ptr<AST::Param>           param( );
+    std::shared_ptr<AST::ParamList>       paramList( );
+    std::shared_ptr<AST::Stmt>            parseFunctionBlock();
+    std::shared_ptr<AST::Stmt>            parseStmt();
     std::shared_ptr<AST::Stmt>            parseBlock();
     std::shared_ptr<AST::IfStmt>          parseIf();
     std::shared_ptr<AST::ElseStmt>        parseElse();
@@ -33,27 +33,6 @@ public:
     std::shared_ptr<AST::Expr>            parseUnary();
     std::shared_ptr<AST::Expr>            parseFactor();
     std::shared_ptr<AST::Expr>            returnExpr(std::shared_ptr<AST::Expr> expr);
-    //AST::Stmt* block();
-    //void decls();
-    //void id_type();
-    //void id_list(Type* type);
-    //Type* type();
-    //Type* dims(Type* p);
-    //AST::Stmt* stmts();
-    //AST::ExprStmt* exprStmt();
-    //AST::Stmt* stmt();
-    //
-    //AST::Stmt* assign();
-    //AST::Expr* boolexpr();
-    //AST::Expr* join();
-    //AST::Expr* equality();
-    //AST::Expr* rel();    
-
-    //AST::Expr* expr();
-    //AST::Expr* term();
-    //AST::Expr* unary();
-    //AST::Expr* factor();
-    //AST::Access* offset(AST::Id* a);
 
 private:
     void _EntryLoop();

@@ -18,15 +18,7 @@ public:
         return m_stream.getToken();
     }
     friend TokenReader& operator>>(TokenReader& reader, Token& tok);
-    uint32_t getLineNum() const {
-        return m_stream.getLineNum();
-    }
-    uint32_t getLineCol() const {
-        return m_stream.getColNum();
-    }
-    std::string getLine() const {
-        return m_stream.getLine();
-    }
+
 
 private:
     TokenStream            m_stream;

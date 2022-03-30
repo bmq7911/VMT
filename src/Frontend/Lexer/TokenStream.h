@@ -29,15 +29,6 @@ public:
     Token getToken() const {
         return m_current;
     }
-    uint32_t getLineNum() const {
-        return m_lex->getLineNum();
-    }
-    uint32_t getColNum() const {
-        return m_lex->getColNum();
-    }
-    std::string getLine() const {
-        return m_lex->getLine();
-    }
 private:
     std::shared_ptr<Lexer> m_lex;
     Token m_forward;
