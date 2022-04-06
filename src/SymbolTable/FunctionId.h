@@ -1,12 +1,11 @@
 #pragma once
-#include "SymbolTable/Id.h"
+#include "SymbolTable/Symbol.h"
 #include "SymbolTable/Env.h"
 
 namespace ENV {
-    class FunctionId : public Id {
+    class FunctionId : public Symbol {
     public:
-        FunctionId( const char* name);
-        IdType getIdType() const override final;
+        FunctionId( std::string_view );
         void   setEnv(std::shared_ptr<ENV::Env> );
 
     private:

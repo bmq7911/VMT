@@ -1,3 +1,8 @@
+class A{
+	void int(){}
+	i32 m_a;
+	i32 m_b;
+};
 
 func main( 	i32 argc, i32 argv)->i32{
 	i32 sum = argc + argv;

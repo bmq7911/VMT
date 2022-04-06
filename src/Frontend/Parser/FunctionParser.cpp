@@ -83,7 +83,7 @@ std::shared_ptr<AST::Param> FunctionParser::param() {
     while ( token.match(TokenId::kw_comma)) {
         token = readToken();
         std::shared_ptr<ENV::TypeId> type = getEnv()->getTypeId(token.toString());
-        if (type && ENV::IdType::kIdType == type->getIdType()) {
+        if (type && ENV::SymbolType::kType == type->getSymbolType()) {
             
         }
         else {

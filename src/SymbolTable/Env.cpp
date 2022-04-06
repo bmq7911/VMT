@@ -1,5 +1,4 @@
 #include "SymbolTable/Env.h"
-#include "SymbolTable/Id.h"
 #include "SymbolTable/FunctionId.h"
 #include "SymbolTable/ObjectId.h"
 #include "SymbolTable/TypeId.h"
@@ -61,31 +60,32 @@ namespace ENV {
            
 
            
-    void Env::put(std::string const & str, std::shared_ptr<ENV::Id> i, ENV::IdType type) {
+    void Env::put(std::string const & str, std::shared_ptr<ENV::Symbol> i, ENV::SymbolType type) {
         switch (type) {
-        case ENV::kIdObject: {
-            std::shared_ptr<ENV::ObjectId> id = std::dynamic_pointer_cast<ENV::ObjectId>(i);
+        case ENV::SymbolType::kVariable: {
+            std::shared_ptr<ENV::ObjectId> id = std::static_pointer_cast<ENV::ObjectId>( i );
             put(str, id);
         }break;
-        case ENV::kIdFunction: {
-            std::shared_ptr<ENV::FunctionId> id = std::dynamic_pointer_cast<ENV::FunctionId>(i);
+        case ENV::SymbolType::kFunction: {
+            std::shared_ptr<ENV::FunctionId> id = std::static_pointer_cast<ENV::FunctionId>( i );
             put(str, id);
         }break;
-        case ENV::kIdType: {
-            std::shared_ptr<ENV::TypeId> id = std::dynamic_pointer_cast<ENV::TypeId>(i);
+        case ENV::SymbolType::kType: {
+            std::shared_ptr<ENV::TypeId> id = std::static_pointer_cast<ENV::TypeId>( i );
             put(str, id);
         }break;
         default:
             break;
         }
     }
+
     uint32_t Env::getEnvIndex() const {
         return envIndex;
     }
 
-    std::shared_ptr<ENV::Id> Env::get(std::string const& w, ENV::IdType type) {
+    std::shared_ptr<ENV::Symbol> Env::get(std::string const& w, ENV::SymbolType type) {
         switch (type) {
-        case ENV::IdType::kIdObject: {
+        case ENV::SymbolType::kVariable: {
             for (std::shared_ptr<Env> e = shared_from_this(); e; e = e->getParent()) {
                 auto iter = e->m_ObjectTable.find(w);
                 if (iter != e->m_ObjectTable.end()) {
@@ -93,7 +93,7 @@ namespace ENV {
                 }
             }
         }break;
-        case ENV::IdType::kIdType: {
+        case ENV::SymbolType::kType: {
             for (std::shared_ptr<Env> e = shared_from_this(); e; e = e->getParent()) {
                 auto iter = e->m_TypeTable.find(w);
                 if (iter != e->m_TypeTable.end()) {
@@ -101,7 +101,7 @@ namespace ENV {
                 }
             }
         } break;
-        case ENV::IdType::kIdFunction: {
+        case ENV::SymbolType::kFunction: {
             for (std::shared_ptr<Env> e = shared_from_this(); e; e = e->getParent()) {
                 auto iter = e->m_FunctionTable.find(w);
                 if (iter != e->m_FunctionTable.end()) {

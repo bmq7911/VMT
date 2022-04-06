@@ -1,7 +1,7 @@
 #pragma once 
 #include <map>
 #include <memory>
-#include "SymbolTable/Id.h"
+#include "SymbolTable/Symbol.h"
 
 namespace ENV {
     class ObjectId;
@@ -19,9 +19,9 @@ namespace ENV {
         std::shared_ptr<ENV::ObjectId>   getObjectId( std::string const& str);
         std::shared_ptr<ENV::FunctionId> getFunctionId(std::string const& str);
         std::shared_ptr<ENV::TypeId>     getTypeId(std::string const& str);
-        void put(std::string const & str, std::shared_ptr<ENV::Id> i, ENV::IdType type);
+        void put(std::string const & str, std::shared_ptr<ENV::Symbol> i, ENV::SymbolType type);
         uint32_t getEnvIndex() const;
-        std::shared_ptr<ENV::Id> get(std::string const& w, ENV::IdType type);
+        std::shared_ptr<ENV::Symbol> get(std::string const& w, ENV::SymbolType type);
 
     private:
         std::shared_ptr<Env> m_prev; /// 连接到前一个符号表,但是前一个符号表不会直接指向内层符号表
@@ -32,4 +32,6 @@ namespace ENV {
         std::map<std::string, std::shared_ptr<ENV::TypeId> >   m_TypeTable;
         std::map<std::string, std::shared_ptr<ENV::FunctionId>>m_FunctionTable;
     };
+
+    
 }
