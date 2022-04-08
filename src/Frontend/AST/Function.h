@@ -60,7 +60,12 @@ namespace AST {
     /// 
     class Function : public std::enable_shared_from_this<Function>, public  TopElement {
     public:
-        void init(std::shared_ptr<ENV::TypeId>  type, Token name, std::shared_ptr<AST::Stmt> stmt, std::shared_ptr<ParamList> param, std::shared_ptr<ENV::Env> env) {
+        void init(std::shared_ptr<ENV::TypeId>  type,
+                  Token name,
+                  std::shared_ptr<AST::Stmt> stmt,
+                  std::shared_ptr<ParamList> param,
+                  std::shared_ptr<ENV::Env> env) 
+        {
             m_type    = type;
             m_funName = name;
             m_args    = param;

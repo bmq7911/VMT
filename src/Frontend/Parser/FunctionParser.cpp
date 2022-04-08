@@ -16,7 +16,22 @@ std::shared_ptr<AST::Function> FunctionParser::begin( ) {
     std::shared_ptr<ENV::Env> savedEnv = getEnv();
     /// 这个目标是为了更好查询使用
     std::shared_ptr<ENV::Env> f_env = std::make_shared<ENV::Env>(savedEnv);
-    
+    bool isConst = false;
+    Token tok = readToken( );
+    if (match(tok, TokenId::kw_const)) {
+        // 处理函数
+        isConst = true;
+        tok = readToken();
+    }
+    if (match(tok, TokenId::kw_id)) {
+        std::string tokname = tok.toString();
+        std::shared_ptr<ENV::TypeId> returnType = getEnv()->getTypeId( tokname );
+        if (!returnType) {
+            
+        }
+    }
+
+
 
     setEnv(f_env);
     Token tok = readToken();
