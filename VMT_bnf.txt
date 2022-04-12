@@ -57,11 +57,93 @@ f32 t(2)
 
 TMA bnf 
 
-function_define ::= type func_name "=" func_body
+type_define ::= "type" type "{" type_body "}"
+type_body   ::= 
 
-func_body ::= func "(" function_param_list ")" -> expr_stmt
+function_define ::= type attribute func_name "=" func_body
+type ::=id
+attribute ::= id | φ
+func_name ::= id
+
+func_body ::= "func" "(" function_decl_param_list ")" -> function_stmt
 		  ::= call_stmt ";"
-		  
-call_stmt ::= id "(" param_list ")" 
-          ::= id 
+
+function_decl_param_list ::= φ | decl_param_list
+decl_param_list          ::= decl_param | decl_param, decl_param_list
+decl_param               ::= type func_name
+
+function_stmt ::= block_stmt
+              ::= expr_stmt
+			  
+stmt ::= block_stmt
+     ::= if "(" bool_expr ")" stmt
+	 ::= if "(" bool_expr ")" stmt else stmt
+	 ::= while "(" bool_expr ")" stmt
+	 ::= do stmt while"(" bool_expr ")" ";"
+	 ::= break ";"
+	 ::= continue ";"
+	 ::= ";"
+block_stmt ::= "{" stmt "}"
+
+stmts ::= stmts stmt
+      ::= φ
+expr_stmt ::=expr ";"
+
+call_stmt     ::= func_name "(" param_list ")" 
+              ::= const_func 
 		 
+		 
+expr ::= bool_expr
+     ::= num_expr
+     ::= void_expr
+     ::= assign_expr
+     ::= decls_expr
+	 
+/// 预算符号的优先级,这个是最低优先级	 
+bool_expr  ::= bool_expr "or" join
+           ::= join
+
+		   
+join       ::= join "and" equality
+           ::= equality
+
+		   
+		   
+		   
+		   
+equality  ::= "not" bool_unary
+		  ::= bool_unary
+		  
+bool_unary ::= "(" bool_expr ")"
+		   ::= true
+		   ::= false
+		   ::= bool_var
+		   ::= num_bool_expr
+		   
+num_bool_expr ::= num_expr "==" num_expr 
+              ::= num_expr "!=" num_expr 
+    	      ::= num_bool_expr_second
+		   
+		   
+		   
+		   
+num_bool_expr_second ::= num_expr "<" num_expr
+                     ::= num_expr "<=" num_expr
+			         ::= num_expr ">" num_expr
+			         ::= num_expr ">=" num_expr
+			  
+			  
+num_expr ::= num_expr "+" term
+         ::= num_expr "-" term
+		 ::= term
+		
+term ::=  term "*" unary 
+     ::=  term "/" unary
+     ::=  unary
+
+unary ::= "-" unary
+      ::= factor
+	  
+foctor ::= "(" num_expr ")"  | id | num | real | object
+
+
