@@ -17,6 +17,7 @@ std::shared_ptr<AST::Function> FunctionParser::begin( ) {
     /// 这个目标是为了更好查询使用
     std::shared_ptr<ENV::Env> f_env = std::make_shared<ENV::Env>(savedEnv);
     bool isConst = false;
+
     Token tok = readToken( );
     if (match(tok, TokenId::kw_const)) {
         // 处理函数
@@ -27,9 +28,14 @@ std::shared_ptr<AST::Function> FunctionParser::begin( ) {
         std::string tokname = tok.toString();
         std::shared_ptr<ENV::TypeId> returnType = getEnv()->getTypeId( tokname );
         if (!returnType) {
-            
+            return nullptr;
         }
     }
+    tok = readToken( );
+    if (!match(tok, TokenId::kw_equal)) {
+       
+    }
+
 
 
 
@@ -127,6 +133,7 @@ std::shared_ptr<AST::ParamList>  FunctionParser::paramList() { /// 这里可能为空,
     paramList->setParam(param);
     return paramList;
 }
+
 /// <summary>
 ///  这里的写法是递归下降分析,通过递归下降分析,分析出产生式,通过产生式和语义规则进行语法制导翻译,这里的语法制导翻译是指导生成抽象语法树
 ///  在后面的由抽象语法树到三地址格式使用的语法制导翻译是 通过产生式和语义规则,将抽象语法树转化为三地址码

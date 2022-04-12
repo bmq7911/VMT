@@ -1,0 +1,67 @@
+1. 以函数为核心,没有变量的概念,但由常函数数的概念
+
+/// 还是由变量的概念
+const f32 g = f32(9.8); /// 常函数
+const f32 g = y(10);
+f32 x; /// 这是一个函数
+
+x=10; ///常数也是函数
+
+
+f32 y = func(f32 x)->x * x + 3 * x + 4;
+f32 g = y( y  ) /// 这也是一个函数,g是一个函数,常函数
+g(10) = y( y(10))
+
+vec3<f32> hf=func(f32 x )->[x*x, x * sin(x), 3 * x]
+hf.getX( );
+
+template<typename T>
+classf{
+public:
+	T func getX()->x;
+	T func getY()->y;
+	T func getZ()->z;
+	
+private:
+	T x,T y,T z;
+};
+
+classf f32{
+	f32 func(f32 x)->x;
+
+};
+
+
+f32 add = g(f32 x, f32 y);
+
+f32 add = func( f32 x ){
+if( x < 10 ){
+	x * x  + 10;
+}
+else{
+	x + func( f32 g ){
+		g * g;
+	}
+}
+}
+
+/// f32 是一个类
+f32 t = add( 10 )
+f32 t(2) 
+
+/*
+ * 在词法分析阶段,我们得到的是Token流,每个Token流存在相关类型,但这个类型也仅仅是区分了各个词法单元是由什么样的字符组成和组成的结构,并没有语义信息
+ * 在语法分析阶段,我们使用的是Token流,Token流之中的数据可能满足语法规则,但是不一定满足语义规则,所有语法分析阶段我们不应该去考虑语义信息
+ * 在语义分析阶段,我们才会去关注每一个Token对于的语义信息,这时候满足语法规则的东西并不一定满足语义信息,因此在语法分析阶段不应该去考虑语义信息
+ */
+
+TMA bnf 
+
+function_define ::= type func_name "=" func_body
+
+func_body ::= func "(" function_param_list ")" -> expr_stmt
+		  ::= call_stmt ";"
+		  
+call_stmt ::= id "(" param_list ")" 
+          ::= id 
+		 
