@@ -21,7 +21,7 @@ namespace ENV {
                                               TokenId::kw_minusminus, };
             for (size_t i = 0; i < sizeof(tagSupport) / sizeof(tagSupport[0]); ++i) {
                 if (tok == tagSupport[i])
-                    return shared_from_this();
+                    return std::enable_shared_from_this<RealType<_T>>::shared_from_this();
             }
             return getTopEnv()->getBasicType(ENV::BasicType::kArbitrary);
         }
@@ -57,7 +57,7 @@ namespace ENV {
                         if (this != type.get()) {
                             return ENV::getTopEnv()->getBasicType(ENV::BasicType::kArbitrary);
                         }
-                        return shared_from_this();
+                        return std::enable_shared_from_this<RealType<_T>>::shared_from_this();
                     }
                 }
                 for (size_t i = 0; i < sizeof(tagSupport2) / sizeof(tagSupport2[0]); ++i) {

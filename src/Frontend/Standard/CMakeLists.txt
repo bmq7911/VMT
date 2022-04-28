@@ -12,8 +12,11 @@ source_group_by_dir(all_files)
 include_directories( ${CMAKE_SOURCE_DIR}/src )
 
 
-
+if(MSVC)
 add_compile_options("/std:c++17")
+else()
+add_compile_options("-std=c++17")
+endif()
 add_library( "libStandard" STATIC ${all_files}  )
 set_property(TARGET "libStandard" PROPERTY FOLDER "Frontend")
 target_link_libraries("libStandard" libADT )

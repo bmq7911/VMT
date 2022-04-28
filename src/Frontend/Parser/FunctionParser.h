@@ -1,4 +1,5 @@
 #pragma once
+#include "Frontend/AST/AST.h"
 #include "Frontend/Parser/ParserProxy.h"
 
 class FunctionParser : public ParserProxy {
@@ -8,6 +9,7 @@ public:
     std::shared_ptr<AST::Function>        begin ( );
     std::shared_ptr<AST::Type>            parseType();
     std::shared_ptr<AST::Attribute>       parseAttribute();
+    std::shared_ptr<AST::FunctionBody>    parseFunctionBody( );
     std::shared_ptr<AST::Param>           param( );
     std::shared_ptr<AST::ParamList>       paramList( );
     std::shared_ptr<AST::Stmt>            parseFunctionBlock();

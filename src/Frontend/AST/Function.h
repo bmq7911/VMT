@@ -1,12 +1,16 @@
 #pragma once
+#include <vector>
 #include "Frontend/AST/Node.h"
 #include "Frontend/AST/ObjectExpr.h"
 #include "Frontend/AST/TopElement.h"
 #include "Frontend/AST/Stmt.h"
+#include "Frontend/AST/Type.h"
+#include "Frontend/AST/Attribute.h"
+#include "Frontend/AST/FunctionBody.h"
 #include "SymbolTable/TypeId.h"
 #include "SymbolTable/FunctionId.h"
 
-#include <vector>
+
 
 namespace AST {
     class Param : public Node{
@@ -52,12 +56,7 @@ namespace AST {
         std::shared_ptr<Param> m_params;
     };
     
-    /// 这里是AST,抽象语法树
-    /// 抽象语法树:每个内部节点代表一个运算符,该节点的子节点代表运算分量
-    /// 我们可以把流控语句看做一种运算,流控和表示也就统一成为了运算
-    /// 那我们怎么来看, 函数(非函数调用),基本数据类型,复合数据类型(struct,template struct) 
-    /// 这些东西怎么来看,如果我们把函数看做对象(具有某种类型的对象),那么程序就变为了具有类型对象的预算集合
-    /// 
+
     class Function : public std::enable_shared_from_this<Function>, public  TopElement {
     public:
         void init(std::shared_ptr<ENV::TypeId>  type,
@@ -89,5 +88,8 @@ namespace AST {
 
         std::shared_ptr<ENV::Env>        m_functionEnv; 
         std::shared_ptr<ENV::FunctionId> m_functionInfo;
+        std::shared_ptr<AST::Type>       m_returnType;
+        std::shared_ptr<AST::Attribute>  m_attribute;
+        std::shared_ptr<AST::FunctionBody> m_functionBody;
     };
 }

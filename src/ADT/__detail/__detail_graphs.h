@@ -158,7 +158,7 @@ namespace __detail{
                 return __GetVertex();
             }
             vertex const* get_vertex() const {
-                return 
+                return __GetVertex();
             }
     private:
             vertex* __GetVertex(){

@@ -1,3 +1,4 @@
+#include <string.h>
 #include "SymbolTable/TopEnv.h"
 #include "SymbolTable/ObjectId.h"
 #include "Frontend/AST/ConstantExpr.h"

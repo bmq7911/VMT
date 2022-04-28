@@ -33,6 +33,8 @@ namespace AST{
 #include "Frontend/AST/Temp.h"
 #include "Frontend/AST/Attribute.h"
 #include "Frontend/AST/Type.h"
+#include "Frontend/AST/FunctionBody.h"
+
 #include "Frontend/AST/Program.h"
 
 

@@ -1,9 +1,12 @@
 # 学习cmake 就是阅读别人的cmake
-cmake_minimum_required (VERSION 2.8)
-cmake_policy(VERSION 2.8)
+cmake_minimum_required (VERSION 3.0)
+cmake_policy(VERSION 3.0 )
 project (VMT)
 
-enable_language( ASM_MASM )
+
+#set(CMAKE_C_COMPILER "/home/ch/bin/bin/gcc-11")
+#set(CMAKE_CXX_COMPILER "/home/ch/bin/bin/g++-11")
+#enable_language( ASM_MASM )
 IF(NOT CMAKE_BUILD_TYPE)
   SET(CMAKE_BUILD_TYPE Debug CACHE STRING "Choose the type of build (Debug or Release)" FORCE)
 ENDIF(NOT CMAKE_BUILD_TYPE)
@@ -80,7 +83,7 @@ macro(source_group_export_header_to_public header_dir header_files)
     endif(MSVC)
 endmacro(source_group_export_header_to_public)
 
-add_subdirectory( 3rdparty/googletest )
+add_subdirectory( 3rdpart/googletest )
 add_subdirectory( src )
 add_subdirectory( VMT_Test )
 

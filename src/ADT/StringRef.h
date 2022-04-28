@@ -1,6 +1,6 @@
 #pragma once
 #include <stdint.h>
-#include <cstringt.h>
+#include <cstring>
 #include <string>
 
 namespace ADT {

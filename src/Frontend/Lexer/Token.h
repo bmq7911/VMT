@@ -4,7 +4,7 @@
 #include "Frontend/Lexer/TokenId.h"
 #include "Frontend/Lexer/FileLocation.h"
 
-class Token { /// 这个token 信息太少了,按道理是不够的
+class Token { 
 public:
     Token() 
         :m_tokenId(TokenId::kw_Unknown)

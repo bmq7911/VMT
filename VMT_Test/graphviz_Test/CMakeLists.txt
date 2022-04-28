@@ -5,7 +5,11 @@ set(ITERM_NAME "graphviz_Test")
 source_group_by_dir(all_files)
 include_directories( ${CMAKE_SOURCE_DIR}/src )
 
+if(MSVC)
 add_compile_options("/std:c++17")
+else()
+add_compile_options("-std=c++17")
+endif(MSVC)
 SET(EXECUTABLE_OUTPUT_PATH ${CMAKE_SOURCE_DIR}/bin)
 
 add_executable( ${ITERM_NAME}  ${all_files}  )
