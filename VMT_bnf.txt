@@ -7,6 +7,7 @@ f32 x; /// 这是一个函数
 
 x=10; ///常数也是函数
 
+f32 y 
 
 f32 y = func(f32 x)->x * x + 3 * x + 4;
 f32 g = y( y  ) /// 这也是一个函数,g是一个函数,常函数
@@ -72,6 +73,9 @@ function_decl_param_list ::= φ | decl_param_list
 decl_param_list          ::= decl_param | decl_param, decl_param_list
 decl_param               ::= type func_name
 
+function_expr ::= expr_stmt
+              ::= block_stmt
+			  
 function_stmt ::= block_stmt
               ::= expr_stmt
 			  

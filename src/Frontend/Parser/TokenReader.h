@@ -1,30 +1,27 @@
 
 #pragma once
 #include "Frontend/Lexer/Lexer.h"
-#include "Frontend/Lexer/TokenStream.h"
 
 class TokenReader {
 public:
     TokenReader(std::shared_ptr<Lexer> lex) 
-        : m_stream(lex)
-    {}
-    Token readToken() {
-        return m_stream.readToken();
+        :  m_lexer(lex)
+    {
+        m_advanceToken = m_lexer->scan();
     }
-    Token fallbackToken() {
-        return m_stream.fallbackToken();
+    Token advanceToken() {
+        return m_advanceToken;
+    }
+    Token readToken() {
+        m_currentToken = m_advanceToken;
+        m_advanceToken = m_lexer->scan();
+        return m_currentToken;
     }
     Token getToken() const {
-        return m_stream.getToken();
+        return m_currentToken;
     }
-    friend TokenReader& operator>>(TokenReader& reader, Token& tok);
-
-
 private:
-    TokenStream            m_stream;
+    std::shared_ptr<Lexer> m_lexer;
+    Token                  m_advanceToken;
+    Token                  m_currentToken;
 };
-
-static inline TokenReader& operator>>(TokenReader& reader, Token& tok) {
-    tok = reader.readToken();
-    return reader;
-}

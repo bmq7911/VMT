@@ -31,7 +31,8 @@ namespace AST{
 #include "Frontend/AST/ContinueStmt.h"
 #include "Frontend/AST/Program.h"
 #include "Frontend/AST/Temp.h"
-
+#include "Frontend/AST/Attribute.h"
+#include "Frontend/AST/Type.h"
 #include "Frontend/AST/Program.h"
 
 

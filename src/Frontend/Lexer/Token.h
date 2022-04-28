@@ -40,9 +40,24 @@ public:
     operator bool() const {
         return TokenId::kw_Unknown != m_tokenId;
     }
+    template<typename ... T>
+    bool match(T ... id) const;
 
     bool match(TokenId tag) const {
         return tag == m_tokenId;
+    }
+    template<typename ... T>
+    bool match(TokenId head, T ... id) const {
+        return match( head ) ? true : match( id ... );
+    }
+    template<typename ... T>
+    bool not_match(T ... id) const;
+    bool not_match(TokenId id) const {
+        return m_tokenId != id;
+    }
+    template<typename ... T>
+    bool not_match(TokenId head, T ... id) const {
+        return not_match(head) ? true : not_match(id ...);
     }
 	std::string toString() const {
         return m_location.toString();
