@@ -32,5 +32,6 @@ private:
     Token _ScanPunctuation();
 private:
     uint32_t m_peek{ ' ' };
+    std::map<std::string, TokenId> m_keyWordMap;
 };
 

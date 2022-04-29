@@ -73,8 +73,7 @@ function_decl_param_list ::= φ | decl_param_list
 decl_param_list          ::= decl_param | decl_param, decl_param_list
 decl_param               ::= type func_name
 
-function_expr ::= expr_stmt
-              ::= block_stmt
+
 			  
 function_stmt ::= block_stmt
               ::= expr_stmt

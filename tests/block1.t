@@ -1,10 +1,5 @@
-class A{
-	void int(){}
-	i32 m_a;
-	i32 m_b;
-};
 
-func main( 	i32 argc, i32 argv)->i32{
+f32 main = func( i32 argc, i32 argv)->{
 	i32 sum = argc + argv;
 	i32 a,b,c,d,e,f,g,h;
 	a,b+c,e+f,g*h;

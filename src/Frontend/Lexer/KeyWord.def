@@ -2,11 +2,16 @@
 #define DECL_KEY_WORD( x, name , __is_keyword , __is_punctuator )
 #endif /// DECL_KEY_WORD
 #ifdef DECL_KEY_WORD
+#ifndef KEYWORD
 #define KEYWORD(x) DECL_KEY_WORD(x, #x, true,false)
+#endif  ///KEYWORD
+#ifndef PUNCTUATOR
 #define PUNCTUATOR(x, y) DECL_KEY_WORD(x, y, false,true)
+#endif ///PUNCTUATOR
+#ifndef KEY_TAG
 #define KEY_TAG(x) DECL_KEY_WORD(x, #x, false,false)
+#endif ///KEY_TAG
 #endif 
-
 
 KEYWORD(if)
 KEYWORD(else)
@@ -16,6 +21,7 @@ KEYWORD(for)
 KEYWORD(break)
 KEYWORD(continue)
 KEYWORD(const)
+KEYWORD(static)
 KEYWORD(return)
 KEYWORD(swith)
 KEYWORD(case)
@@ -40,16 +46,16 @@ KEYWORD(bitor)
 KEYWORD(bitcompl)
 KEYWORD(void)
 KEYWORD(bool)
-KEYWORD(i8)
-KEYWORD(i16)
-KEYWORD(i32)
-KEYWORD(i64)
-KEYWORD(ui8)
-KEYWORD(ui16)
-KEYWORD(ui32)
-KEYWORD(ui64)
-KEYWORD(f32)
-KEYWORD(f64)
+//KEYWORD(i8)
+//KEYWORD(i16)
+//KEYWORD(i32)
+//KEYWORD(i64)
+//KEYWORD(ui8)
+//KEYWORD(ui16)
+//KEYWORD(ui32)
+//KEYWORD(ui64)
+//KEYWORD(f32)
+//KEYWORD(f64)
 KEYWORD(array)
 KEYWORD(in)
 KEYWORD(out)

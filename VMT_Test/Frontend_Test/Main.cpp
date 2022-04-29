@@ -3,7 +3,7 @@
 #include "Frontend/Lexer/Lexer.h"
 #include "Frontend/Lexer/FileLexer.h"
 #include "Frontend/Parser/ProgramParser.h"
-
+#include "Frontend/Parser/FunctionParser.h"
 
 int main( int argc, char * argv[]) {
     if (argc != 2) {
@@ -12,6 +12,7 @@ int main( int argc, char * argv[]) {
 
     std::shared_ptr<FileLexer> lex = std::make_shared<FileLexer>( argv[1]);
     uint32_t lastLine = 0;
+    /*
     do {
         auto tok = lex->scan();
         
@@ -26,7 +27,12 @@ int main( int argc, char * argv[]) {
             break;
         }
     } while ( true );
+    */
     //std::shared_ptr<ProgramParser> parser = std::make_shared<ProgramParser>( lex );
     //parser->startParser( );
+    std::shared_ptr<TokenReader> reader = std::make_shared<TokenReader>(lex);
+    std::shared_ptr<FunctionParser> parser = std::make_shared<FunctionParser>(reader);
+    parser->begin();
+
 	printf("\n");
 }

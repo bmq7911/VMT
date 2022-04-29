@@ -2,6 +2,12 @@
 
 Lexer::Lexer() {
 
+#define DECL_KEY_WORD(x,y,...)
+#define KEYWORD(x) m_keyWordMap.insert( std::make_pair(#x, kw_##x) );
+#include "Frontend/Lexer/KeyWord.def"
+#undef KEYWORD
+#undef DECL_KEY_WORD
+    
 }
 
 
@@ -109,6 +115,10 @@ Token Lexer::_ScanIdentifier() {
         m_peek = _Readch();
     } while ( std::isalpha(m_peek) || std::isdigit(m_peek) || '_' == m_peek);
     std::string_view lexeme = genLexeme( );
+    auto iter = m_keyWordMap.find( static_cast<std::string>(lexeme));
+    if (iter != m_keyWordMap.end()) {
+        return genToken(iter->second);
+    }
     return genToken(TokenId::kw_id);
 }
 

@@ -12,7 +12,9 @@ add_compile_options("/std:c++17")
 else( )
 add_compile_options("-std=c++17")
 endif()
+
 add_library( "libParser" STATIC ${all_files} )
+target_link_libraries( "libParser" PRIVATE libSymbols libDiagnose )
 set_property(TARGET "libParser" PROPERTY FOLDER "Frontend")
 
 
