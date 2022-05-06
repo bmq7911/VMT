@@ -1,4 +1,3 @@
-
 f32 main = func( i32 argc, i32 argv)->{
 	i32 sum = argc + argv;
 	i32 a,b,c,d,e,f,g,h;

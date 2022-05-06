@@ -1,8 +1,8 @@
 #include <string.h>
 #include "SymbolTable/TopEnv.h"
 #include "SymbolTable/ObjectId.h"
-#include "Frontend/AST/ConstantExpr.h"
-#include "Frontend/AST/BoolConstantExpr.h"
+#include "Frontend/AST/AstConstantExpr.h"
+#include "Frontend/AST/AstBoolConstantExpr.h"
 #include "SymbolTable/IntegerType.h"
 #include "SymbolTable/BoolType.h"
 #include "SymbolTable/RealType.h"

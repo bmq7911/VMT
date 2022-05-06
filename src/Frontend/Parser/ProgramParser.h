@@ -1,7 +1,7 @@
 #pragma once
 #include "Frontend/Parser/ParserProxy.h"
 #include "Frontend/Parser/FunctionParser.h"
-#include "Frontend/AST/Program.h"
+#include "Frontend/AST/AstProgram.h"
 
 class ProgramParser : public ParserProxy {
 public:
@@ -10,11 +10,11 @@ public:
     void startParser();
     /// 注释可以在词法分析阶段给剔除掉
     void program();
-    std::shared_ptr<AST::Function> ParseFunction( );
-    std::shared_ptr<AST::Program>  getProgram();
+    std::shared_ptr<AST::AstFunction> ParseFunction( );
+    std::shared_ptr<AST::AstProgram>  getProgram();
 	
 private:
-    std::shared_ptr<AST::Program> m_program;
+    std::shared_ptr<AST::AstProgram> m_program;
     std::shared_ptr<ENV::Env> m_env;
     using ParserProxy::ParserProxy;
 };

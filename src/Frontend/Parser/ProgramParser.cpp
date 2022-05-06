@@ -4,7 +4,7 @@ ProgramParser::ProgramParser(std::shared_ptr<TokenReader> parserCore)
     :ParserProxy( parserCore)
 {
     /// 每个程序都有个env
-    m_program = std::make_shared<AST::Program>();
+    m_program = std::make_shared<AST::AstProgram>();
 }
 
 void ProgramParser::startParser() {
@@ -17,8 +17,7 @@ void ProgramParser::program() {
     
     while (!tok.match(TokenId::kw_eof )) {
         if (tok.match(TokenId::kw_func)) {
-             std::shared_ptr<AST::TopElement> top = ParseFunction();
-             m_program->addTopElement( top );
+             std::shared_ptr<AST::AstTree> top = ParseFunction();
         }
         else if (tok.match(TokenId::kw_template)) {
         
@@ -30,7 +29,7 @@ void ProgramParser::program() {
     }
 }
 
-std::shared_ptr<AST::Function> ProgramParser::ParseFunction( ) {
+std::shared_ptr<AST::AstFunction> ProgramParser::ParseFunction( ) {
     Token tok = getToken( );
     if (tok.match(TokenId::kw_func)) {
         std::shared_ptr<FunctionParser> funcParser = std::make_shared<FunctionParser>( get());
@@ -42,7 +41,7 @@ std::shared_ptr<AST::Function> ProgramParser::ParseFunction( ) {
     return nullptr;
 }
 
-std::shared_ptr<AST::Program>  ProgramParser::getProgram() {
+std::shared_ptr<AST::AstProgram>  ProgramParser::getProgram() {
     return m_program;
 }
 

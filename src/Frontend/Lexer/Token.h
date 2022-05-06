@@ -34,7 +34,6 @@ public:
             m_location = std::move(tok.m_location);
         }
         return *this;
-
     }
 
     operator bool() const {

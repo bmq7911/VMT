@@ -1,0 +1,21 @@
+#pragma once
+#include "Frontend/AST/AstExpr.h"
+#include <string>
+namespace ENV {
+    class Env;
+}
+
+namespace AST {
+    class AstObjectExpr : public AstExpr { /// 这个和 Identifier 是不同的
+    public:
+        AstObjectExpr() 
+            : AstExpr( )
+        {
+        }
+        virtual std::string toString() const = 0;
+        virtual std::shared_ptr<AST::AstObjectExpr> reduce(std::shared_ptr<AST::IASTVisitor> visitor) = 0;
+    private:
+        Token m_tok;
+    };
+}
+

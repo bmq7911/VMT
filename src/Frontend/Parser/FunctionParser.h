@@ -6,40 +6,40 @@ class FunctionParser : public ParserProxy {
 public:
     FunctionParser(std::shared_ptr<TokenReader>);
 
-    std::shared_ptr<AST::Function>        begin ( );
-    std::shared_ptr<AST::Type>            parseType();
-    std::shared_ptr<AST::Attribute>       parseAttribute();
-    std::shared_ptr<AST::FunctionBody>    parseFunctionBody();
-    std::shared_ptr<AST::Stmt>            parseFunctionStmt();
-    std::shared_ptr<AST::Param>           param( );
-    std::shared_ptr<AST::ParamList>       paramList( );
-    std::shared_ptr<AST::Stmt>            parseFunctionBlock();
-    std::shared_ptr<AST::Stmt>            parseFunctionExpr();
-    std::shared_ptr<AST::Stmt>            parseStmt();
-    std::shared_ptr<AST::Stmt>            parseBlock();
-    std::shared_ptr<AST::IfStmt>          parseIf();
-    std::shared_ptr<AST::ElseStmt>        parseElse();
-    std::shared_ptr<AST::ForStmt>         parseFor();
-    std::shared_ptr<AST::WhileStmt>       parseWhile();
-    std::shared_ptr<AST::DoWhileStmt>     parseDoWhile();
-    std::shared_ptr<AST::Stmt>            parseReturn();
+    std::shared_ptr<AST::AstFunction>        begin ( );
+    std::shared_ptr<AST::AstType>            parseType();
+    std::shared_ptr<AST::AstAttribute>       parseAttribute();
+    std::shared_ptr<AST::AstFunctionBody>    parseFunctionBody();
+    std::shared_ptr<AST::AstStmt>            parseFunctionStmt();
+    std::shared_ptr<AST::AstParam>           param( );
+    std::shared_ptr<AST::AstParamList>       paramList( );
+    std::shared_ptr<AST::AstStmt>            parseFunctionBlock();
+    std::shared_ptr<AST::AstStmt>            parseFunctionExpr();
+    std::shared_ptr<AST::AstStmt>            parseStmt();
+    std::shared_ptr<AST::AstStmt>            parseBlock();
+    std::shared_ptr<AST::AstIfStmt>          parseIf();
+    std::shared_ptr<AST::AstElseStmt>        parseElse();
+    std::shared_ptr<AST::AstForStmt>         parseFor();
+    std::shared_ptr<AST::AstWhileStmt>       parseWhile();
+    std::shared_ptr<AST::AstDoWhileStmt>     parseDoWhile();
+    std::shared_ptr<AST::AstStmt>            parseReturn();
 
-    std::shared_ptr<AST::Expr>            parseDeclOrExpr();
-    std::shared_ptr<AST::Expr>            parseDecl( std::shared_ptr<ENV::TypeId> type);
+    std::shared_ptr<AST::AstExpr>            parseDeclOrExpr();
+    std::shared_ptr<AST::AstExpr>            parseDecl( std::shared_ptr<ENV::TypeId> type);
     
-    std::shared_ptr<AST::Expr>            parseCommaExpr();
-    std::shared_ptr<AST::Expr>            parseAssignExpr();
-    std::shared_ptr<AST::Expr>            parseConditionExpr();
+    std::shared_ptr<AST::AstExpr>            parseCommaExpr();
+    std::shared_ptr<AST::AstExpr>            parseAssignExpr();
+    std::shared_ptr<AST::AstExpr>            parseConditionExpr();
 
-    std::shared_ptr<AST::Expr>            parseBool();
-    std::shared_ptr<AST::Expr>            parseJoin();
-    std::shared_ptr<AST::Expr>            parseEquality();
-    std::shared_ptr<AST::Expr>            parseRel();
-    std::shared_ptr<AST::Expr>            parseExpr();
-    std::shared_ptr<AST::Expr>            parseTerm();
-    std::shared_ptr<AST::Expr>            parseUnary();
-    std::shared_ptr<AST::Expr>            parseFactor();
-    std::shared_ptr<AST::Expr>            returnExpr(std::shared_ptr<AST::Expr> expr);
+    std::shared_ptr<AST::AstExpr>            parseBool();
+    std::shared_ptr<AST::AstExpr>            parseJoin();
+    std::shared_ptr<AST::AstExpr>            parseEquality();
+    std::shared_ptr<AST::AstExpr>            parseRel();
+    std::shared_ptr<AST::AstExpr>            parseExpr();
+    std::shared_ptr<AST::AstExpr>            parseTerm();
+    std::shared_ptr<AST::AstExpr>            parseUnary();
+    std::shared_ptr<AST::AstExpr>            parseFactor();
+    std::shared_ptr<AST::AstExpr>            returnExpr(std::shared_ptr<AST::AstExpr> expr);
 
 private:
     void _EntryLoop();
