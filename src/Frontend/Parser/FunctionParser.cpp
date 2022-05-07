@@ -252,7 +252,7 @@ std::shared_ptr<AST::AstStmt>                FunctionParser::parseBlock( ) {
     std::shared_ptr<ENV::Env> f_env = std::make_shared<ENV::Env>(savedEnv);
     Token tok = readToken();
     tok.match( TokenId::kw_l_brace);
-    std::shared_ptr<AST::AstStmts> stmts = std::make_shared<AST::AstStmts>();
+    std::shared_ptr<AST::AstStmts> stmts = std::make_shared<AST::AstStmts>( );
     do {
         std::shared_ptr<AST::AstStmt> stmt = parseStmt();
         stmts->add(stmt);
@@ -363,42 +363,22 @@ std::shared_ptr<AST::AstStmt>                FunctionParser::parseReturn() {
     std::shared_ptr<AST::AstReturnStmt> returnStmt = std::make_shared<AST::AstReturnStmt>( exprStmt);
     return returnStmt;
 }
+// decl ::=type id  ";" | "=" expr ';'
 
 std::shared_ptr<AST::AstExpr>                FunctionParser::parseDeclOrExpr() {
     Token tok = readToken();
-    std::shared_ptr<AST::AstExpr> expr;
-    switch (tok.getTokenId()) {
-    /*
-    case TokenId::kw_i8:
-    case TokenId::kw_i16:
-    case TokenId::kw_i32:
-    case TokenId::kw_i64:
-    case TokenId::kw_ui8:
-    case TokenId::kw_ui16:
-    case TokenId::kw_ui32:
-    case TokenId::kw_ui64:
-    case TokenId::kw_f32:
-    case TokenId::kw_f64:
-    */
-    case TokenId::kw_bool: { 
-        std::shared_ptr<ENV::TypeId> type = getEnv()->getTypeId(tok.toString());
-        expr = parseDecl(type);
-    }break;
-    case TokenId::kw_id: {
-        std::shared_ptr<ENV::TypeId> type = getEnv()->getTypeId( tok.toString() );
-        if (type) { 
-            expr = parseDecl(type);
-        }
-        else { ///
-            //fallbackToken(); 
-            expr= parseCommaExpr();
-        }
-    }break;
-    case TokenId::kw_void: 
-    default: { 
-        expr = nullptr;
-    } break;
+    if (tok.not_match(TokenId::kw_id)) {
+    
     }
+    tok = advanceToken();
+    if (tok.not_match(TokenId::kw_id)) {
+        
+    }
+    else { /// this is decl type
+        
+    }
+    std::shared_ptr<AST::AstExpr> expr;
+
     return returnExpr(expr);
 }
 
