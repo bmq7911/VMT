@@ -96,13 +96,19 @@ call_stmt     ::= func_name "(" param_list ")"
               ::= const_func 
 		 
 		 
-expr ::= bool_expr
-     ::= num_expr
-     ::= void_expr
-     ::= assign_expr
+
+expr ::= compute_expr
      ::= decls_expr
-	 
-/// 预算符号的优先级,这个是最低优先级	 
+
+decls_expr ::= type idlists;
+idlists    ::= ids 
+           ::= ids, idlists
+ids        ::= id
+           ::= id "=" compute_expr
+
+compute_expr ::= bool_expr		   
+		   
+/// 运算符号的优先级,这个是最低优先级,由低级到高级的过程	 
 bool_expr  ::= bool_expr "or" join
            ::= join
 

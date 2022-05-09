@@ -14,22 +14,24 @@ FunctionParser::FunctionParser(std::shared_ptr<TokenReader> reader)
 std::shared_ptr<AST::AstFunction> FunctionParser::begin( ) {
     std::shared_ptr<AST::AstType> type = parseType( );
     std::shared_ptr<AST::AstAttribute> atrribuye = parseAttribute();
-    auto tok = readToken();
-    if( tok.not_match(TokenId::kw_id)){
-        Diagnose::expectBut( TokenId::kw_id, tok);
+    auto name = readToken();
+    if( name.notMatch(TokenId::kw_id)){
+        Diagnose::expectBut( TokenId::kw_id, name );
     }
-    tok = readToken();
-    if( tok.not_match(TokenId::kw_equal)){
+    auto tok = readToken();
+    if( tok.notMatch(TokenId::kw_equal)){
         Diagnose::expectBut( TokenId::kw_equal, tok);
     }
     std::shared_ptr<AST::AstFunctionBody> body = parseFunctionBody( );
-
-    return nullptr;
+    
+    std::shared_ptr<AST::AstFunction> function = std::make_shared<AST::AstFunction>( name, type ,body);
+    
+    return function;
 }
 
 std::shared_ptr<AST::AstType> FunctionParser::parseType() {
     auto tok = readToken( );
-    if( tok.not_match( TokenId::kw_id )){
+    if( tok.notMatch( TokenId::kw_id )){
             Diagnose::expectBut( TokenId::kw_id, tok);
     }
     return std::make_shared<AST::AstType>( tok );
@@ -43,7 +45,7 @@ std::shared_ptr<AST::AstAttribute> FunctionParser::parseAttribute() {
         tok = readToken( );
         return std::make_shared<AST::AstAttribute>(tok);
     }
-    else if (tok.match(TokenId::kw_id) && tok.toStringRef() == "__attribute__") {
+    else if (tok.match(TokenId::kw_id) && tok.toStringView() == "__attribute__") {
         tok = readToken( );
     }
     return nullptr;
@@ -60,11 +62,12 @@ std::shared_ptr<AST::AstFunctionBody> FunctionParser::parseFunctionBody( ){
         std::shared_ptr<AST::AstParamList> paramlist= paramList();
 
         tok = readToken();
-        if (tok.not_match(TokenId::kw_arrow)) {
+        if (tok.notMatch(TokenId::kw_arrow)) {
             Diagnose::expectBut(TokenId::kw_arrow, tok);
             return nullptr;
         }
         std::shared_ptr<AST::AstStmt> stmt = parseFunctionStmt( );
+        return std::make_shared<AST::AstFunctionBody>(paramlist,stmt);
     }
     //2. function_body ::=call_stmt ";"
     else {
@@ -85,37 +88,6 @@ std::shared_ptr<AST::AstStmt> FunctionParser::parseFunctionStmt() {
 
 }
 
-std::shared_ptr<AST::AstParam> FunctionParser::param() {
-    std::shared_ptr<AST::AstParam> param = std::make_shared<AST::AstParam>( );
-    Token tok = getTokenReader()->getToken();
-    std::shared_ptr<ENV::TypeId> type = getEnv()->getTypeId( tok.toString());
-    if (type ) { 
-        
-    }
-    else {
-        
-    }
-    
-    tok = readToken();
-    //std::shared_ptr<ENV::ObjectId>        objectId = std::make_shared<ENV::ObjectId>(token.toString().c_str());
-    std::shared_ptr<AST::AstVariableObjExpr> idExpr   = std::make_shared<AST::AstVariableObjExpr>(tok);
-    param->addId(idExpr);
-    //getEnv()->put(token.toString(), objectId);
-    tok = readToken();
-    /// 
-    while ( tok.match(TokenId::kw_comma)) {
-        tok = readToken();
-        tok = readToken();
-        tok.match(TokenId::kw_id);
-        std::shared_ptr<ENV::ObjectId> objectId = std::make_shared<ENV::ObjectId>(tok.toString().c_str(),type);
-        std::shared_ptr<AST::AstVariableObjExpr> idExpr = std::make_shared<AST::AstVariableObjExpr>( tok );
-        param->addId(idExpr);
-        getEnv()->put(tok.toString(), objectId);
-        tok = readToken();
-    }
-    return param;
-}
-
 // paramlist ::="(" params ")"
 // params ::= ε
 // params_l ::= param_l
@@ -126,7 +98,7 @@ std::shared_ptr<AST::AstParamList>  FunctionParser::paramList() {
     std::shared_ptr<AST::AstParamList> paramList = std::make_shared<AST::AstParamList>();
     auto tok = readToken();
     //1. deal the left paren
-    if (tok.not_match(TokenId::kw_l_paren)) {
+    if (tok.notMatch(TokenId::kw_l_paren)) {
         Diagnose::expectBut(TokenId::kw_l_paren, tok);
         return nullptr;
     }
@@ -139,16 +111,17 @@ std::shared_ptr<AST::AstParamList>  FunctionParser::paramList() {
     else {
         //2.2 there is a param list
         do {
-            tok = readToken();
+            auto type = readToken();
             //2.2.1 we except the token is a type(id)
-            if (tok.not_match(TokenId::kw_id)) {
+            if (tok.notMatch(TokenId::kw_id)) {
                 Diagnose::expectBut(TokenId::kw_id, tok);
             }
-            tok = readToken();
+            auto id = readToken();
             //2.2.2 we ecpect the token is a id
-            if (tok.not_match(TokenId::kw_id)) {
+            if (tok.notMatch(TokenId::kw_id)) {
                 Diagnose::expectBut(TokenId::kw_id, tok);
             }
+            paramList->addParam(type, id );
             //2.2.3 check to see if there is a next param
             tok = advanceToken( );
             if (tok.match(TokenId::kw_comma)) {
@@ -162,7 +135,7 @@ std::shared_ptr<AST::AstParamList>  FunctionParser::paramList() {
     }
 
     tok = readToken();
-    if (tok.not_match(TokenId::kw_r_paren)) {
+    if (tok.notMatch(TokenId::kw_r_paren)) {
         Diagnose::expectBut(TokenId::kw_r_paren, tok);
         return nullptr;
     }
@@ -261,6 +234,8 @@ std::shared_ptr<AST::AstStmt>                FunctionParser::parseBlock( ) {
             readToken();
             break;
         }
+        // 由于源代码本身不符合语法规则而导致的问题,该怎么处理,特别是EOF
+        //else if (tok.match(TokenId::kw_eof)) { }
     } while (true);
     setEnv(savedEnv);
     return stmts;
@@ -364,22 +339,34 @@ std::shared_ptr<AST::AstStmt>                FunctionParser::parseReturn() {
     return returnStmt;
 }
 // decl ::=type id  ";" | "=" expr ';'
-
+// main_expr ::= decl_expr 
+//           ::= compute_exprs
 std::shared_ptr<AST::AstExpr>                FunctionParser::parseDeclOrExpr() {
-    Token tok = readToken();
-    if (tok.not_match(TokenId::kw_id)) {
-    
+    Token tok = advanceToken();
+    if (tok.match(TokenId::kw_id)) {
+        // 这里就会存在一个问题,那就是
+        tok = readToken();
+        auto nextToken = advanceToken();
+        if (nextToken.match(TokenId::kw_id)) { // this condition indicate that there is a declaretion express  
+            
+        }
+        else { /// with must a expr
+            nextToken = readToken( );
+            auto leftExpr = std::make_shared<AST::AstVariableObjExpr>(tok);
+            auto rightExpr = parseExpr( );
+            if (nullptr == rightExpr) {
+                return leftExpr;
+            }
+            else {
+                return std::make_shared<AST::AstBinaryOpExpr>( leftExpr, rightExpr, nextToken);
+            }
+            //return 
+        }
     }
-    tok = advanceToken();
-    if (tok.not_match(TokenId::kw_id)) {
-        
+    else {
+        return parseExpr( );
     }
-    else { /// this is decl type
-        
-    }
-    std::shared_ptr<AST::AstExpr> expr;
 
-    return returnExpr(expr);
 }
 
 
@@ -482,32 +469,35 @@ std::shared_ptr<AST::AstExpr>                FunctionParser::parseConditionExpr(
 
 std::shared_ptr<AST::AstExpr>                FunctionParser::parseBool() {
     std::shared_ptr<AST::AstExpr>  binaryOpExpr = parseJoin();
-    Token tok = readToken();
+    Token tok = advanceToken();
     while (tok.match(TokenId::kw_or)) {
+        tok = readToken();
         std::shared_ptr<AST::AstExpr> right = parseJoin();
         //binaryOpExpr = std::make_shared<AST::AstBinaryOpExpr>(binaryOpExpr, right, tok);
         binaryOpExpr = AST::AstBinaryOpExpr::makeBinaryOpExpr(binaryOpExpr, right, tok);
-        tok = readToken();
+        tok = advanceToken();
     }
     return returnExpr(binaryOpExpr);
 }
 
 std::shared_ptr<AST::AstExpr>                FunctionParser::parseJoin() {
     std::shared_ptr<AST::AstExpr>  binaryOpExpr = parseEquality();
-    Token tok = readToken();
+    Token tok = advanceToken();
     while (tok.match(TokenId::kw_and) ) {
+        tok = readToken();
         std::shared_ptr<AST::AstExpr> right = parseEquality();
         //binaryOpExpr = std::make_shared<AST::AstBinaryOpExpr>(binaryOpExpr, right, tok);
         binaryOpExpr = AST::AstBinaryOpExpr::makeBinaryOpExpr(binaryOpExpr, right, tok);
-        tok = readToken();
+        tok = advanceToken();
     }
     return returnExpr(binaryOpExpr);
 }
 
 std::shared_ptr<AST::AstExpr>                FunctionParser::parseEquality() {
     std::shared_ptr<AST::AstExpr>  binaryOpExpr = parseRel();
-    Token tok = readToken();
+    Token tok = advanceToken();
     if (tok.match(TokenId::kw_equalequal) || tok.match(TokenId::kw_exclaimequal) ) {
+        tok = readToken( );
         std::shared_ptr<AST::AstExpr> right = parseRel();
         //binaryOpExpr = std::make_shared<AST::AstBinaryOpExpr>(binaryOpExpr, right, tok);
         binaryOpExpr = AST::AstBinaryOpExpr::makeBinaryOpExpr(binaryOpExpr, right, tok);
@@ -529,46 +519,47 @@ std::shared_ptr<AST::AstExpr>                FunctionParser::parseRel() {
 
 std::shared_ptr<AST::AstExpr>                FunctionParser::parseExpr() {
     std::shared_ptr<AST::AstExpr>  binaryOpExpr = parseTerm();
-    Token tok = readToken();
+    Token tok = advanceToken();
     while (tok.match(TokenId::kw_plus) || tok.match(TokenId::kw_minus)) {
+        tok = readToken();
         std::shared_ptr<AST::AstExpr> right = parseTerm();
         //binaryOpExpr = std::make_shared<AST::AstBinaryOpExpr>(binaryOpExpr, right, tok);
         binaryOpExpr = AST::AstBinaryOpExpr::makeBinaryOpExpr(binaryOpExpr, right, tok);
-        tok = readToken();
+        tok = advanceToken();
     }
     return returnExpr(binaryOpExpr);
 
 }
 
 std::shared_ptr<AST::AstExpr>                FunctionParser::parseTerm() {
-    std::shared_ptr<AST::AstExpr>  binaryOpExpr = parseUnary();
-    Token tok = readToken( ); 
+    std::shared_ptr<AST::AstExpr>  binaryOpExpr = parseUnary( );
+    Token tok = advanceToken( ); 
     while (tok.match(TokenId::kw_star) || tok.match(TokenId::kw_slash)) {
+        tok = readToken();
         std::shared_ptr<AST::AstExpr> right = parseUnary();
         //binaryOpExpr = std::make_shared<AST::AstBinaryOpExpr>(binaryOpExpr, right, tok);
         binaryOpExpr = AST::AstBinaryOpExpr::makeBinaryOpExpr(binaryOpExpr, right, tok);
-        tok = readToken( );
+        tok = advanceToken( );
     }
     return returnExpr(binaryOpExpr);
 }
 
 std::shared_ptr<AST::AstExpr>                FunctionParser::parseUnary() {
-    Token tok = readToken();
+    Token tok = advanceToken();
     if (tok.getTokenId() == TokenId::kw_not || tok.getTokenId() == TokenId::kw_minus) {
+        tok = readToken();
         std::shared_ptr<AST::AstExpr> factor = parseFactor();
         std::shared_ptr<AST::AstUnaryOpExpr> expr = AST::AstUnaryOpExpr::makeUnaryOpExpr( factor, tok);
-        readToken();
         return returnExpr(expr);
     }
     else {
         auto expr = parseFactor();
-        readToken();
-        return returnExpr(expr);
+        return expr;
     }
 }
 
 std::shared_ptr<AST::AstExpr>                FunctionParser::parseFactor() {
-    Token tok = getToken();
+    Token tok = readToken();
     switch (tok.getTokenId()) {
     case TokenId::kw_l_paren: {
         std::shared_ptr<AST::AstExpr> expr = parseCommaExpr();

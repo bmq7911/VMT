@@ -4,6 +4,7 @@
 #include "Frontend/Lexer/FileLexer.h"
 #include "Frontend/Parser/ProgramParser.h"
 #include "Frontend/Parser/FunctionParser.h"
+#include "TestAstVisitor.h"
 
 int main( int argc, char * argv[]) {
     if (argc != 2) {
@@ -32,7 +33,8 @@ int main( int argc, char * argv[]) {
     //parser->startParser( );
     std::shared_ptr<TokenReader> reader = std::make_shared<TokenReader>(lex);
     std::shared_ptr<FunctionParser> parser = std::make_shared<FunctionParser>(reader);
-    parser->begin();
-
+    std::shared_ptr<AST::AstFunction> funtion = parser->begin();
+    std::shared_ptr<TestAstVisitor > visitor = std::make_shared<TestAstVisitor>( );
+    funtion->gen(visitor);
 	printf("\n");
 }

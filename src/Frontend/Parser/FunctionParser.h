@@ -11,7 +11,6 @@ public:
     std::shared_ptr<AST::AstAttribute>       parseAttribute();
     std::shared_ptr<AST::AstFunctionBody>    parseFunctionBody();
     std::shared_ptr<AST::AstStmt>            parseFunctionStmt();
-    std::shared_ptr<AST::AstParam>           param( );
     std::shared_ptr<AST::AstParamList>       paramList( );
     std::shared_ptr<AST::AstStmt>            parseFunctionBlock();
     std::shared_ptr<AST::AstStmt>            parseFunctionExpr();

@@ -4,7 +4,7 @@ namespace AST {
     class IASTVisitor {
     public:
         virtual void visitProgram(AST::AstProgram *) = 0;
-        virtual void visitFuntion(AST::AstFunction *) = 0;
+        virtual void visitFunction(AST::AstFunction *) = 0;
         virtual void visitForStmt( AST::AstForStmt*) = 0;
         virtual void visitWhileStmt( AST::AstWhileStmt * ) = 0;
         virtual void visitDoWhileStmt( AST::AstDoWhileStmt *) = 0;

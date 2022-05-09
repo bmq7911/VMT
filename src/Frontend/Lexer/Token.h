@@ -50,18 +50,18 @@ public:
         return match( head ) ? true : match( id ... );
     }
     template<typename ... T>
-    bool not_match(T ... id) const;
-    bool not_match(TokenId id) const {
+    bool notMatch(T ... id) const;
+    bool notMatch(TokenId id) const {
         return m_tokenId != id;
     }
     template<typename ... T>
-    bool not_match(TokenId head, T ... id) const {
-        return not_match(head) ? true : not_match(id ...);
+    bool notMatch(TokenId head, T ... id) const {
+        return notMatch(head) ? true : notMatch(id ...);
     }
 	std::string toString() const {
         return m_location.toString();
 	}
-    std::string_view toStringRef() const {
+    std::string_view toStringView() const {
         return m_location.getStringView( );
     }
     TokenId getTokenId() const {

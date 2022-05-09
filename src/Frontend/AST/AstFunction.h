@@ -1,5 +1,7 @@
 #pragma once
 #include <vector>
+#include <memory>
+
 #include "Frontend/AST/AstTree.h"
 #include "Frontend/AST/AstObjectExpr.h"
 #include "Frontend/AST/AstStmt.h"
@@ -15,37 +17,24 @@ namespace AST {
 
     class AstFunction :  public  AstTree{
     public:
-        void init(std::shared_ptr<ENV::TypeId>  type,
-                  Token name,
-                  std::shared_ptr<AST::AstStmt> stmt,
-                  std::shared_ptr<AST::AstParamList> param,
-                  std::shared_ptr<ENV::Env> env) 
+        AstFunction( Token name, std::shared_ptr<AstType> type,std::shared_ptr<AstFunctionBody> body) 
+            : m_funName( name)
+            , m_type( type )
+            , m_functionBody( body )
         {
-            m_type    = type;
-            m_funName = name;
-            m_args    = param;
-            m_functionEnv = env;
-            m_stmts       = stmt;
         }
-        std::string getFunctionName() const{
-            return m_funName.toString();
+        Token getFunctionName() const {
+            return m_funName;
         }
-        std::shared_ptr<AST::AstParamList> getParamList() {
-            return m_args;
+        std::shared_ptr<AST::AstType> getFunctionType() const {
+            return m_type;
         }
-        std::shared_ptr<AST::AstStmt>      getStmt() {
-            return m_stmts;
-        }
+        std::shared_ptr<AST::AstFunctionBody> getFunctionBody() const;
+        void gen(std::shared_ptr<AST::IASTVisitor> visitor);
     private:
-        std::shared_ptr<ENV::TypeId>     m_type;
-        Token                            m_funName;
-        std::shared_ptr<AST::AstParamList>       m_args;
-        std::shared_ptr<AST::AstStmt>       m_stmts;
-
-        std::shared_ptr<ENV::Env>        m_functionEnv; 
-        std::shared_ptr<ENV::FunctionId> m_functionInfo;
-        std::shared_ptr<AST::AstType>       m_returnType;
-        std::shared_ptr<AST::AstAttribute>  m_attribute;
+        Token                                 m_funName;
+        std::shared_ptr<AST::AstType>         m_type;
+        std::shared_ptr<AST::AstAttribute>    m_attribute;
         std::shared_ptr<AST::AstFunctionBody> m_functionBody;
     };
 }

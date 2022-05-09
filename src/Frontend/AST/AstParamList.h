@@ -6,45 +6,40 @@
 namespace AST {
     class AstParam : public AstTree{
     public:
-        void addId( std::shared_ptr<AST::AstObjectExpr> id) {
-            m_params.push_back(id);
+        AstParam() {
         }
-        size_t getSize() const {
-            return m_params.size();
+
+        AstParam(AstParam const& param) {
+            m_type = param.m_type;
+            m_id = param.m_id;
         }
-        std::shared_ptr<AST::AstObjectExpr> at(size_t index) {
-            if (index >= m_params.size()) {
-                return nullptr;
+
+        AstParam& operator=(AstParam const& param) {
+            if (this != &param) {
+                m_type = param.m_type;
+                m_id = param.m_id;
             }
-            else {
-                return m_params[index];
-            }
+            return *this;
+        }
+
+        void addId(Token type, Token id) {
+            m_type = type;
+            m_id = id;
         }
    private:
-        std::vector<std::shared_ptr<AST::AstObjectExpr> > m_params;
+        Token m_type;
+        Token m_id;
     };
 
     class AstParamList : public AstTree{
     public:
-        size_t getSize() const {
-            if (nullptr != m_params) {
-                return m_params->getSize();
-            }
-            return 0;
-        }
-        std::shared_ptr<AST::AstObjectExpr> at(size_t index) {
-            if (nullptr != m_params) {
-                return m_params->at(index);
-            }
-            else {
-                return nullptr;
-            }
-        }
-        void setParam(std::shared_ptr<AstParam> param) {
-            m_params = param;
+        void addParam(Token type, Token id) {
+            AstParam p;
+            p.addId(type, id);
+            m_params.push_back(p);
         }
     private:
-        std::shared_ptr<AstParam> m_params;
+        std::vector<AstParam> m_params;
     };
     
 
