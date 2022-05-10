@@ -1,5 +1,5 @@
 #pragma once
-#include "Frontend/AST/AST.h"
+#include "Frontend/AST/Ast.h"
 #include "Frontend/Parser/ParserProxy.h"
 
 class FunctionParser : public ParserProxy {

@@ -1,4 +1,4 @@
-#pragma once
+
 #include "Frontend/Parser/FunctionParser.h"
 #include "SymbolTable/FunctionId.h"
 #include "SymbolTable/ObjectId.h"
