@@ -2,7 +2,7 @@
 #include <iostream>
 #include "Frontend/AST/AstVisitor.h"
 
-class TestAstVisitor : public AST::IASTVisitor {
+class TestAstVisitor : public std::enable_shared_from_this<TestAstVisitor>, public AST::IASTVisitor {
 public:
 	void visitProgram(AST::AstProgram*) override {
 		std::cout <<"visitProgram" << std::endl;
@@ -13,7 +13,9 @@ public:
 		Token functionName = function->getFunctionName( );
 		std::cout << "function name: " << functionName.toStringView() << std::endl;
 		std::shared_ptr<AST::AstType> type = function->getFunctionType( );
-		
+		type->gen( std::enable_shared_from_this<TestAstVisitor>::shared_from_this() );
+		std::shared_ptr<AST::AstFunctionBody> body = function->getFunctionBody();
+		body->gen(std::enable_shared_from_this<TestAstVisitor>::shared_from_this());
 	}
 	void visitForStmt(AST::AstForStmt*) override {
 		std::cout << "visitForStmt" << std::endl;
@@ -30,8 +32,11 @@ public:
 	void visitElseStmt(AST::AstElseStmt*) override {
 		std::cout << "visitElseStmt" << std::endl;
 	}
-	void visitStmts(AST::AstStmts*) override {
+	void visitStmts(AST::AstStmts* stmts) override {
 		std::cout << "visitStmts" << std::endl;
+		for (size_t i = 0; i < stmts->size(); ++i) {
+			stmts->at(i)->gen(std::enable_shared_from_this<TestAstVisitor>::shared_from_this());
+		}
 	}
 	void visitReturnStmt(AST::AstReturnStmt*) override {
 		std::cout << "visitReturnStmt" << std::endl;
@@ -42,12 +47,32 @@ public:
 	void visitContinueStmt(AST::AstContinueStmt*) override {
 		std::cout << "visitContinueStmt" << std::endl;
 	}
-	void visitExprStmt(AST::AstExprStmt*) override {
-		std::cout << "visitForStmt" << std::endl;
+	void visitExprStmt(AST::AstExprStmt* exprStmt) override {
+		std::cout << "visitExprStmt" << std::endl;
+		exprStmt->getExpr()->reduce(std::enable_shared_from_this<TestAstVisitor>::shared_from_this());
 	}
-
-	std::shared_ptr<AST::AstObjectExpr> reduceBinaryOpExpr(AST::AstBinaryOpExpr*) override {
-		std::cout << "reduceBinaryOpExpr" << std::endl;
+	void visitType(AST::AstType* type) override {
+		std::cout << "Type: "<< type->getType().toStringView() << std::endl;
+	}
+	void visitFunctionBody(AST::AstFunctionBody* body) override {
+		std::cout << "FunctionBody:" << std::endl;
+		body->getParamList()->gen(std::enable_shared_from_this<TestAstVisitor>::shared_from_this());
+		body->getStmt()->gen(std::enable_shared_from_this<TestAstVisitor>::shared_from_this());
+	}
+	void visitParamList(AST::AstParamList * list) override {
+		std::cout << "ParamList size " << list->size() << std::endl;
+		for (size_t i = 0; i < list->size(); ++i) {
+			AST::AstParam &param = list->at(i);
+			std::cout << "\t" << param.getType().toStringView() << " " << param.getId().toStringView() <<std::endl;
+		}
+	}
+	std::shared_ptr<AST::AstObjectExpr> reduceBinaryOpExpr(AST::AstBinaryOpExpr* binaryOpExpr) override {
+		//std::cout << "reduceBinaryOpExpr" << std::endl;
+		auto leftExpr = binaryOpExpr->getLeft();
+		auto rightExpr = binaryOpExpr->getRight();
+		leftExpr->reduce(std::enable_shared_from_this<TestAstVisitor>::shared_from_this());
+		std::cout << binaryOpExpr->getOp().toStringView();
+		rightExpr->reduce(std::enable_shared_from_this<TestAstVisitor>::shared_from_this());
 		return nullptr;
 	}
 	std::shared_ptr<AST::AstObjectExpr> reduceUnaryOpExpr(AST::AstUnaryOpExpr*) override {
@@ -62,8 +87,8 @@ public:
 		std::cout << "reduceExprs" << std::endl;
 		return nullptr;
 	}
-	std::shared_ptr<AST::AstObjectExpr> reduceObjectExpr(AST::AstObjectExpr*) override {
-		std::cout << "reduceObjectExpr" << std::endl;
+	std::shared_ptr<AST::AstObjectExpr> reduceObjectExpr(AST::AstObjectExpr* objectExpr) override {
+		std::cout << objectExpr->getObject().toStringView();
 		return nullptr;
 	}
 	std::shared_ptr<AST::AstObjectExpr> reduceVoidExpr(AST::AstVoidExpr*) override {

@@ -1,4 +1,5 @@
 #pragma once 
+#include <memory>
 #include "Frontend/AST/AstTree.h"
 #include "Frontend/Lexer/Token.h"
 
@@ -11,8 +12,10 @@ namespace AST {
 		{
 
 		}
-		void gen(std::shared_ptr<AST::IASTVisitor> visitor) {
+		Token getType() const {
+			return m_tok;
 		}
+		void gen(std::shared_ptr<AST::IASTVisitor> visitor);
 	private:
 		Token m_tok;
 	};

@@ -15,7 +15,9 @@ namespace AST {
         virtual void visitBreakStmt( AST::AstBreakStmt* ) = 0;
         virtual void visitContinueStmt( AST::AstContinueStmt* ) = 0;
         virtual void visitExprStmt( AST::AstExprStmt* ) = 0;
-
+        virtual void visitType(AST::AstType*) = 0;
+        virtual void visitFunctionBody(AST::AstFunctionBody*) = 0;
+        virtual void visitParamList(AST::AstParamList * ) = 0;
         virtual std::shared_ptr<AST::AstObjectExpr> reduceBinaryOpExpr( AST::AstBinaryOpExpr* ) = 0;
         virtual std::shared_ptr<AST::AstObjectExpr> reduceUnaryOpExpr(AST::AstUnaryOpExpr* ) = 0;
         virtual std::shared_ptr<AST::AstObjectExpr> reduceConditionExpr( AST::AstConditionExpr* ) = 0;

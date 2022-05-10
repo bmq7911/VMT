@@ -9,7 +9,6 @@ namespace AST {
         using super = AstObjectExpr;
     public:
         AstTemp( int32_t i);
-        std::string toString() const override;
 
         std::shared_ptr<AST::AstObjectExpr> reduce( std::shared_ptr<AST::IASTVisitor>) override;
     private:

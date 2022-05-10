@@ -8,7 +8,6 @@ namespace AST {
         using super = AstObjectExpr;
         AstVariableObjExpr(Token id);
         AstVariableObjExpr( const AstVariableObjExpr& obj);
-        std::string toString() const override;
         std::shared_ptr<AstObjectExpr> reduce(std::shared_ptr<AST::IASTVisitor>)override;
     private:
         Token       m_token;

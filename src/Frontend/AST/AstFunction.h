@@ -23,12 +23,8 @@ namespace AST {
             , m_functionBody( body )
         {
         }
-        Token getFunctionName() const {
-            return m_funName;
-        }
-        std::shared_ptr<AST::AstType> getFunctionType() const {
-            return m_type;
-        }
+        Token getFunctionName() const;
+        std::shared_ptr<AST::AstType> getFunctionType() const;
         std::shared_ptr<AST::AstFunctionBody> getFunctionBody() const;
         void gen(std::shared_ptr<AST::IASTVisitor> visitor);
     private:

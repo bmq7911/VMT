@@ -113,7 +113,7 @@ namespace DECL_AST_SPACE(AstExprs) {
 
 namespace DECL_AST_SPACE(AstVariableObjExpr) {
     AstVariableObjExpr::AstVariableObjExpr(Token id)
-        : AstObjectExpr()
+        : AstObjectExpr(  )
         , m_token(id)
     {
     }
@@ -121,9 +121,6 @@ namespace DECL_AST_SPACE(AstVariableObjExpr) {
         : AstObjectExpr(obj)
     {
         m_token = obj.m_token;
-    }
-    std::string AstVariableObjExpr::toString() const {
-        return m_token.toString();
     }
     std::shared_ptr<AstObjectExpr> AstVariableObjExpr::reduce(std::shared_ptr<AST::IASTVisitor> visitor ) {
         return visitor->reduceObjectExpr( this );
@@ -146,9 +143,6 @@ namespace DECL_AST_SPACE( AstTemp ) {
         //m_object = std::make_shared<AST::ObjectExpr>();
     }
 
-    std::string AstTemp::toString() const {
-        return std::string("t") + std::to_string(m_suffix);
-    }
     std::shared_ptr<AST::AstObjectExpr> AstTemp::reduce( std::shared_ptr<AST::IASTVisitor> visitor) {
         return visitor->reduceTemp( this );
     }

@@ -17,9 +17,6 @@ namespace AST {
         std::shared_ptr<AST::AstObjectExpr> reduce(std::shared_ptr<AST::IASTVisitor> visitor) override {
             return nullptr;
         }
-        std::string toString() const override{
-            return m_tok.toString();
-        }
     private:
         Token m_tok;
         HostType m_const;

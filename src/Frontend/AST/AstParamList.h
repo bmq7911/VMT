@@ -26,6 +26,12 @@ namespace AST {
             m_type = type;
             m_id = id;
         }
+        Token getType() const {
+            return m_type;
+        }
+        Token getId() const {
+            return m_id;
+        }
    private:
         Token m_type;
         Token m_id;
@@ -38,6 +44,16 @@ namespace AST {
             p.addId(type, id);
             m_params.push_back(p);
         }
+        size_t size() const {
+            return m_params.size();
+        }
+        AstParam const& at(size_t i) const {
+            return m_params.at(i);
+        }
+        AstParam& at(size_t i) {
+            return m_params.at(i);
+        }
+        void gen(std::shared_ptr<AST::IASTVisitor> visitor);
     private:
         std::vector<AstParam> m_params;
     };
