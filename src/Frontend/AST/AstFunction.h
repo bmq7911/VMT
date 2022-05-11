@@ -14,7 +14,7 @@
 
 
 namespace AST {
-
+    
     class AstFunction :  public  AstTree{
     public:
         AstFunction( Token name, std::shared_ptr<AstType> type,std::shared_ptr<AstFunctionBody> body) 
@@ -22,6 +22,7 @@ namespace AST {
             , m_type( type )
             , m_functionBody( body )
         {
+
         }
         Token getFunctionName() const;
         std::shared_ptr<AST::AstType> getFunctionType() const;
