@@ -1,9 +1,17 @@
 #pragma once
 #include <iostream>
 #include "Frontend/AST/AstVisitor.h"
+#include "SymbolTable/Symbol.h"
+#include "SymbolTable/Env.h"
+
+// 
 
 class TestAstVisitor : public std::enable_shared_from_this<TestAstVisitor>, public AST::IASTVisitor {
 public:
+	TestAstVisitor() {
+		m_topEnv = std::make_shared<ENV::Env>();
+		m_currentEnv = m_topEnv;
+	}
 	void visitProgram(AST::AstProgram*) override {
 		std::cout <<"visitProgram" << std::endl;
 	}
@@ -50,6 +58,21 @@ public:
 	void visitExprStmt(AST::AstExprStmt* exprStmt) override {
 		std::cout << "visitExprStmt" << std::endl;
 		exprStmt->getExpr()->reduce(std::enable_shared_from_this<TestAstVisitor>::shared_from_this());
+	}
+
+	void visitBlock(AST::AstBlock* block) override {
+		std::shared_ptr<ENV::Env> env = std::make_shared<ENV::Env>( getCurrentEnv() );
+		env->mount(getCurrentEnv());
+			_VisitBlock( block );
+		env->unmount( );
+	}
+	void _VisitBlock(AST::AstBlock* block) {
+		std::shared_ptr<ENV::Env> env = getCurrentEnv();
+		for (auto iter = block->begin(); iter != block->end(); ++iter) {
+			(*iter)->gen(std::enable_shared_from_this<TestAstVisitor>::shared_from_this());
+		}
+		std::cout << "visitBlock" << std::endl;
+
 	}
 	void visitType(AST::AstType* type) override {
 		std::cout << "Type: "<< type->getType().toStringView() << std::endl;
@@ -99,6 +122,12 @@ public:
 		std::cout << "reduceTemp" << std::endl;
 		return nullptr;
 	}
+private:
+	std::shared_ptr<ENV::Env> getCurrentEnv() {
+		return m_currentEnv;
+	}
 
-
+private:
+	std::shared_ptr<ENV::Env>  m_topEnv;
+	std::shared_ptr<ENV::Env>  m_currentEnv;
 };

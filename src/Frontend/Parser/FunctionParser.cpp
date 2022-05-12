@@ -50,6 +50,7 @@ std::shared_ptr<AST::AstAttribute> FunctionParser::parseAttribute() {
     }
     return nullptr;
 }
+
 /// function_body::="func" "(" function_decl_param_list ")" "->" function_stmt
 ///              ::= call_stmt ";"
 
@@ -220,15 +221,13 @@ std::shared_ptr<AST::AstStmt> FunctionParser::parseStmt() {
 }
 
 
-std::shared_ptr<AST::AstStmt>                FunctionParser::parseBlock( ) {
-    std::shared_ptr<ENV::Env> savedEnv = getEnv();
-    std::shared_ptr<ENV::Env> f_env = std::make_shared<ENV::Env>(savedEnv);
+std::shared_ptr<AST::AstBlock>                FunctionParser::parseBlock( ) {
     Token tok = readToken();
     tok.match( TokenId::kw_l_brace);
-    std::shared_ptr<AST::AstStmts> stmts = std::make_shared<AST::AstStmts>( );
+    std::shared_ptr<AST::AstBlock> block = std::make_shared<AST::AstBlock>( );
     do {
         std::shared_ptr<AST::AstStmt> stmt = parseStmt();
-        stmts->add(stmt);
+        block->addStmt(stmt);
         tok = advanceToken( );
         if (tok.match(TokenId::kw_r_brace)) {
             readToken();
@@ -237,8 +236,7 @@ std::shared_ptr<AST::AstStmt>                FunctionParser::parseBlock( ) {
         // 由于源代码本身不符合语法规则而导致的问题,该怎么处理,特别是EOF
         //else if (tok.match(TokenId::kw_eof)) { }
     } while (true);
-    setEnv(savedEnv);
-    return stmts;
+    return block;
 }
 
 std::shared_ptr<AST::AstIfStmt>                  FunctionParser::parseIf( ) {
@@ -347,8 +345,37 @@ std::shared_ptr<AST::AstExpr>                FunctionParser::parseDeclOrExpr() {
         // 这里就会存在一个问题,那就是
         tok = readToken();
         auto nextToken = advanceToken();
-        if (nextToken.match(TokenId::kw_id)) { // this condition indicate that there is a declaretion express  
+        if (nextToken.match(TokenId::kw_id)) { // this condition indicate that there is a declaretion express
+            do {
+                auto name = readToken();
+                tok = advanceToken();
+                if (tok.notMatch(TokenId::kw_equal)) {
+                
+                }
+                std::shared_ptr<AST::AstExpr> expr = parseExpr();
+                
+
+                tok = advanceToken();
+                
+            } while ( tok.match(TokenId::kw_comma));
+            tok = readToken();
+            if (tok.notMatch(TokenId::kw_semi)) {
+                
+            }
+            auto name = readToken();
+            auto typeTok = tok;
+            tok = advanceToken();
             
+            if(tok.notMatch(TokenId::kw_equal)) {
+                
+            }
+            else {
+                
+            }
+            
+
+
+
         }
         else { /// with must a expr
             nextToken = readToken( );

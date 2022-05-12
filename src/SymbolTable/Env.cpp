@@ -4,15 +4,22 @@
 #include "SymbolTable/TypeId.h"
 
 namespace ENV {
-    int Env::staticEnvIndex = 0;
 
 
+    Env::Env() {
+    }
     Env::Env(std::shared_ptr<Env> n) {
-        envIndex = Env::staticEnvIndex++;
         m_prev = n; /// 可以把一个 shared_ptr 赋值给 weak_ptr,但是不会引起shared_ptr 之中对象的引用计数增加
     }
     std::shared_ptr<Env> Env::getParent() {
         return m_prev;
+    }
+
+    void Env::mount(std::shared_ptr<ENV::Env> env) {
+        m_prev = env;
+    }
+    void Env::unmount() {
+        m_prev = nullptr;
     }
     void Env::put( std::string const &str, std::shared_ptr<ENV::ObjectId> id) {
         m_ObjectTable.insert(std::pair(str, id));
@@ -79,9 +86,6 @@ namespace ENV {
         }
     }
 
-    uint32_t Env::getEnvIndex() const {
-        return envIndex;
-    }
 
     std::shared_ptr<ENV::Symbol> Env::get(std::string const& w, ENV::SymbolType type) {
         switch (type) {

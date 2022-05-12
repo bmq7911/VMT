@@ -15,7 +15,7 @@ public:
     std::shared_ptr<AST::AstStmt>            parseFunctionBlock();
     std::shared_ptr<AST::AstStmt>            parseFunctionExpr();
     std::shared_ptr<AST::AstStmt>            parseStmt();
-    std::shared_ptr<AST::AstStmt>            parseBlock();
+    std::shared_ptr<AST::AstBlock>           parseBlock();
     std::shared_ptr<AST::AstIfStmt>          parseIf();
     std::shared_ptr<AST::AstElseStmt>        parseElse();
     std::shared_ptr<AST::AstForStmt>         parseFor();

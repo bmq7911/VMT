@@ -34,7 +34,7 @@ namespace AST{
 #include "Frontend/AST/AstAttribute.h"
 #include "Frontend/AST/AstType.h"
 #include "Frontend/AST/AstFunctionBody.h"
-
+#include "Frontend/AST/AstBlock.h"
 #include "Frontend/AST/AstProgram.h"
 
 

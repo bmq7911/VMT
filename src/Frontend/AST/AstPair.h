@@ -8,11 +8,14 @@ namespace AST {
         using right_type = AstPair<_T>;
     public:
         void add(std::shared_ptr<_T>  left) {
-            m_left = left;
+            if( !m_left )
+                m_left = left;
+            else {
+                m_right = std::make_shared<AstPair<_T>>();
+                m_right->add(left);
+            }
         }
-        void add(std::shared_ptr<AstPair<_T>>  right) {
-            m_right = right;
-        }
+
         std::shared_ptr<left_type> getLeft() const {
             return m_left;
         }
