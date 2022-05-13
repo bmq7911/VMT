@@ -19,6 +19,8 @@ namespace AST{
 #include "Frontend/AST/AstConditionExpr.h"
 #include "Frontend/AST/AstVoidExpr.h"
 #include "Frontend/AST/AstVariableObjExpr.h"
+#include "Frontend/AST/AstDecl.h"
+#include "Frontend/AST/AstAssign.h"
 #include "Frontend/AST/AstStmt.h"
 #include "Frontend/AST/AstStmts.h"
 #include "Frontend/AST/AstExprStmt.h"

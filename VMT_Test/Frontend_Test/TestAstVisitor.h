@@ -3,16 +3,17 @@
 #include "Frontend/AST/AstVisitor.h"
 #include "SymbolTable/Symbol.h"
 #include "SymbolTable/Env.h"
+#include "Diagnose/Diagnose.h"
+#include "SymbolTable/ObjectId.h"
 
 // 
-
 class TestAstVisitor : public std::enable_shared_from_this<TestAstVisitor>, public AST::IASTVisitor {
 public:
 	TestAstVisitor() {
 		m_topEnv = std::make_shared<ENV::Env>();
 		m_currentEnv = m_topEnv;
 	}
-	void visitProgram(AST::AstProgram*) override {
+	void visitProgram(AST::AstProgram* program ) override {
 		std::cout <<"visitProgram" << std::endl;
 	}
 	// 这里存在一个问题就是作用域的问题
@@ -25,19 +26,19 @@ public:
 		std::shared_ptr<AST::AstFunctionBody> body = function->getFunctionBody();
 		body->gen(std::enable_shared_from_this<TestAstVisitor>::shared_from_this());
 	}
-	void visitForStmt(AST::AstForStmt*) override {
+	void visitForStmt(AST::AstForStmt * forStmt ) override {
 		std::cout << "visitForStmt" << std::endl;
 	}
-	void visitWhileStmt(AST::AstWhileStmt*) override {
+	void visitWhileStmt(AST::AstWhileStmt* whileStmt ) override {
 		std::cout << "visitWhileStmt" << std::endl;
 	}
-	void visitDoWhileStmt(AST::AstDoWhileStmt*) override {
+	void visitDoWhileStmt(AST::AstDoWhileStmt* doWhileStmt ) override {
 		std::cout << "visitDoWhileStmt" << std::endl;
 	}
-	void visitIfStmt(AST::AstIfStmt*) override {
+	void visitIfStmt(AST::AstIfStmt* ifStmt ) override {
 		std::cout << "visitIfStmt" << std::endl;
 	}
-	void visitElseStmt(AST::AstElseStmt*) override {
+	void visitElseStmt(AST::AstElseStmt* elseStmt ) override {
 		std::cout << "visitElseStmt" << std::endl;
 	}
 	void visitStmts(AST::AstStmts* stmts) override {
@@ -46,13 +47,13 @@ public:
 			stmts->at(i)->gen(std::enable_shared_from_this<TestAstVisitor>::shared_from_this());
 		}
 	}
-	void visitReturnStmt(AST::AstReturnStmt*) override {
+	void visitReturnStmt(AST::AstReturnStmt* returnStmt ) override {
 		std::cout << "visitReturnStmt" << std::endl;
 	}
-	void visitBreakStmt(AST::AstBreakStmt*) override {
+	void visitBreakStmt(AST::AstBreakStmt* breakStmt ) override {
 		std::cout << "visitBreakStmt" << std::endl;
 	}
-	void visitContinueStmt(AST::AstContinueStmt*) override {
+	void visitContinueStmt(AST::AstContinueStmt* continueStmt ) override {
 		std::cout << "visitContinueStmt" << std::endl;
 	}
 	void visitExprStmt(AST::AstExprStmt* exprStmt) override {
@@ -98,28 +99,65 @@ public:
 		rightExpr->reduce(std::enable_shared_from_this<TestAstVisitor>::shared_from_this());
 		return nullptr;
 	}
-	std::shared_ptr<AST::AstObjectExpr> reduceUnaryOpExpr(AST::AstUnaryOpExpr*) override {
+	std::shared_ptr<AST::AstObjectExpr> reduceUnaryOpExpr(AST::AstUnaryOpExpr* unaryOpExpr ) override {
 		std::cout << "reduceUnaryOpExpr" << std::endl;
 		return nullptr;
 	}
-	std::shared_ptr<AST::AstObjectExpr> reduceConditionExpr(AST::AstConditionExpr*) override {
+	std::shared_ptr<AST::AstObjectExpr> reduceConditionExpr(AST::AstConditionExpr* conditionExpr ) override {
 		std::cout << "reduceConditionExpr" << std::endl;
 		return nullptr;
 	}
-	std::shared_ptr<AST::AstObjectExpr> reduceExprs(AST::AstExprs*) override {
+	std::shared_ptr<AST::AstObjectExpr> reduceExprs(AST::AstExprs* exprs ) override {
 		std::cout << "reduceExprs" << std::endl;
 		return nullptr;
 	}
+	
 	std::shared_ptr<AST::AstObjectExpr> reduceObjectExpr(AST::AstObjectExpr* objectExpr) override {
 		std::cout << objectExpr->getObject().toStringView();
 		return nullptr;
 	}
-	std::shared_ptr<AST::AstObjectExpr> reduceVoidExpr(AST::AstVoidExpr*) override {
+	
+	std::shared_ptr<AST::AstObjectExpr> reduceVoidExpr(AST::AstVoidExpr* voidExpr ) override {
 		std::cout << "reduceVoidExpr" << std::endl;
 		return nullptr;
 	}
-	std::shared_ptr<AST::AstObjectExpr> reduceTemp(AST::AstTemp*) override {
+
+	std::shared_ptr<AST::AstObjectExpr> reduceTemp(AST::AstTemp* temp ) override {
 		std::cout << "reduceTemp" << std::endl;
+		return nullptr;
+	}
+
+	std::shared_ptr<AST::AstObjectExpr> reduceDecl(AST::AstDecl* decl) override {
+		std::cout << "reduce Decl" << std::endl;
+		auto env = getCurrentEnv();
+		auto type = decl->getType();
+		auto name = decl->getName();
+		auto expr = decl->getExpr();
+		auto ptype = env->find(type.toStringView(), ENV::SymbolType::kType);
+		if (!ptype) {
+			Diagnose::errorMsg( "can not find the type");
+			return nullptr;
+		}
+		std::shared_ptr<ENV::Symbol> symbol = std::make_shared<ENV::ObjectId>( name.toStringView(), std::static_pointer_cast<ENV::TypeId>(ptype) );
+		if (false == env->put(symbol)) {
+			Diagnose::errorMsg("redefine the symbol");
+			return nullptr;
+		}
+		
+		auto objExpr = expr->reduce( std::enable_shared_from_this<TestAstVisitor>::shared_from_this());
+		return objExpr;
+	}
+
+	std::shared_ptr<AST::AstObjectExpr> reduceDecls(AST::AstDecls* decls) override {
+		auto iter = decls->begin();
+		std::shared_ptr<AST::AstObjectExpr> objExpr;
+		for (; iter != decls->end(); ++iter) {
+			objExpr = (*iter)->reduce(std::enable_shared_from_this<TestAstVisitor>::shared_from_this());
+		}
+		return objExpr;
+	}
+	std::shared_ptr<AST::AstObjectExpr> reduceAssign(AST::AstAssign* assign ) override{
+		std::cout << "reduce Assign" << std::endl;
 		return nullptr;
 	}
 private:

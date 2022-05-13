@@ -1,7 +1,8 @@
 #pragma once
+#include <stdint.h>
 #include <string_view>
 namespace ENV {
-	enum SymbolType {
+	enum class SymbolType : uint32_t{
 		kVariable,
 		kFunction,
 		kType,
@@ -14,7 +15,7 @@ namespace ENV {
 		SymbolType       getSymbolType() const;
 		std::string_view getSymbolName() const;
 	private:
-		SymbolType m_type;
+		SymbolType       m_type;
 		std::string_view m_name;
 	};
 }

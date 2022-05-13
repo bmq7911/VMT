@@ -1,8 +1,9 @@
 #pragma once 
 #include <map>
 #include <memory>
-#include "SymbolTable/Symbol.h"
+#include <unordered_map>
 
+#include "SymbolTable/Symbol.h"
 namespace ENV {
     class ObjectId;
     class TypeId;
@@ -17,15 +18,8 @@ namespace ENV {
 
         void mount(std::shared_ptr<ENV::Env>);
         void unmount();
-
-        void put(std::string const &str, std::shared_ptr<ENV::ObjectId> id);
-        void put(std::string const &str, std::shared_ptr<ENV::FunctionId> id);
-        void put(std::string const &str, std::shared_ptr<ENV::TypeId> id);
-        std::shared_ptr<ENV::ObjectId>   getObjectId( std::string const& str);
-        std::shared_ptr<ENV::FunctionId> getFunctionId(std::string const& str);
-        std::shared_ptr<ENV::TypeId>     getTypeId(std::string const& str);
-        void put(std::string const & str, std::shared_ptr<ENV::Symbol> i, ENV::SymbolType type);
-        std::shared_ptr<ENV::Symbol> get(std::string const& w, ENV::SymbolType type);
+        bool put(std::shared_ptr<ENV::Symbol> symbol);
+        std::shared_ptr<ENV::Symbol> find(std::string_view const& view, ENV::SymbolType type);
 
     private:
         std::shared_ptr<Env> m_prev; /// 连接到前一个符号表,但是前一个符号表不会直接指向内层符号表
@@ -33,6 +27,8 @@ namespace ENV {
         std::map<std::string, std::shared_ptr<ENV::ObjectId> > m_ObjectTable;
         std::map<std::string, std::shared_ptr<ENV::TypeId> >   m_TypeTable;
         std::map<std::string, std::shared_ptr<ENV::FunctionId>>m_FunctionTable;
+
+        std::map<ENV::SymbolType, std::unordered_map<std::string_view, std::shared_ptr<ENV::Symbol>> > m_maps;
     };
 
     

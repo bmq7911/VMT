@@ -26,6 +26,9 @@ namespace AST {
         virtual std::shared_ptr<AST::AstObjectExpr> reduceObjectExpr(AST::AstObjectExpr*) = 0;
         virtual std::shared_ptr<AST::AstObjectExpr> reduceVoidExpr( AST::AstVoidExpr* ) = 0;
         virtual std::shared_ptr<AST::AstObjectExpr> reduceTemp( AST::AstTemp *) = 0;
+        virtual std::shared_ptr<AST::AstObjectExpr> reduceDecl(AST::AstDecl*) = 0;
+        virtual std::shared_ptr<AST::AstObjectExpr> reduceDecls(AST::AstDecls*) = 0;
+        virtual std::shared_ptr<AST::AstObjectExpr> reduceAssign(AST::AstAssign*) = 0;
     } ;
 
 }

@@ -8,5 +8,7 @@ void Diagnose::expectBut( TokenId expect, TokenId but){
 
 
 }
-
+void Diagnose::errorMsg(const char* msg) {
+	
+}
 

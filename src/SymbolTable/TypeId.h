@@ -1,7 +1,6 @@
 #pragma once 
 #include "Frontend/Lexer/TokenId.h"
 #include "SymbolTable/Symbol.h"
-#include "SymbolTable/TopEnv.h"
 #include <memory>
 
 namespace ENV {

@@ -7,6 +7,7 @@ class Diagnose {
 public:
 	static void expectBut( TokenId expect, Token but);
 	static void expectBut( TokenId expect, TokenId but);
+	static void errorMsg(const char*);
 private:
 
 };

@@ -2,7 +2,6 @@
 #include "Frontend/Parser/FunctionParser.h"
 #include "SymbolTable/FunctionId.h"
 #include "SymbolTable/ObjectId.h"
-#include "SymbolTable/TopEnv.h"
 #include "Frontend/AST/AstType.h"
 #include "Diagnose/Diagnose.h"
 
@@ -346,36 +345,22 @@ std::shared_ptr<AST::AstExpr>                FunctionParser::parseDeclOrExpr() {
         tok = readToken();
         auto nextToken = advanceToken();
         if (nextToken.match(TokenId::kw_id)) { // this condition indicate that there is a declaretion express
+            auto type = tok;
+            std::shared_ptr<AST::AstDecls> decls = std::make_shared<AST::AstDecls>( );
             do {
                 auto name = readToken();
-                tok = advanceToken();
+                tok = readToken();
                 if (tok.notMatch(TokenId::kw_equal)) {
                 
                 }
-                std::shared_ptr<AST::AstExpr> expr = parseExpr();
-                
-
+                std::shared_ptr<AST::AstExpr>   expr = parseExpr();
+                std::shared_ptr<AST::AstAssign> assignExpr = std::make_shared<AST::AstAssign>( name , expr );
+                std::shared_ptr<AST::AstDecl>   declExpr   = std::make_shared<AST::AstDecl>( type, name, assignExpr );
                 tok = advanceToken();
                 
+                decls->push( declExpr);
             } while ( tok.match(TokenId::kw_comma));
-            tok = readToken();
-            if (tok.notMatch(TokenId::kw_semi)) {
-                
-            }
-            auto name = readToken();
-            auto typeTok = tok;
-            tok = advanceToken();
-            
-            if(tok.notMatch(TokenId::kw_equal)) {
-                
-            }
-            else {
-                
-            }
-            
-
-
-
+            return decls;
         }
         else { /// with must a expr
             nextToken = readToken( );
