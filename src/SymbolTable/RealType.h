@@ -1,16 +1,18 @@
 #pragma once
 #include "SymbolTable/TypeId.h"
+#include "SymbolTable/BoolType.h"
 
 namespace ENV {
     template<typename _T>
     class RealType : std::enable_shared_from_this< RealType<_T>>,public TypeId {
     public:
         using HostType = _T;
-        RealType( const char* tok)
+        RealType( std::string_view const& tok,std::shared_ptr<BoolType> boolType )
             : TypeId(tok)
             , m_min(std::numeric_limits<_T>::min())
             , m_max(std::numeric_limits<_T>::max())
             , m_align(alignof(_T))
+            , m_boolType( boolType )
         {
 
         }
@@ -23,11 +25,13 @@ namespace ENV {
                 if (tok == tagSupport[i])
                     return std::enable_shared_from_this<RealType<_T>>::shared_from_this();
             }
-            return getTopEnv()->getBasicType(ENV::BasicType::kArbitrary);
+            //return getTopEnv()->getBasicType(ENV::BasicType::kArbitrary);
+            return nullptr;
         }
         std::shared_ptr<TypeId> Op(TokenId tag, std::shared_ptr<TypeId> type)  override {
             if (type.get() != this) {
-                return getTopEnv()->getBasicType(ENV::BasicType::kArbitrary);
+                //return getTopEnv()->getBasicType(ENV::BasicType::kArbitrary);
+                return nullptr;
             }
             else {
                 const static TokenId tagSupport1[] = {
@@ -55,7 +59,8 @@ namespace ENV {
                 for (size_t i = 0; i < sizeof(tagSupport1) / sizeof(tagSupport1[0]); ++i) {
                     if (tagSupport1[i] == tag) {
                         if (this != type.get()) {
-                            return ENV::getTopEnv()->getBasicType(ENV::BasicType::kArbitrary);
+                            //return ENV::getTopEnv()->getBasicType(ENV::BasicType::kArbitrary);
+                            return nullptr;
                         }
                         return std::enable_shared_from_this<RealType<_T>>::shared_from_this();
                     }
@@ -63,15 +68,18 @@ namespace ENV {
                 for (size_t i = 0; i < sizeof(tagSupport2) / sizeof(tagSupport2[0]); ++i) {
                     if (tagSupport2[i] == tag) {
                         if (this != type.get()) {
-                            return ENV::getTopEnv()->getBasicType(ENV::BasicType::kArbitrary);
+                            //return ENV::getTopEnv()->getBasicType(ENV::BasicType::kArbitrary);
+                            return nullptr;
                         }
-                        return ENV::getTopEnv()->getBasicType(ENV::BasicType::kBool);
+                        //return ENV::getTopEnv()->getBasicType(ENV::BasicType::kBool);
+                        return m_boolType;
                     }
                 }
                 if (tag == TokenId::kw_comma) {
                     return type;
                 }
-                return ENV::getTopEnv()->getBasicType(ENV::BasicType::kArbitrary);
+                //return ENV::getTopEnv()->getBasicType(ENV::BasicType::kArbitrary);
+                return nullptr;
             }
 
 
@@ -82,5 +90,6 @@ namespace ENV {
         HostType m_min;
         HostType m_max;
         uint32_t m_align;
+        std::shared_ptr<BoolType> m_boolType;
     };
 }

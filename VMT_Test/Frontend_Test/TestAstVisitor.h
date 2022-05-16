@@ -5,12 +5,25 @@
 #include "SymbolTable/Env.h"
 #include "Diagnose/Diagnose.h"
 #include "SymbolTable/ObjectId.h"
+#include "SymbolTable/IntegerType.h"
+#include "SymbolTable/RealType.h"
+#include "SymbolTable/BoolType.h"
 
 // 
 class TestAstVisitor : public std::enable_shared_from_this<TestAstVisitor>, public AST::IASTVisitor {
 public:
 	TestAstVisitor() {
 		m_topEnv = std::make_shared<ENV::Env>();
+		std::shared_ptr<ENV::BoolType>              typeBool = std::make_shared<ENV::BoolType>(std::string_view("bool"));
+		std::shared_ptr<ENV::IntegerType<int32_t>>  typeI32  = std::make_shared<ENV::IntegerType<int32_t>>( std::string_view("i32"), typeBool );
+		std::shared_ptr<ENV::IntegerType<uint32_t>> typeUI32 = std::make_shared<ENV::IntegerType<uint32_t>>(std::string_view("ui32"), typeBool );
+		std::shared_ptr<ENV::RealType<float>>       typeF32  = std::make_shared<ENV::RealType<float>>(std::string_view("f32"), typeBool );
+		std::shared_ptr<ENV::RealType<double>>      typeF64  = std::make_shared<ENV::RealType<double>>(std::string_view("f64"), typeBool);
+		m_topEnv->put(typeI32);
+		m_topEnv->put(typeUI32);
+		m_topEnv->put(typeF32);
+		m_topEnv->put(typeF64);
+		m_topEnv->put(typeBool);
 		m_currentEnv = m_topEnv;
 	}
 	void visitProgram(AST::AstProgram* program ) override {
@@ -135,12 +148,12 @@ public:
 		auto expr = decl->getExpr();
 		auto ptype = env->find(type.toStringView(), ENV::SymbolType::kType);
 		if (!ptype) {
-			Diagnose::errorMsg( "can not find the type");
+			Diagnose::errorMsg( "can not find the type", type.toStringView() );
 			return nullptr;
 		}
 		std::shared_ptr<ENV::Symbol> symbol = std::make_shared<ENV::ObjectId>( name.toStringView(), std::static_pointer_cast<ENV::TypeId>(ptype) );
 		if (false == env->put(symbol)) {
-			Diagnose::errorMsg("redefine the symbol");
+			Diagnose::errorMsg("redefine the symbol", type.toStringView());
 			return nullptr;
 		}
 		

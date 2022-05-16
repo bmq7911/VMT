@@ -113,13 +113,13 @@ std::shared_ptr<AST::AstParamList>  FunctionParser::paramList() {
         do {
             auto type = readToken();
             //2.2.1 we except the token is a type(id)
-            if (tok.notMatch(TokenId::kw_id)) {
-                Diagnose::expectBut(TokenId::kw_id, tok);
+            if (type.notMatch(TokenId::kw_id)) {
+                Diagnose::expectBut(TokenId::kw_id, type);
             }
             auto id = readToken();
             //2.2.2 we ecpect the token is a id
-            if (tok.notMatch(TokenId::kw_id)) {
-                Diagnose::expectBut(TokenId::kw_id, tok);
+            if (id.notMatch(TokenId::kw_id)) {
+                Diagnose::expectBut(TokenId::kw_id,id);
             }
             paramList->addParam(type, id );
             //2.2.3 check to see if there is a next param

@@ -33,6 +33,7 @@ namespace ENV {
         bool operator != (TypeId const & t) const {
             return !(*this == t);
         }
+
         virtual std::shared_ptr<TypeId> Op(TokenId tag)  = 0;
         virtual std::shared_ptr<TypeId> Op(TokenId tag, std::shared_ptr<TypeId> type)  = 0;
         /// 检查是否支持 a op b( 二元操作) 不支持更高元操作
