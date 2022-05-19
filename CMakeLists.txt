@@ -20,6 +20,7 @@ endif(WIN32)
 
 link_directories(${CMAKE_SOURCE_DIR}/libs  ${CMAKE_SOURCE_DIR}/bin )
 
+
 if(WIN32)
   add_definitions( -D _DEBUG_PERFORMANCE)
   set_property(GLOBAL PROPERTY USE_FOLDERS ON)

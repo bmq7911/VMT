@@ -31,10 +31,10 @@ int main( int argc, char * argv[]) {
     */
     //std::shared_ptr<ProgramParser> parser = std::make_shared<ProgramParser>( lex );
     //parser->startParser( );
-    std::shared_ptr<TokenReader> reader = std::make_shared<TokenReader>(lex);
-    std::shared_ptr<FunctionParser> parser = std::make_shared<FunctionParser>(reader);
+    std::shared_ptr<TokenReader> reader       = std::make_shared<TokenReader>(lex);
+    std::shared_ptr<FunctionParser> parser    = std::make_shared<FunctionParser>(reader);
     std::shared_ptr<AST::AstFunction> funtion = parser->begin();
-    std::shared_ptr<TestAstVisitor > visitor = std::make_shared<TestAstVisitor>( );
+    std::shared_ptr<TestAstVisitor > visitor  = std::make_shared<TestAstVisitor>( );
     funtion->gen(visitor);
 	printf("\n");
 }

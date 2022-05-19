@@ -1,6 +1,6 @@
 #pragma once
 #include <vector>
-#include "Frontend/AST/AstStmt.h"
+#include "Frontend/AST/AstStmt/AstStmt.h"
 namespace AST {
 	class AstBlock :public AstStmt {
 	public:

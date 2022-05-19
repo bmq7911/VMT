@@ -26,6 +26,7 @@ public:
 		m_topEnv->put(typeBool);
 		m_currentEnv = m_topEnv;
 	}
+
 	void visitProgram(AST::AstProgram* program ) override {
 		std::cout <<"visitProgram" << std::endl;
 	}
@@ -37,38 +38,48 @@ public:
 		std::shared_ptr<AST::AstType> type = function->getFunctionType( );
 		type->gen( std::enable_shared_from_this<TestAstVisitor>::shared_from_this() );
 		std::shared_ptr<AST::AstFunctionBody> body = function->getFunctionBody();
-		body->gen(std::enable_shared_from_this<TestAstVisitor>::shared_from_this());
+		body->gen( std::enable_shared_from_this<TestAstVisitor>::shared_from_this() );
 	}
+
 	void visitForStmt(AST::AstForStmt * forStmt ) override {
 		std::cout << "visitForStmt" << std::endl;
 	}
+
 	void visitWhileStmt(AST::AstWhileStmt* whileStmt ) override {
 		std::cout << "visitWhileStmt" << std::endl;
 	}
+
 	void visitDoWhileStmt(AST::AstDoWhileStmt* doWhileStmt ) override {
 		std::cout << "visitDoWhileStmt" << std::endl;
 	}
+
 	void visitIfStmt(AST::AstIfStmt* ifStmt ) override {
 		std::cout << "visitIfStmt" << std::endl;
 	}
+
 	void visitElseStmt(AST::AstElseStmt* elseStmt ) override {
 		std::cout << "visitElseStmt" << std::endl;
 	}
+
 	void visitStmts(AST::AstStmts* stmts) override {
 		std::cout << "visitStmts" << std::endl;
 		for (size_t i = 0; i < stmts->size(); ++i) {
 			stmts->at(i)->gen(std::enable_shared_from_this<TestAstVisitor>::shared_from_this());
 		}
 	}
+
 	void visitReturnStmt(AST::AstReturnStmt* returnStmt ) override {
 		std::cout << "visitReturnStmt" << std::endl;
 	}
+
 	void visitBreakStmt(AST::AstBreakStmt* breakStmt ) override {
 		std::cout << "visitBreakStmt" << std::endl;
 	}
+
 	void visitContinueStmt(AST::AstContinueStmt* continueStmt ) override {
 		std::cout << "visitContinueStmt" << std::endl;
 	}
+
 	void visitExprStmt(AST::AstExprStmt* exprStmt) override {
 		std::cout << "visitExprStmt" << std::endl;
 		exprStmt->getExpr()->reduce(std::enable_shared_from_this<TestAstVisitor>::shared_from_this());

@@ -26,6 +26,7 @@ namespace IR {
     /// </summary>
     class Function {
     public:
+        explicit Function();
         explicit Function(const char* name, FunctionType const* funcType);
         explicit Function(char const* name, FunctionType const* funcType, std::shared_ptr<Scope> up );
 

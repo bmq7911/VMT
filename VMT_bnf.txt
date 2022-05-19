@@ -205,3 +205,6 @@ f32 ff=func( vec3<f32> vx){
 		}
 	);
 }
+
+f32 a = func( f32 x, f32 y )->{ x * y;}
+

@@ -8,6 +8,9 @@
 
 namespace IR {
 
+    Function::Function() {
+        
+    }
     Function::Function(const char* name, FunctionType const* funcType)
         : m_name(name)
         , m_type(funcType)

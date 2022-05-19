@@ -61,10 +61,10 @@ namespace IR {
         Instruction* m_lastIns;
         Function*    m_func;
 
-        std::set<Value*> m_allValues;/// 所有变量
-        std::set<Value*> m_importValue;   /// 引入的变量
-        std::set<Value*> m_assignValue; /// 内部定义的变量
-        std::set<Value*> m_outportValue;  /// 引出的变量
+        std::set<Value*> m_allValues;               /// 所有变量
+        std::set<Value*> m_importValue;             /// 引入的变量
+        std::set<Value*> m_assignValue;             /// 内部定义的变量
+        std::set<Value*> m_outportValue;            /// 引出的变量
         std::set<Instruction*> m_needSSAChangedIns; /// 变量的活跃性分析
 
     };
