@@ -27,9 +27,8 @@ namespace IR {
         //Value* emitLoad(float value);
         //Value* emitLoad(double value);
 
-        Value* emitBinaryOpIns(IR::Instruction::OpCode op, Value* v1, Value* v2) {
+        Value* emitBinaryOpIns(IR::Instruction::OpCode op, Value* v1, Value* v2);
         
-        }
         Value* emitAlloc(float value);
         Value* emitAlloc(float value, const char* name);
         Value* emitAlloc(Value* v);
