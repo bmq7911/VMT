@@ -9,9 +9,8 @@ public:
     std::shared_ptr<AST::AstFunction>        begin ( );
     std::shared_ptr<AST::AstType>            parseType();
     std::shared_ptr<AST::AstAttribute>       parseAttribute();
-    std::shared_ptr<AST::AstFunctionBody>    parseFunctionBody();
     std::shared_ptr<AST::AstStmt>            parseFunctionStmt();
-    std::shared_ptr<AST::AstParamList>       paramList( );
+    std::shared_ptr<AST::AstParamList>       parseParamList( );
     std::shared_ptr<AST::AstStmt>            parseFunctionBlock();
     std::shared_ptr<AST::AstStmt>            parseFunctionExpr();
     std::shared_ptr<AST::AstStmt>            parseStmt();

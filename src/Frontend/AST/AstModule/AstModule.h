@@ -1,8 +1,8 @@
-#pragma one 
+#pragma once 
 
 #include "../AstTree.h"
-#include "../AstClass.h"
-#include "../AstFunction.h"
+#include "../AstClass/AstClass.h"
+#include "../AstFunction/AstFunction.h"
 
 namespace AST{
 	class AstModule : public AstTree{

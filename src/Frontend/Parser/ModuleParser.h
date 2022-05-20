@@ -1,9 +1,8 @@
 #pragma once
-/// 这里就会存在顶层标签
-#include "SymbolTable/Env.h"
-class ModuleParser {
+#include "Frontend/Parser/ParserProxy.h"
+class ModuleParser  : public ParserProxy{
 public:
-	
+	ModuleParser(std::shared_ptr<TokenReader>);
 private:
-	std::shared_ptr<ENV::Env> m_env;
+	
 };

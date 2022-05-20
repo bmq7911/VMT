@@ -27,9 +27,6 @@ public:
 		m_currentEnv = m_topEnv;
 	}
 
-	void visitProgram(AST::AstProgram* program ) override {
-		std::cout <<"visitProgram" << std::endl;
-	}
 	// 这里存在一个问题就是作用域的问题
 	void visitFunction(AST::AstFunction* function) override {
 		std::cout << "visitFunction" << std::endl;
@@ -37,8 +34,6 @@ public:
 		std::cout << "function name: " << functionName.toStringView() << std::endl;
 		std::shared_ptr<AST::AstType> type = function->getFunctionType( );
 		type->gen( std::enable_shared_from_this<TestAstVisitor>::shared_from_this() );
-		std::shared_ptr<AST::AstFunctionBody> body = function->getFunctionBody();
-		body->gen( std::enable_shared_from_this<TestAstVisitor>::shared_from_this() );
 	}
 
 	void visitForStmt(AST::AstForStmt * forStmt ) override {
@@ -102,11 +97,6 @@ public:
 	void visitType(AST::AstType* type) override {
 		std::cout << "Type: "<< type->getType().toStringView() << std::endl;
 	}
-	void visitFunctionBody(AST::AstFunctionBody* body) override {
-		std::cout << "FunctionBody:" << std::endl;
-		body->getParamList()->gen(std::enable_shared_from_this<TestAstVisitor>::shared_from_this());
-		body->getStmt()->gen(std::enable_shared_from_this<TestAstVisitor>::shared_from_this());
-	}
 	void visitParamList(AST::AstParamList * list) override {
 		std::cout << "ParamList size " << list->size() << std::endl;
 		for (size_t i = 0; i < list->size(); ++i) {
@@ -129,10 +119,6 @@ public:
 	}
 	std::shared_ptr<AST::AstObjectExpr> reduceConditionExpr(AST::AstConditionExpr* conditionExpr ) override {
 		std::cout << "reduceConditionExpr" << std::endl;
-		return nullptr;
-	}
-	std::shared_ptr<AST::AstObjectExpr> reduceExprs(AST::AstExprs* exprs ) override {
-		std::cout << "reduceExprs" << std::endl;
 		return nullptr;
 	}
 	

@@ -10,6 +10,15 @@ namespace AST {
         return m_type;
     }
 
+    std::shared_ptr<AST::AstParamList> AstFunction::getFunctionParamList() const {
+        return m_paramList;
+    }
+    std::shared_ptr<AST::AstAttribute> AstFunction::getFunctionAttribute() const {
+        return m_attribute;
+    }
+    std::shared_ptr<AST::AstBlock>     AstFunction::getFunctionBlock() const {
+        return m_functionBody;
+    }
 
 	void AstFunction::gen( std::shared_ptr<AST::IASTVisitor> visitor) {
 		visitor->visitFunction(this);

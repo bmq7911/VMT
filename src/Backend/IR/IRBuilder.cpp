@@ -21,6 +21,9 @@ namespace IR {
     }
 
 
+    Value* IRBuilder::emitBinaryOpIns(IR::Instruction::OpCode op, Value* v1, Value* v2) {
+        return new BinaryOpIns();
+    }
     Value* IRBuilder::emitAlloc(float value) {
         Type* type = m_context->getTypeManger().getFloatType(sizeof(float));
         Constant* c = createConstant(type, value);

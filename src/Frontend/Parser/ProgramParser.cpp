@@ -4,7 +4,6 @@ ProgramParser::ProgramParser(std::shared_ptr<TokenReader> parserCore)
     :ParserProxy( parserCore)
 {
     /// 每个程序都有个env
-    m_program = std::make_shared<AST::AstProgram>();
 }
 
 void ProgramParser::startParser() {
@@ -39,9 +38,5 @@ std::shared_ptr<AST::AstFunction> ProgramParser::ParseFunction( ) {
         /// 错误处理,并且还的做好恢复功能
     }
     return nullptr;
-}
-
-std::shared_ptr<AST::AstProgram>  ProgramParser::getProgram() {
-    return m_program;
 }
 
