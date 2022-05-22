@@ -1,4 +1,3 @@
-#pragma once
 #include "Frontend/AST/AstExpr/AstDecl.h"
 #include "Frontend/AST/AstVisitor.h"
 namespace AST {
