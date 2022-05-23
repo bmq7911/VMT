@@ -5,6 +5,7 @@
 #include "Frontend/Parser/ProgramParser.h"
 #include "Frontend/Parser/FunctionParser.h"
 #include "TestAstVisitor.h"
+#include "IRAstVisitor.h"
 
 int main( int argc, char * argv[]) {
     if (argc != 2) {
@@ -35,6 +36,8 @@ int main( int argc, char * argv[]) {
     std::shared_ptr<FunctionParser> parser    = std::make_shared<FunctionParser>(reader);
     std::shared_ptr<AST::AstFunction> funtion = parser->begin();
     std::shared_ptr<TestAstVisitor > visitor  = std::make_shared<TestAstVisitor>( );
-    funtion->gen(visitor);
+    std::shared_ptr<TS::AST_IR_Codegen> ir_visitor = std::make_shared<TS::AST_IR_Codegen>();
+    funtion->gen(visitor, nullptr );
+    funtion->gen(ir_visitor, nullptr);
 	printf("\n");
 }

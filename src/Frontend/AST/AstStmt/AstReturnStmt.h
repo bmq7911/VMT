@@ -6,7 +6,7 @@ namespace AST {
     public:
         AstReturnStmt(std::shared_ptr<AST::AstExprStmt> stmt);
         std::shared_ptr<AST::AstExprStmt> getStmt();
-        void gen(std::shared_ptr<AST::IASTVisitor>) override;
+        void gen(std::shared_ptr<AST::IASTVisitor>,ICollectInfoBack* ) override;
     private:
         std::shared_ptr<AST::AstExprStmt> m_returnExprStmt;
     };

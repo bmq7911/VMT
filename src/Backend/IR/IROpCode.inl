@@ -121,7 +121,8 @@ LAST_CAST_IR_INS(35, CastIRInsEnd)
 FIRST_PSEUDO_IR_INS( 36, PseudoIRInsBeg)
 EMIT_IR_INS( 36, Label,          false)
 EMIT_IR_INS( 37, Error,          true )
-LAST_PSEUDO_IR_INS(37, PseudoIRInsEnd )
+EMIT_IR_INS( 38, Phi,            true)
+LAST_PSEUDO_IR_INS(38, PseudoIRInsEnd )
 
 #undef EMIT_IR_INS
 #undef DEFINE_IR_RANGE_BEG

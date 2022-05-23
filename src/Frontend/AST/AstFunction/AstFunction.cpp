@@ -20,7 +20,7 @@ namespace AST {
         return m_functionBody;
     }
 
-	void AstFunction::gen( std::shared_ptr<AST::IASTVisitor> visitor) {
-		visitor->visitFunction(this);
+	void AstFunction::gen( std::shared_ptr<AST::IASTVisitor> visitor, ICollectInfoBack * collect) {
+		visitor->visitFunction(this, collect );
 	}
 }

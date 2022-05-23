@@ -53,7 +53,7 @@ namespace AST {
         AstParam& at(size_t i) {
             return m_params.at(i);
         }
-        void gen(std::shared_ptr<AST::IASTVisitor> visitor);
+        void gen(std::shared_ptr<AST::IASTVisitor> visitor,ICollectInfoBack* collect);
     private:
         std::vector<AstParam> m_params;
     };

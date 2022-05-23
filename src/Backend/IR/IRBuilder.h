@@ -26,9 +26,13 @@ namespace IR {
         //Value* emitLoad( Value *  );
         //Value* emitLoad(float value);
         //Value* emitLoad(double value);
-
+        template<typename ... _Args>
+        Value* emitPhi(_Args && ... args) {
+            IR::Phi * phi = new IR::Phi( std::forward<_Args>( args) ... );
+            return phi->getRetValue();
+        }
         Value* emitBinaryOpIns(IR::Instruction::OpCode op, Value* v1, Value* v2);
-        
+        Value* emitUnaryOpIns(IR::Instruction::OpCode op, Value* v);
         Value* emitAlloc(float value);
         Value* emitAlloc(float value, const char* name);
         Value* emitAlloc(Value* v);
@@ -38,6 +42,8 @@ namespace IR {
         Value* emitAssign(const char* strSrc, const char* strDst);
         Br* emitBr(Value* v, const char* trueLabel, const char* falseLabel);
         Br* emitBr(Value* v, std::string const& trueLabel, std::string const& falseLabel);
+        Jmp* emitJmp(const char* label);
+        Jmp* emitJmp(std::string const& label);
         Ret* emitRet( Value *v);
         Label* emitLabel(std::string const& label);
         Label* emitLabel(const char* label);

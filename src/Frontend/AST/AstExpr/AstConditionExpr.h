@@ -9,7 +9,7 @@ namespace AST {
         std::shared_ptr<AST::AstExpr> getCondition();
         std::shared_ptr<AST::AstExpr> getTrueExpr();
         std::shared_ptr<AST::AstExpr> getFalseExpr();
-        std::shared_ptr<AST::AstObjectExpr> reduce(std::shared_ptr<AST::IASTVisitor>) override;
+        std::shared_ptr<AST::AstObjectExpr> reduce(std::shared_ptr<AST::IASTVisitor>,ICollectInfoBack*) override;
     private:
         std::shared_ptr<AST::AstExpr> m_condition;
         std::shared_ptr<AST::AstExpr> m_true;

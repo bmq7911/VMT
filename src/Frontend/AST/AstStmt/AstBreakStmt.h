@@ -3,7 +3,7 @@
 namespace AST {
     class AstBreakStmt :  public AstStmt {
     public:
-        void gen(std::shared_ptr<AST::IASTVisitor> visitor) override;
+        void gen(std::shared_ptr<AST::IASTVisitor> visitor,ICollectInfoBack *) override;
 
     };
 }

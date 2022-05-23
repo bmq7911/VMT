@@ -14,7 +14,7 @@ namespace AST {
             , m_const(value)
         {
         }
-        std::shared_ptr<AST::AstObjectExpr> reduce(std::shared_ptr<AST::IASTVisitor> visitor) override {
+        std::shared_ptr<AST::AstObjectExpr> reduce(std::shared_ptr<AST::IASTVisitor> visitor,ICollectInfoBack * collect ) override {
             return nullptr;
         }
     private:

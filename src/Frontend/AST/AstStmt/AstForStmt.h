@@ -12,7 +12,7 @@ namespace AST {
         std::shared_ptr<AST::AstExpr> getInitExpr();
         std::shared_ptr<AST::AstExpr> getTailExpr();
         std::shared_ptr<AST::AstStmt> getStmt();
-        void gen(std::shared_ptr<AST::IASTVisitor> visitor) override;
+        void gen(std::shared_ptr<AST::IASTVisitor> visitor,ICollectInfoBack*) override;
     private:
         std::shared_ptr<AST::AstExpr> m_initExpr;
         std::shared_ptr<AST::AstExpr> m_tailExpr;

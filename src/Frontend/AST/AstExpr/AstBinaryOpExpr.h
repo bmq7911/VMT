@@ -4,6 +4,7 @@
 
 namespace AST {
     class IASTVisitor;
+    class ICollectInfoBack;
     class AstBinaryOpExpr : public AstExpr{
     public:
         AstBinaryOpExpr(std::shared_ptr<AstExpr> left,
@@ -14,7 +15,7 @@ namespace AST {
         std::shared_ptr<AstExpr> getRight() const;
         Token getOp() const;
 
-        std::shared_ptr<AST::AstObjectExpr> reduce(std::shared_ptr<AST::IASTVisitor>) override;
+        std::shared_ptr<AST::AstObjectExpr> reduce(std::shared_ptr<AST::IASTVisitor>, ICollectInfoBack * collect) override;
 
     private:
         std::shared_ptr<AstExpr> m_left;

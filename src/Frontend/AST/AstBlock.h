@@ -4,7 +4,7 @@
 namespace AST {
 	class AstBlock :public AstStmt {
 	public:
-		void gen(std::shared_ptr<AST::IASTVisitor> visitor)  override;
+		void gen(std::shared_ptr<AST::IASTVisitor> visitor,ICollectInfoBack* )  override;
 		void addStmt(std::shared_ptr<AST::AstStmt> stmt) {
 			m_stmts.push_back(stmt);
 		}

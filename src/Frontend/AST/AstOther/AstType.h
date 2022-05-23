@@ -5,6 +5,7 @@
 
 namespace AST {
 	class IASTVisitor;
+    class ICollectInfoBack;
 	class AstType : public AstTree {
 	public:
 		AstType( Token tok)
@@ -15,7 +16,7 @@ namespace AST {
 		Token getType() const {
 			return m_tok;
 		}
-		void gen(std::shared_ptr<AST::IASTVisitor> visitor);
+		void gen(std::shared_ptr<AST::IASTVisitor> visitor,ICollectInfoBack *);
 	private:
 		Token m_tok;
 	};

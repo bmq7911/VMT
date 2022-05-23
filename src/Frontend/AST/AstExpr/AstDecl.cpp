@@ -18,8 +18,8 @@ namespace AST {
 		return m_expr;
 	}
 
-	std::shared_ptr<AST::AstObjectExpr> AstDecl::reduce(std::shared_ptr<AST::IASTVisitor> visitor) {
-		return visitor->reduceDecl( this );
+	std::shared_ptr<AST::AstObjectExpr> AstDecl::reduce(std::shared_ptr<AST::IASTVisitor> visitor,ICollectInfoBack* collect) {
+		return visitor->reduceDecl( this ,collect);
 	}
 
 	void AstDecls::push(std::shared_ptr<AST::AstDecl> decl) {
@@ -33,7 +33,7 @@ namespace AST {
 		return m_decls.end( );
 	}
 
-	std::shared_ptr<AST::AstObjectExpr> AstDecls::reduce(std::shared_ptr<AST::IASTVisitor> visitor) {
-		return visitor->reduceDecls( this);
+	std::shared_ptr<AST::AstObjectExpr> AstDecls::reduce(std::shared_ptr<AST::IASTVisitor> visitor,ICollectInfoBack * collect) {
+		return visitor->reduceDecls( this, collect);
 	}
 }

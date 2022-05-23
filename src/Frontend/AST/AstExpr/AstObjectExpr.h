@@ -15,7 +15,7 @@ namespace AST {
         Token getObject() const {
             return m_tok;
         }
-        virtual std::shared_ptr<AST::AstObjectExpr> reduce(std::shared_ptr<AST::IASTVisitor> visitor) = 0;
+        virtual std::shared_ptr<AST::AstObjectExpr> reduce(std::shared_ptr<AST::IASTVisitor> visitor,ICollectInfoBack* collect ) = 0;
     private:
         Token m_tok;
     };

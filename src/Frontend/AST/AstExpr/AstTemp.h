@@ -10,7 +10,7 @@ namespace AST {
     public:
         AstTemp( int32_t i);
 
-        std::shared_ptr<AST::AstObjectExpr> reduce( std::shared_ptr<AST::IASTVisitor>) override;
+        std::shared_ptr<AST::AstObjectExpr> reduce( std::shared_ptr<AST::IASTVisitor>,ICollectInfoBack* collect) override;
     private:
         int32_t m_suffix = 0;
     };

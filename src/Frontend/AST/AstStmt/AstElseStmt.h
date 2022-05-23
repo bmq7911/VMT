@@ -6,7 +6,7 @@ namespace AST {
     public:
         AstElseStmt(std::shared_ptr<AST::AstStmt> elsestmts);
         std::shared_ptr<AST::AstStmt> getStmt();
-        void gen(std::shared_ptr<AST::IASTVisitor> visitor);
+        void gen(std::shared_ptr<AST::IASTVisitor> visitor,ICollectInfoBack* );
     private:
 
         std::shared_ptr<AST::AstStmt>  m_stmt;

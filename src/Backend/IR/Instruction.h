@@ -39,7 +39,9 @@ namespace IR {
             , m_BasicBlock(nullptr)
             , m_IRContext( nullptr )
             , m_Result( nullptr )
-        {}
+        {
+        
+        }
 
         void setBasicBlock(BasicBlock* block) {
             m_BasicBlock = block;
@@ -229,48 +231,48 @@ namespace IR {
 	public:
         explicit AllocIns(char const* name, Type const* type) 
             : Instruction( OpCode::kAlloc )
-            , m_RetValue( nullptr )
+            //, m_RetValue( nullptr )
             , m_FirstOperand( nullptr )
         {
-            m_RetValue = new Value(name, type, this);
+            //m_RetValue = new Value(name, type, this);
         }
         explicit AllocIns(std::string const& name, Type const* type) 
             : Instruction( OpCode::kAlloc )
-            , m_RetValue( nullptr )
+            //, m_RetValue( nullptr )
             , m_FirstOperand( nullptr )
         {
-            m_RetValue = new Value(name.c_str( ), type, this);
+            //m_RetValue = new Value(name.c_str( ), type, this);
         }
 		explicit AllocIns(char const* name, const Type* type, Value* value )
 			: Instruction(OpCode::kAlloc )
-            , m_RetValue( nullptr )
+            //, m_RetValue( nullptr )
             , m_FirstOperand( value )
 		{
-            m_RetValue = new Value(name, type, this);
+            //m_RetValue = new Value(name, type, this);
 		}
 
         explicit AllocIns(char const* name, Type const* type, Constant * cv) 
             : Instruction( OpCode::kAlloc )
-            , m_RetValue( nullptr )
+            //, m_RetValue( nullptr )
             , m_FirstOperand( cv )
         {
-            m_RetValue = new Value(name, type, this);
+            //m_RetValue = new Value(name, type, this);
         }
 
         explicit AllocIns(std::string const& name, Type const* type, Constant* cv)
             : Instruction( OpCode::kAlloc )
-            , m_RetValue( nullptr )
+            //, m_RetValue( nullptr )
             , m_FirstOperand( cv )
         {
-            m_RetValue = new Value(name.c_str( ), type, this);
+            //m_RetValue = new Value(name.c_str( ), type, this);
         }
 
         explicit AllocIns(std::string const& name, Type const* type, Value* value) 
             : Instruction( OpCode::kAlloc )
-            , m_RetValue( nullptr )
+            //, m_RetValue( nullptr )
             , m_FirstOperand( value )
         {
-            m_RetValue = new Value(name.c_str(), type, this);
+            //m_RetValue = new Value(name.c_str(), type, this);
         }
 
 
@@ -390,6 +392,27 @@ namespace IR {
         }
     private:
         Value* m_value;
+    };
+    class Phi : public Instruction {
+    public:
+        template<typename ... _T>
+        explicit Phi( _T && ... v )
+            : Instruction( IR::Instruction::OpCode::kPhi )
+        {
+            _Put(std::forward<_T>(v) ...);
+        }
+    private:
+        void _Put(Value* v) {
+            m_values.push_back(v);
+        }
+
+        template<typename ... _Args>
+        void _Put(Value* v, _Args &&... args) {
+            m_values.push_back(v);
+            _Put(std::forward<_Args>(args) ...);
+        }
+    private:
+        std::vector<Value*> m_values;
     };
 
 }

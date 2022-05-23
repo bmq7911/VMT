@@ -9,7 +9,7 @@ namespace AST {
 		Token getType() const;
 		Token getName() const;
 		std::shared_ptr<AstExpr> getExpr() const;
-		std::shared_ptr<AST::AstObjectExpr> reduce( std::shared_ptr<AST::IASTVisitor> visitor );
+		std::shared_ptr<AST::AstObjectExpr> reduce( std::shared_ptr<AST::IASTVisitor> visitor,ICollectInfoBack* );
 	private:
 		Token m_type;
 		Token m_name;
@@ -21,7 +21,7 @@ namespace AST {
 		void push(std::shared_ptr<AST::AstDecl>);
 		iterator begin();
 		iterator end();
-		std::shared_ptr<AST::AstObjectExpr> reduce(std::shared_ptr<AST::IASTVisitor> visitor);
+		std::shared_ptr<AST::AstObjectExpr> reduce(std::shared_ptr<AST::IASTVisitor> visitor,ICollectInfoBack*);
 	private:
 		std::vector<std::shared_ptr<AstDecl>> m_decls;
 	};

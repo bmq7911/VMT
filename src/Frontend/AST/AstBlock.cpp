@@ -2,7 +2,7 @@
 #include "Frontend/AST/AstVisitor.h"
 
 namespace AST {
-	void AstBlock::gen(std::shared_ptr<AST::IASTVisitor> visitor) {
-		visitor->visitBlock( this );
+	void AstBlock::gen(std::shared_ptr<AST::IASTVisitor> visitor,ICollectInfoBack * collect ) {
+		visitor->visitBlock( this , collect );
 	}
 }

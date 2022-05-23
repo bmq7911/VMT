@@ -27,8 +27,8 @@ namespace DECL_AST_SPACE(AstUnaryOpExpr) {
     Token AstUnaryOpExpr::getOp() const {
         return m_op;
     }
-    std::shared_ptr<AST::AstObjectExpr> AstUnaryOpExpr::reduce(std::shared_ptr<AST::IASTVisitor> visitor)  {
-        return visitor->reduceUnaryOpExpr( this );
+    std::shared_ptr<AST::AstObjectExpr> AstUnaryOpExpr::reduce(std::shared_ptr<AST::IASTVisitor> visitor,ICollectInfoBack * collect )  {
+        return visitor->reduceUnaryOpExpr( this,collect );
     }
 }
 
@@ -60,8 +60,8 @@ namespace DECL_AST_SPACE(AstBinaryOpExpr) {
     }
 
 
-    std::shared_ptr<AST::AstObjectExpr> AstBinaryOpExpr::reduce(std::shared_ptr<AST::IASTVisitor> visitor) {
-        return visitor->reduceBinaryOpExpr( this );
+    std::shared_ptr<AST::AstObjectExpr> AstBinaryOpExpr::reduce(std::shared_ptr<AST::IASTVisitor> visitor,ICollectInfoBack * collect) {
+        return visitor->reduceBinaryOpExpr( this, collect );
     }
 }
 
@@ -81,8 +81,8 @@ namespace DECL_AST_SPACE(AstConditionExpr) {
     std::shared_ptr<AST::AstExpr> AstConditionExpr::getFalseExpr() {
         return m_false;
     }
-    std::shared_ptr<AST::AstObjectExpr> AstConditionExpr::reduce(std::shared_ptr<AST::IASTVisitor> visitor) {
-        return visitor->reduceConditionExpr( this );
+    std::shared_ptr<AST::AstObjectExpr> AstConditionExpr::reduce(std::shared_ptr<AST::IASTVisitor> visitor,ICollectInfoBack* collect) {
+        return visitor->reduceConditionExpr( this,collect );
     }
 
 }
@@ -103,15 +103,15 @@ namespace DECL_AST_SPACE(AstVariableObjExpr) {
     {
         m_token = obj.m_token;
     }
-    std::shared_ptr<AstObjectExpr> AstVariableObjExpr::reduce(std::shared_ptr<AST::IASTVisitor> visitor ) {
-        return visitor->reduceObjectExpr( this );
+    std::shared_ptr<AstObjectExpr> AstVariableObjExpr::reduce(std::shared_ptr<AST::IASTVisitor> visitor,ICollectInfoBack* collect ) {
+        return visitor->reduceObjectExpr( this ,collect);
     }
 }
 
 namespace DECL_AST_SPACE( AstVoidExpr) {
     
-    std::shared_ptr<AST::AstObjectExpr> AstVoidExpr::reduce(std::shared_ptr<AST::IASTVisitor> visitor) {
-        return visitor->reduceVoidExpr( this );
+    std::shared_ptr<AST::AstObjectExpr> AstVoidExpr::reduce(std::shared_ptr<AST::IASTVisitor> visitor,ICollectInfoBack * collect) {
+        return visitor->reduceVoidExpr( this ,collect);
     }
 
 
@@ -124,7 +124,7 @@ namespace DECL_AST_SPACE( AstTemp ) {
         //m_object = std::make_shared<AST::ObjectExpr>();
     }
 
-    std::shared_ptr<AST::AstObjectExpr> AstTemp::reduce( std::shared_ptr<AST::IASTVisitor> visitor) {
-        return visitor->reduceTemp( this );
+    std::shared_ptr<AST::AstObjectExpr> AstTemp::reduce( std::shared_ptr<AST::IASTVisitor> visitor,ICollectInfoBack * collect) {
+        return visitor->reduceTemp( this ,collect);
     }
 }

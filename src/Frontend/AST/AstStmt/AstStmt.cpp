@@ -28,8 +28,8 @@ namespace DECL_AST_SPACE(AstIfStmt) {
         return m_else;
     }
     /// 本质也是生成一种中间表示形式,且是四元式
-    void AstIfStmt::gen(std::shared_ptr<AST::IASTVisitor> visitor)  {
-        visitor->visitIfStmt( this );
+    void AstIfStmt::gen(std::shared_ptr<AST::IASTVisitor> visitor,ICollectInfoBack* collect)  {
+        visitor->visitIfStmt( this ,collect );
     }
 }
 
@@ -40,8 +40,8 @@ namespace DECL_AST_SPACE(AstElseStmt) {
     std::shared_ptr<AST::AstStmt> AstElseStmt::getStmt() {
         return m_stmt;
     }
-    void AstElseStmt::gen(std::shared_ptr<AST::IASTVisitor> visitor)  {
-        visitor->visitElseStmt( this );
+    void AstElseStmt::gen(std::shared_ptr<AST::IASTVisitor> visitor, ICollectInfoBack * collect)  {
+        visitor->visitElseStmt( this, collect );
     }
 }
 
@@ -64,8 +64,8 @@ namespace DECL_AST_SPACE(AstForStmt) {
     std::shared_ptr<AST::AstStmt> AstForStmt::getStmt() {
         return m_stmt;
     }
-    void AstForStmt::gen(std::shared_ptr<AST::IASTVisitor> visitor) {
-        visitor->visitForStmt( this );
+    void AstForStmt::gen(std::shared_ptr<AST::IASTVisitor> visitor,ICollectInfoBack* collect) {
+        visitor->visitForStmt( this, collect );
     }
 }
 
@@ -79,8 +79,8 @@ namespace DECL_AST_SPACE(AstDoWhileStmt) {
     std::shared_ptr<AST::AstStmt> AstDoWhileStmt::getStmt() {
         return m_stmt;
     }
-    void AstDoWhileStmt::gen(std::shared_ptr<AST::IASTVisitor> visitor)  {
-        visitor->visitDoWhileStmt( this );
+    void AstDoWhileStmt::gen(std::shared_ptr<AST::IASTVisitor> visitor,ICollectInfoBack* collect)  {
+        visitor->visitDoWhileStmt( this ,collect);
     }
 
 }
@@ -95,21 +95,21 @@ namespace DECL_AST_SPACE(AstWhileStmt) {
     std::shared_ptr<AST::AstStmt> AstWhileStmt::getStmt() {
         return m_stmt;
     }
-    void AstWhileStmt::gen(std::shared_ptr<AST::IASTVisitor> visitor) {
-        visitor->visitWhileStmt( this );
+    void AstWhileStmt::gen(std::shared_ptr<AST::IASTVisitor> visitor, ICollectInfoBack * collect) {
+        visitor->visitWhileStmt( this , collect);
     }
 }
 
 namespace DECL_AST_SPACE( AstBreakStmt ) {
-    void AstBreakStmt::gen(std::shared_ptr<AST::IASTVisitor> visitor)  {
-        visitor->visitBreakStmt( this );
+    void AstBreakStmt::gen(std::shared_ptr<AST::IASTVisitor> visitor, ICollectInfoBack * collect)  {
+        visitor->visitBreakStmt( this ,collect);
     }
 
 }
 
 namespace DECL_AST_SPACE( AstContinueStmt) {
-    void AstContinueStmt::gen(std::shared_ptr<AST::IASTVisitor> visitor)  {
-        visitor->visitContinueStmt( this );
+    void AstContinueStmt::gen(std::shared_ptr<AST::IASTVisitor> visitor,ICollectInfoBack * collect)  {
+        visitor->visitContinueStmt( this ,collect);
     }
 }
 
@@ -123,8 +123,8 @@ namespace DECL_AST_SPACE(AstExprStmt) {
         return m_expr;
     }
 
-    void AstExprStmt::gen(std::shared_ptr<AST::IASTVisitor> visitor) {
-        visitor->visitExprStmt( this );
+    void AstExprStmt::gen(std::shared_ptr<AST::IASTVisitor> visitor, ICollectInfoBack * collect) {
+        visitor->visitExprStmt( this ,collect);
     }
 
 }
@@ -142,8 +142,8 @@ namespace DECL_AST_SPACE(AstStmts) {
         }
         return nullptr;
     }
-    void AstStmts::gen(std::shared_ptr<AST::IASTVisitor> visitor) {
-        visitor->visitStmts( this );
+    void AstStmts::gen(std::shared_ptr<AST::IASTVisitor> visitor,ICollectInfoBack * collect) {
+        visitor->visitStmts( this ,collect);
     }
 }
 
@@ -156,8 +156,8 @@ namespace DECL_AST_SPACE(AstReturnStmt) {
     std::shared_ptr<AST::AstExprStmt> AstReturnStmt::getStmt(){
         return m_returnExprStmt;
     }
-    void AstReturnStmt::gen(std::shared_ptr<AST::IASTVisitor> visitor) {
-        visitor->visitReturnStmt( this );
+    void AstReturnStmt::gen(std::shared_ptr<AST::IASTVisitor> visitor, ICollectInfoBack* collect) {
+        visitor->visitReturnStmt( this ,collect);
     }
 
 }

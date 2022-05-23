@@ -6,7 +6,7 @@ namespace AST {
         void add(std::shared_ptr<AST::AstStmt> stmt);
         size_t size() const;
         std::shared_ptr<AST::AstStmt> at(size_t index);
-        void gen(std::shared_ptr<AST::IASTVisitor> visitor) override;
+        void gen(std::shared_ptr<AST::IASTVisitor> visitor,ICollectInfoBack * ) override;
     private:
         std::vector<std::shared_ptr<AST::AstStmt>> m_stmts;
     };

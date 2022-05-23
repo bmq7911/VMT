@@ -21,9 +21,16 @@ namespace IR {
     }
 
 
-    Value* IRBuilder::emitBinaryOpIns(IR::Instruction::OpCode op, Value* v1, Value* v2) {
-        return new BinaryOpIns();
+    Value* IRBuilder::emitBinaryOpIns(IR::Instruction::OpCode op,  Value* v1, Value* v2) {
+        auto ins = _AddInsToIRContext(IR::allocator<BinaryOpIns>().alloc(op, nullptr,v1->getType(), v1,v2));
+        return ins->getRetValue();
     }
+
+    Value* IRBuilder::emitUnaryOpIns(IR::Instruction::OpCode op, Value* v) {
+        auto ins = _AddInsToIRContext(IR::allocator<UnaryOpIns>().alloc(op, nullptr, v->getType(), v));
+        return ins->getRetValue( );
+    }
+
     Value* IRBuilder::emitAlloc(float value) {
         Type* type = m_context->getTypeManger().getFloatType(sizeof(float));
         Constant* c = createConstant(type, value);
@@ -130,6 +137,18 @@ namespace IR {
         _AddInsToIRContext(br);
         return br;
     }
+
+    Jmp* IRBuilder::emitJmp(const char* label) {
+        IR::Jmp* jmp = IR::allocator<IR::Jmp>().alloc(label);
+        _AddInsToIRContext(jmp);
+        return jmp;
+    }
+    Jmp* IRBuilder::emitJmp(std::string const& label) {
+        IR::Jmp* jmp = IR::allocator<IR::Jmp>().alloc(label);
+        _AddInsToIRContext(jmp);
+        return jmp;
+    }
+
     Ret* IRBuilder::emitRet(Value* v) {
         IR::Ret* ret = IR::allocator<IR::Ret>().alloc( v );
         _AddInsToIRContext(ret);

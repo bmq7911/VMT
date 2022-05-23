@@ -14,6 +14,7 @@
 
 namespace AST {
     
+    class ICollectInfoBack;
     class AstFunction :  public  AstTree{
     public:
         AstFunction( Token name, std::shared_ptr<AstType> type,
@@ -30,7 +31,7 @@ namespace AST {
         std::shared_ptr<AST::AstParamList> getFunctionParamList() const;
         std::shared_ptr<AST::AstAttribute> getFunctionAttribute() const;
         std::shared_ptr<AST::AstBlock>     getFunctionBlock() const;
-        void gen(std::shared_ptr<AST::IASTVisitor> visitor);
+        void gen(std::shared_ptr<AST::IASTVisitor> visitor, ICollectInfoBack * collect);
     private:
         Token                                 m_funName;
         std::shared_ptr<AST::AstType>         m_type;

@@ -1,31 +1,34 @@
 #pragma once
 #include "Frontend/AST/Ast.h"
 namespace AST {
+    class ICollectInfoBack {
+        
+    };
     class IASTVisitor {
     public:
-        virtual void visitFunction(AST::AstFunction* ) = 0;
-        virtual void visitForStmt( AST::AstForStmt* ) = 0;
-        virtual void visitWhileStmt( AST::AstWhileStmt * ) = 0;
-        virtual void visitDoWhileStmt( AST::AstDoWhileStmt * ) = 0;
-        virtual void visitIfStmt( AST::AstIfStmt*) = 0;
-        virtual void visitElseStmt( AST::AstElseStmt *) = 0;
-        virtual void visitStmts( AST::AstStmts* ) = 0;
-        virtual void visitReturnStmt( AST::AstReturnStmt* ) = 0;
-        virtual void visitBreakStmt( AST::AstBreakStmt*  ) = 0;
-        virtual void visitContinueStmt( AST::AstContinueStmt* ) = 0;
-        virtual void visitExprStmt( AST::AstExprStmt*  ) = 0;
-        virtual void visitType(AST::AstType* ) = 0;
-        virtual void visitParamList(AST::AstParamList * ) = 0;
-        virtual void visitBlock(AST::AstBlock*) = 0;
-        virtual std::shared_ptr<AST::AstObjectExpr> reduceBinaryOpExpr( AST::AstBinaryOpExpr* ) = 0;
-        virtual std::shared_ptr<AST::AstObjectExpr> reduceUnaryOpExpr(AST::AstUnaryOpExpr* ) = 0;
-        virtual std::shared_ptr<AST::AstObjectExpr> reduceConditionExpr( AST::AstConditionExpr* ) = 0;
-        virtual std::shared_ptr<AST::AstObjectExpr> reduceObjectExpr(AST::AstObjectExpr*) = 0;
-        virtual std::shared_ptr<AST::AstObjectExpr> reduceVoidExpr( AST::AstVoidExpr* ) = 0;
-        virtual std::shared_ptr<AST::AstObjectExpr> reduceTemp( AST::AstTemp *) = 0;
-        virtual std::shared_ptr<AST::AstObjectExpr> reduceDecl(AST::AstDecl*) = 0;
-        virtual std::shared_ptr<AST::AstObjectExpr> reduceDecls(AST::AstDecls*) = 0;
-        virtual std::shared_ptr<AST::AstObjectExpr> reduceAssign(AST::AstAssign*) = 0;
+        virtual void visitFunction(AST::AstFunction* ,AST::ICollectInfoBack* ) = 0;
+        virtual void visitForStmt( AST::AstForStmt* , AST::ICollectInfoBack*) = 0;
+        virtual void visitWhileStmt( AST::AstWhileStmt * , AST::ICollectInfoBack*) = 0;
+        virtual void visitDoWhileStmt( AST::AstDoWhileStmt *, AST::ICollectInfoBack*) = 0;
+        virtual void visitIfStmt( AST::AstIfStmt*, AST::ICollectInfoBack*) = 0;
+        virtual void visitElseStmt( AST::AstElseStmt *, AST::ICollectInfoBack*) = 0;
+        virtual void visitStmts( AST::AstStmts* , AST::ICollectInfoBack*) = 0;
+        virtual void visitReturnStmt( AST::AstReturnStmt* , AST::ICollectInfoBack*) = 0;
+        virtual void visitBreakStmt( AST::AstBreakStmt*  , AST::ICollectInfoBack*) = 0;
+        virtual void visitContinueStmt( AST::AstContinueStmt* , AST::ICollectInfoBack*) = 0;
+        virtual void visitExprStmt( AST::AstExprStmt*  , AST::ICollectInfoBack*) = 0;
+        virtual void visitType(AST::AstType* , AST::ICollectInfoBack*) = 0;
+        virtual void visitParamList(AST::AstParamList * , AST::ICollectInfoBack*) = 0;
+        virtual void visitBlock(AST::AstBlock*, AST::ICollectInfoBack*) = 0;
+        virtual std::shared_ptr<AST::AstObjectExpr> reduceBinaryOpExpr( AST::AstBinaryOpExpr* , AST::ICollectInfoBack*) = 0;
+        virtual std::shared_ptr<AST::AstObjectExpr> reduceUnaryOpExpr(AST::AstUnaryOpExpr* , AST::ICollectInfoBack*) = 0;
+        virtual std::shared_ptr<AST::AstObjectExpr> reduceConditionExpr( AST::AstConditionExpr*, AST::ICollectInfoBack*) = 0;
+        virtual std::shared_ptr<AST::AstObjectExpr> reduceObjectExpr(AST::AstObjectExpr*, AST::ICollectInfoBack*) = 0;
+        virtual std::shared_ptr<AST::AstObjectExpr> reduceVoidExpr( AST::AstVoidExpr* , AST::ICollectInfoBack*) = 0;
+        virtual std::shared_ptr<AST::AstObjectExpr> reduceTemp( AST::AstTemp *, AST::ICollectInfoBack*) = 0;
+        virtual std::shared_ptr<AST::AstObjectExpr> reduceDecl(AST::AstDecl*, AST::ICollectInfoBack*) = 0;
+        virtual std::shared_ptr<AST::AstObjectExpr> reduceDecls(AST::AstDecls*, AST::ICollectInfoBack*) = 0;
+        virtual std::shared_ptr<AST::AstObjectExpr> reduceAssign(AST::AstAssign*, AST::ICollectInfoBack*) = 0;
     };
 
     class IASTModuleVisitor {

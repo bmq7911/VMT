@@ -10,16 +10,42 @@
 #include "SymbolTable/BoolType.h"
 #include "Backend/IR/IRBuilder.h"
 namespace TS {
-    /// 把信息通过这样一个对象来进行传递
 
+    class CollectIRValue : public AST::ICollectInfoBack {
+    public:
+        CollectIRValue() 
+            : m_value( nullptr )
+        {}
+
+        IR::Value* getValue() const {
+            return m_value;
+        }
+        void setValue(IR::Value * v) {
+            m_value = v;
+        }
+    private:
+	    IR::Value* m_value;
+    };
 
     class AST_IR_Codegen  : public std::enable_shared_from_this<AST_IR_Codegen>, public AST::IASTVisitor {
     public:
         AST_IR_Codegen() {
             m_context = std::make_shared<IR::IRContext>();
-            m_env = std::make_shared<ENV::Env>( );
+            m_env = std::make_shared<ENV::Env>( );	
+            std::shared_ptr<ENV::BoolType>              typeBool = std::make_shared<ENV::BoolType>(std::string_view("bool"));
+		    std::shared_ptr<ENV::IntegerType<int32_t>>  typeI32  = std::make_shared<ENV::IntegerType<int32_t>>( std::string_view("i32"), typeBool );
+		    std::shared_ptr<ENV::IntegerType<uint32_t>> typeUI32 = std::make_shared<ENV::IntegerType<uint32_t>>(std::string_view("ui32"), typeBool );
+		    std::shared_ptr<ENV::RealType<float>>       typeF32  = std::make_shared<ENV::RealType<float>>(std::string_view("f32"), typeBool );
+		    std::shared_ptr<ENV::RealType<double>>      typeF64  = std::make_shared<ENV::RealType<double>>(std::string_view("f64"), typeBool);
+		    m_env->put(typeI32);
+		    m_env->put(typeUI32);
+		    m_env->put(typeF32);
+		    m_env->put(typeF64);
+		    m_env->put(typeBool);
+		    m_currentEnv = m_env;
         }
-        void visitFunction(AST::AstFunction* astFunction) {
+
+        void visitFunction(AST::AstFunction* astFunction, AST::ICollectInfoBack * collect ) {
             std::shared_ptr<ENV::Env> env = std::make_shared<ENV::Env>( );
             env->mount(_GetCurrentEnv());
 
@@ -38,60 +64,137 @@ namespace TS {
                 auto typeTok = param.getType();
                 auto envType = env->find(typeTok.toStringView(), ENV::SymbolType::kType);
                
-                if (!envType) {
+                if (envType) {
                     auto type = m_context->getTypeManger().getTypeFromName( envType->getSymbolName().data() );
                     IR::Value* value = IR::IRBuilder( m_context ).emitAlloc( type , typeTok.toStringView().data() );
                     ir_function->addArgs(value);
                 }
+                else {
+                    Diagnose::errorMsg("cann't find the type");
+                    return;
+                }
             }
             auto block = astFunction->getFunctionBlock();
-            block->gen(std::enable_shared_from_this<AST_IR_Codegen>::shared_from_this());
+            block->gen(std::enable_shared_from_this<AST_IR_Codegen>::shared_from_this(), collect );
             env->unmount();
         }
-        void visitForStmt(AST::AstForStmt*) override {}
-        void visitWhileStmt(AST::AstWhileStmt*) override {}
-        void visitDoWhileStmt(AST::AstDoWhileStmt*) override {}
-        void visitIfStmt(AST::AstIfStmt*) override {}
-        void visitElseStmt(AST::AstElseStmt*) override {}
-        void visitStmts(AST::AstStmts*) override {}
-        void visitReturnStmt(AST::AstReturnStmt*) override {}
-        void visitBreakStmt(AST::AstBreakStmt*) override {}
-        void visitContinueStmt(AST::AstContinueStmt*) override {}
-        void visitExprStmt(AST::AstExprStmt* astExprStmt) override {
-            auto expr = astExprStmt->getExpr( );
-            expr->reduce( std::enable_shared_from_this<AST_IR_Codegen>::shared_from_this());
+
+        void visitForStmt(AST::AstForStmt*, AST::ICollectInfoBack* collect) override {
+        
         }
-        void visitType(AST::AstType*) override {}
-        void visitParamList(AST::AstParamList*) override {}
-        void visitBlock(AST::AstBlock* astBlock) override {
+
+        void visitWhileStmt(AST::AstWhileStmt*, AST::ICollectInfoBack* collect) override {
+        
+        }
+
+        void visitDoWhileStmt(AST::AstDoWhileStmt*, AST::ICollectInfoBack* collect) override {
+        
+        }
+
+        void visitIfStmt(AST::AstIfStmt*, AST::ICollectInfoBack* collect) override {
+        
+        }
+
+        void visitElseStmt(AST::AstElseStmt*, AST::ICollectInfoBack* collect) override {}
+        void visitStmts(AST::AstStmts*, AST::ICollectInfoBack* collect) override {}
+        void visitReturnStmt(AST::AstReturnStmt* ,AST::ICollectInfoBack* collect) override {}
+        void visitBreakStmt(AST::AstBreakStmt*, AST::ICollectInfoBack* collect) override {}
+        void visitContinueStmt(AST::AstContinueStmt*, AST::ICollectInfoBack* collect) override {}
+        void visitExprStmt(AST::AstExprStmt* astExprStmt, AST::ICollectInfoBack* collect) override {
+            auto expr = astExprStmt->getExpr( );
+            expr->reduce( std::enable_shared_from_this<AST_IR_Codegen>::shared_from_this(), collect);
+        }
+        void visitType(AST::AstType*, AST::ICollectInfoBack* collect) override {}
+        void visitParamList(AST::AstParamList*, AST::ICollectInfoBack* collect) override {}
+        void visitBlock(AST::AstBlock* astBlock, AST::ICollectInfoBack* collect) override {
             std::shared_ptr<ENV::Env> env = std::make_shared<ENV::Env>();
             env->mount(_GetCurrentEnv());
             for (auto iter = astBlock->begin(); iter != astBlock->end(); ++iter) {
-                (*iter)->gen( std::enable_shared_from_this<AST_IR_Codegen>::shared_from_this() );
+                (*iter)->gen( std::enable_shared_from_this<AST_IR_Codegen>::shared_from_this(), collect );
             }
             env->unmount();
         }
-        std::shared_ptr<AST::AstObjectExpr> reduceBinaryOpExpr(AST::AstBinaryOpExpr* astBinaryOpExpr ) override {
+        std::shared_ptr<AST::AstObjectExpr> reduceBinaryOpExpr(AST::AstBinaryOpExpr* astBinaryOpExpr , AST::ICollectInfoBack* collect) override {
             auto leftExpr = astBinaryOpExpr->getLeft( );
             auto rightExpr = astBinaryOpExpr->getRight( );
-            //
-            auto rleftExpr = leftExpr->reduce(std::enable_shared_from_this<AST_IR_Codegen>::shared_from_this());
-            auto rrightExpr = rightExpr->reduce(std::enable_shared_from_this<AST_IR_Codegen>::shared_from_this());
-            
+            CollectIRValue collectValue1;
+            CollectIRValue collectValue2;
+            auto rleftExpr = leftExpr->reduce(std::enable_shared_from_this<AST_IR_Codegen>::shared_from_this(), &collectValue1);
+            auto rrightExpr = rightExpr->reduce(std::enable_shared_from_this<AST_IR_Codegen>::shared_from_this(),&collectValue2);
+                
             IR::Instruction::OpCode op = _GetBinaryOpCode(astBinaryOpExpr->getOp());
-            IR::BinaryOpIns* binaryOpIns = IR::IRBuilder(m_context).emitBinaryOpIns();
+            IR::Value* v = IR::IRBuilder(m_context).emitBinaryOpIns(op,collectValue1.getValue(), collectValue2.getValue());
+            static_cast<CollectIRValue*>(collect)->setValue(v);
+            return nullptr;
         }
-        std::shared_ptr<AST::AstObjectExpr> reduceUnaryOpExpr(AST::AstUnaryOpExpr*) override {}
-        std::shared_ptr<AST::AstObjectExpr> reduceConditionExpr(AST::AstConditionExpr*) override {}
-        std::shared_ptr<AST::AstObjectExpr> reduceObjectExpr(AST::AstObjectExpr*) override {}
-        std::shared_ptr<AST::AstObjectExpr> reduceVoidExpr(AST::AstVoidExpr*) override {}
-        std::shared_ptr<AST::AstObjectExpr> reduceTemp(AST::AstTemp*) override {}
-        std::shared_ptr<AST::AstObjectExpr> reduceDecl(AST::AstDecl*) override{}
-        std::shared_ptr<AST::AstObjectExpr> reduceDecls(AST::AstDecls*) override {}
-        std::shared_ptr<AST::AstObjectExpr> reduceAssign(AST::AstAssign*) override {}
+        std::shared_ptr<AST::AstObjectExpr> reduceUnaryOpExpr(AST::AstUnaryOpExpr* astUnaryExpr, AST::ICollectInfoBack* collect) override {
+            auto rightExpr = astUnaryExpr->getExpr( );
+            CollectIRValue collectValue;
+            rightExpr->reduce(std::enable_shared_from_this<AST_IR_Codegen>::shared_from_this(), &collectValue);
+            IR::Instruction::OpCode op = _GetUnaryOpCode( astUnaryExpr->getOp() );
+            IR::Value* v = IR::IRBuilder(m_context).emitUnaryOpIns(op, collectValue.getValue());
+            static_cast<CollectIRValue*>(collect)->setValue(v);
+            return nullptr;
+        }
+        std::shared_ptr<AST::AstObjectExpr> reduceConditionExpr(AST::AstConditionExpr* astConditionExpr, AST::ICollectInfoBack* collect) override {
+            auto contitionExpr = astConditionExpr->getCondition( );
+            auto trueExpr = astConditionExpr->getTrueExpr( );
+            auto falseExpr = astConditionExpr->getFalseExpr( );
+            CollectIRValue collectConditionValue;
+            contitionExpr->reduce(std::enable_shared_from_this<AST_IR_Codegen>::shared_from_this(), &collectConditionValue);
+            IR::IRBuilder(m_context).emitBr(  collectConditionValue.getValue(), "cond.true:","cond.false:");
+            IR::IRBuilder(m_context).emitLabel("con.start:");
+            CollectIRValue collectTrueValue;
+                
+            trueExpr->reduce(std::enable_shared_from_this<AST_IR_Codegen>::shared_from_this(), &collectTrueValue);
+            IR::IRBuilder(m_context).emitJmp("con.end:");
+            CollectIRValue collectFalseValue;
+            falseExpr->reduce(std::enable_shared_from_this<AST_IR_Codegen>::shared_from_this(), &collectFalseValue);
+            IR::IRBuilder(m_context).emitJmp("cond.end:");
+
+            IR::IRBuilder(m_context).emitLabel("con.end:");
+            auto v= IR::IRBuilder(m_context).emitPhi( collectTrueValue.getValue(), collectFalseValue.getValue() );
+            static_cast<CollectIRValue*>(collect)->setValue(v);
+            return nullptr;
+        }
+        std::shared_ptr<AST::AstObjectExpr> reduceObjectExpr(AST::AstObjectExpr* astObjectExpr, AST::ICollectInfoBack* collect) override {
+            /// 这里最重要的逻辑就是查询当前已分配的节点数据,也就是IValue
+            
+            return nullptr;
+        }
+        
+        std::shared_ptr<AST::AstObjectExpr> reduceVoidExpr(AST::AstVoidExpr* astVoidExpr, AST::ICollectInfoBack* collect) override {
+            CollectIRValue collectValue;
+            astVoidExpr->reduce(std::enable_shared_from_this<AST_IR_Codegen>::shared_from_this(), &collectValue);
+            return nullptr;
+        }
+
+        std::shared_ptr<AST::AstObjectExpr> reduceTemp(AST::AstTemp* astTemp, AST::ICollectInfoBack* collect) override {
+            
+            return nullptr;
+        }
+
+        std::shared_ptr<AST::AstObjectExpr> reduceDecl(AST::AstDecl* astDecl, AST::ICollectInfoBack* collect) override{
+        
+            return nullptr;
+        }
+
+        std::shared_ptr<AST::AstObjectExpr> reduceDecls(AST::AstDecls* astDecls, AST::ICollectInfoBack* collect) override {
+        
+            return nullptr;
+        }
+
+        std::shared_ptr<AST::AstObjectExpr> reduceAssign(AST::AstAssign* astAssign, AST::ICollectInfoBack* collect) override {
+            
+            return nullptr;
+        }
+
     private:
         IR::Instruction::OpCode _GetBinaryOpCode(Token tok) const {
-            
+            return IR::Instruction::getOpCode(tok.toStringView());
+        }
+        IR::Instruction::OpCode _GetUnaryOpCode(Token tok) const {
+            return IR::Instruction::getOpCode(tok.toStringView());
         }
         IR::Type* _GetType(std::string_view const& str_view) const{
             return m_context->getTypeManger().getTypeFromName(str_view );
