@@ -57,8 +57,8 @@ namespace IR {
     private:
         std::string                    m_name;
         std::vector<Value*>            m_args;
-
         std::shared_ptr<Scope>         m_functionScope;
+
         std::shared_ptr<NameAlloc>     m_nameAlloc;
         std::shared_ptr<ConstantTable> m_constantTable;
         std::shared_ptr<LabelTable>    m_labelTable;

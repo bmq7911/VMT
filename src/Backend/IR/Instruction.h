@@ -40,7 +40,9 @@ namespace IR {
             , m_IRContext( nullptr )
             , m_Result( nullptr )
         {
-        
+            if (isInsHaveResult(op)) {
+                
+            }
         }
 
         void setBasicBlock(BasicBlock* block) {

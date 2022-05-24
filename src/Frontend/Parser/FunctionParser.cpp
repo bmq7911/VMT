@@ -370,7 +370,7 @@ std::shared_ptr<AST::AstExpr>                FunctionParser::parseDeclOrExpr() {
 
 
 std::shared_ptr<AST::AstExpr>            FunctionParser::parseDecl(std::shared_ptr<ENV::TypeId> type) {
-    /*
+    
     Token mark;
     std::shared_ptr<AST::AstExprs> exprs = std::make_shared<AST::AstExprs>();
     do {
@@ -393,7 +393,7 @@ std::shared_ptr<AST::AstExpr>            FunctionParser::parseDecl(std::shared_p
 
 
     return exprs;
-    */
+    
     return nullptr;
 }
 

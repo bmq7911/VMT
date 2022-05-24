@@ -170,22 +170,62 @@ namespace TS {
         }
 
         std::shared_ptr<AST::AstObjectExpr> reduceTemp(AST::AstTemp* astTemp, AST::ICollectInfoBack* collect) override {
-            
+           
             return nullptr;
         }
-
+        // decl ::= type variable;
+        //      ::= type variable = expr
+        //      AstDecl -> type variable AssignExpr( variable,expr )
         std::shared_ptr<AST::AstObjectExpr> reduceDecl(AST::AstDecl* astDecl, AST::ICollectInfoBack* collect) override{
-        
+            auto env = _GetCurrentEnv( );
+            auto envType = env->find(astDecl->getType().toStringView(), ENV::SymbolType::kType);
+            IR::Value* v = nullptr;
+            if (!envType) {
+                Diagnose::errorMsg("can not find the type");
+            }
+            else {
+                auto type = m_context->getTypeManger().getTypeFromName( envType->getSymbolName().data() );
+                std::string str(astDecl->getName().toStringView());
+                v = IR::IRBuilder(m_context).emitAlloc( type, str.c_str() );
+                env->put( str, v );
+            }
+            auto expr = astDecl->getExpr();
+            CollectIRValue collectValue;
+            if (expr) {
+                expr->reduce(std::enable_shared_from_this<AST_IR_Codegen>::shared_from_this(), &collectValue);
+            }
+            static_cast<CollectIRValue*>(collect)->setValue( v );
             return nullptr;
         }
 
         std::shared_ptr<AST::AstObjectExpr> reduceDecls(AST::AstDecls* astDecls, AST::ICollectInfoBack* collect) override {
-        
+            CollectIRValue collectValue;
+            for (auto iter = astDecls->begin(); iter != astDecls->end(); ++iter) {
+                (*iter)->reduce(std::enable_shared_from_this<AST_IR_Codegen>::shared_from_this(),&collectValue );
+            }
+            static_cast<CollectIRValue*>(collect)->setValue(collectValue.getValue());
             return nullptr;
         }
-
+        
+        // 这条语句很特殊,因为完成了定值操作
         std::shared_ptr<AST::AstObjectExpr> reduceAssign(AST::AstAssign* astAssign, AST::ICollectInfoBack* collect) override {
-            
+            auto env = _GetCurrentEnv( );
+            CollectIRValue collectValue;
+            astAssign->getExpr()->reduce(std::enable_shared_from_this<AST_IR_Codegen>::shared_from_this(), &collectValue );
+
+            auto tok = astAssign->getToken( );
+            auto value = env->find( std::string(tok.toStringView()));
+            if (nullptr != value) {
+                IR::IRBuilder(m_context).emitAssign(value, collectValue.getValue());
+            }
+            return nullptr;
+        }
+        std::shared_ptr<AST::AstObjectExpr> reduceExprs(AST::AstExprs* astExprs, AST::ICollectInfoBack* collect) override {
+            CollectIRValue collectValue;
+            for (auto iter = astExprs->begin(); iter != astExprs->end(); ++iter) {
+                (*iter)->reduce(std::enable_shared_from_this<AST_IR_Codegen>::shared_from_this(), &collectValue);
+            }
+            static_cast<CollectIRValue*>(collect)->setValue(collectValue.getValue());
             return nullptr;
         }
 

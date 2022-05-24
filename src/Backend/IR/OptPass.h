@@ -12,8 +12,6 @@ namespace IR {
     class OptPass { /// 输入我们都可以不限定,为何一定要限制输入呢
     public:
         virtual std::shared_ptr<InstructionStream> optimize( std::shared_ptr<InstructionStream> & stream ) = 0;
-
-
     };
     /// 为何我们需要继承,这里我们是想把OptPass抽象出来,可视每个具体的OptPass的输入和输出是不一样的
     

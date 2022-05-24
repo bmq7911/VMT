@@ -1,7 +1,7 @@
 #pragma once
 #include <string>
 #include "Backend/IR/Users.h"
-
+#include "ADT/dlink.h"
 namespace IR{
     class Type;
     class Instruction;
@@ -10,7 +10,7 @@ namespace IR{
 	/// <summary>
 	/// value描述的时一个值,一个数据,可能时常量也可能时变量
 	/// </summary>
-	class Value{
+	class Value : public ADT::d_link<Value>{
 	public:
         enum ValueTy {
 #define HANDLE_VALUE
