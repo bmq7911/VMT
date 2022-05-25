@@ -41,7 +41,7 @@ namespace IR {
             , m_Result( nullptr )
         {
             if (isInsHaveResult(op)) {
-                
+               
             }
         }
 
@@ -236,45 +236,14 @@ namespace IR {
             //, m_RetValue( nullptr )
             , m_FirstOperand( nullptr )
         {
-            //m_RetValue = new Value(name, type, this);
+            m_Result = new Value(name, type, nullptr);
         }
         explicit AllocIns(std::string const& name, Type const* type) 
             : Instruction( OpCode::kAlloc )
             //, m_RetValue( nullptr )
             , m_FirstOperand( nullptr )
         {
-            //m_RetValue = new Value(name.c_str( ), type, this);
-        }
-		explicit AllocIns(char const* name, const Type* type, Value* value )
-			: Instruction(OpCode::kAlloc )
-            //, m_RetValue( nullptr )
-            , m_FirstOperand( value )
-		{
-            //m_RetValue = new Value(name, type, this);
-		}
-
-        explicit AllocIns(char const* name, Type const* type, Constant * cv) 
-            : Instruction( OpCode::kAlloc )
-            //, m_RetValue( nullptr )
-            , m_FirstOperand( cv )
-        {
-            //m_RetValue = new Value(name, type, this);
-        }
-
-        explicit AllocIns(std::string const& name, Type const* type, Constant* cv)
-            : Instruction( OpCode::kAlloc )
-            //, m_RetValue( nullptr )
-            , m_FirstOperand( cv )
-        {
-            //m_RetValue = new Value(name.c_str( ), type, this);
-        }
-
-        explicit AllocIns(std::string const& name, Type const* type, Value* value) 
-            : Instruction( OpCode::kAlloc )
-            //, m_RetValue( nullptr )
-            , m_FirstOperand( value )
-        {
-            //m_RetValue = new Value(name.c_str(), type, this);
+            m_Result = new Value(name.c_str( ), type,nullptr);
         }
 
 
@@ -283,7 +252,6 @@ namespace IR {
         }
 
     private:
-        Value* m_RetValue;
         Value* m_FirstOperand;
 	};
    

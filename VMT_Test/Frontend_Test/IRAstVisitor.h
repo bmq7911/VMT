@@ -48,7 +48,7 @@ namespace TS {
         void visitFunction(AST::AstFunction* astFunction, AST::ICollectInfoBack * collect ) {
             std::shared_ptr<ENV::Env> env = std::make_shared<ENV::Env>( );
             env->mount(_GetCurrentEnv());
-
+            _SetCurrentEnv(env);
             auto funNameTok= astFunction->getFunctionName();
             IR::Function* ir_function = IR::IRBuilder(m_context).emitFunction( funNameTok.toStringView().data(), nullptr );
 
@@ -63,10 +63,11 @@ namespace TS {
                 auto param = paramList->at(i);
                 auto typeTok = param.getType();
                 auto envType = env->find(typeTok.toStringView(), ENV::SymbolType::kType);
-               
+                auto name = param.getId( );
                 if (envType) {
                     auto type = m_context->getTypeManger().getTypeFromName( envType->getSymbolName().data() );
-                    IR::Value* value = IR::IRBuilder( m_context ).emitAlloc( type , typeTok.toStringView().data() );
+                    IR::Value* value = IR::IRBuilder( m_context ).emitAlloc( type , std::string(name.toStringView()).c_str() );
+                    env->put(std::string(name.toStringView()), value);
                     ir_function->addArgs(value);
                 }
                 else {
@@ -109,6 +110,8 @@ namespace TS {
         void visitBlock(AST::AstBlock* astBlock, AST::ICollectInfoBack* collect) override {
             std::shared_ptr<ENV::Env> env = std::make_shared<ENV::Env>();
             env->mount(_GetCurrentEnv());
+            _SetCurrentEnv(env);
+            m_currentEnv = env;
             for (auto iter = astBlock->begin(); iter != astBlock->end(); ++iter) {
                 (*iter)->gen( std::enable_shared_from_this<AST_IR_Codegen>::shared_from_this(), collect );
             }
@@ -159,7 +162,15 @@ namespace TS {
         }
         std::shared_ptr<AST::AstObjectExpr> reduceObjectExpr(AST::AstObjectExpr* astObjectExpr, AST::ICollectInfoBack* collect) override {
             /// 这里最重要的逻辑就是查询当前已分配的节点数据,也就是IValue
-            
+            CollectIRValue collectValue;
+            auto env = _GetCurrentEnv();
+            auto value = env->find( std::string(astObjectExpr->getObject().toStringView()));
+            if (nullptr != value) {
+                static_cast<CollectIRValue*>(collect)->setValue(value);
+            }
+            else {
+                Diagnose::errorMsg("can not find the value");
+            }
             return nullptr;
         }
         
@@ -216,7 +227,8 @@ namespace TS {
             auto tok = astAssign->getToken( );
             auto value = env->find( std::string(tok.toStringView()));
             if (nullptr != value) {
-                IR::IRBuilder(m_context).emitAssign(value, collectValue.getValue());
+                auto v = IR::IRBuilder(m_context).emitAssign(value, collectValue.getValue());
+                env->put(std::string(tok.toStringView()), v);
             }
             return nullptr;
         }
@@ -242,6 +254,10 @@ namespace TS {
         std::shared_ptr<ENV::Env> _GetCurrentEnv() const {
             return m_currentEnv;
         }
+        void _SetCurrentEnv(std::shared_ptr<ENV::Env> env) {
+            m_currentEnv = env;
+        }
+        
     private:
         std::shared_ptr<ENV::Env>      m_env;
         std::shared_ptr<ENV::Env>      m_currentEnv;

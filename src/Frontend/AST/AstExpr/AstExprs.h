@@ -10,7 +10,7 @@ namespace AST {
 	class AstExprs : public AstExpr{
 	public:
 		using iterator = std::vector<std::shared_ptr<AstExpr>>::iterator;
-		AstExprs();
+		AstExprs() {}
 		void add(std::shared_ptr<AST::AstExpr> expr) {
 			m_exprs.push_back(expr);
 		}
@@ -20,8 +20,7 @@ namespace AST {
 		iterator end() {
 			return m_exprs.end( );
 		}
-		std::shared_ptr<AST::AstObjectExpr> reduce(std::shared_ptr<AST::IASTVisitor>, ICollectInfoBack*) override;
-
+		std::shared_ptr<AST::AstObjectExpr> reduce(std::shared_ptr<AST::IASTVisitor> visitor, ICollectInfoBack* collect) override;
 	private:
 		std::vector<std::shared_ptr<AstExpr>> m_exprs;
 	};

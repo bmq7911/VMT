@@ -32,11 +32,11 @@ namespace IR {
     }
 
     void Function::addArgs(Value* args) {
-        FunctionType const* type = static_cast<FunctionType const*>(m_type);
-        size_t i = m_args.size();
-        if (i < type->sizeParamsType()) {
-            m_args.push_back(args);
-        }
+        //FunctionType const* type = static_cast<FunctionType const*>(m_type);
+        //size_t i = m_args.size();
+        //if (i < type->sizeParamsType()) {
+        //    m_args.push_back(args);
+        //}
     }
 
     std::string const& Function::getFunctionName() const {

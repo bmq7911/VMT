@@ -11,6 +11,26 @@ namespace ENV {
     class TypeId;
     class FunctionId;
     
+    class ValueList {
+    public:
+        ValueList() 
+            : m_values( nullptr )
+        {}
+
+        IR::Value* getValue() const {
+            return m_values;
+        }
+        void setValue(IR::Value* value) {
+            if (nullptr == m_values) {
+                m_values = value;
+                return;
+            }
+            m_values->insert_front(value);
+            return;
+        }
+    private:
+        IR::Value* m_values;
+    };
     // 这个东西不应该是封闭的类
     class Env : public std::enable_shared_from_this<Env> {
     public:
@@ -31,7 +51,7 @@ namespace ENV {
         std::map<std::string, std::shared_ptr<ENV::ObjectId> >  m_ObjectTable;
         std::map<std::string, std::shared_ptr<ENV::TypeId> >    m_TypeTable;
         std::map<std::string, std::shared_ptr<ENV::FunctionId>> m_FunctionTable;
-        std::map<std::string, IR::Value* >                      m_values;
+        std::map<std::string, ValueList >                      m_values;
         std::map<ENV::SymbolType, std::unordered_map<std::string_view, std::shared_ptr<ENV::Symbol>> > m_maps;
     };
 

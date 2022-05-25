@@ -65,10 +65,12 @@ namespace ENV {
     bool Env::put(std::string const& str, IR::Value* v) {
         auto iter = m_values.find(str);
         if (iter != m_values.end()) {
-            return false;
+            iter->second.setValue(v);
+            return true;
         }
         else {
-            auto pair = m_values.insert(std::make_pair(str,v));
+            auto pair = m_values.insert(std::make_pair(str, ValueList{}));
+            pair.first->second.setValue(v);
             return pair.second;
         }
     }
@@ -76,7 +78,13 @@ namespace ENV {
     IR::Value* Env::find(std::string const&str) {
         auto iter = m_values.find(str);
         if (iter != m_values.end()) {
-            return iter->second;
+            return iter->second.getValue( );
+        }
+        else {
+            auto p = this->getParent();
+            if (p) {
+                return this->getParent()->find(str);
+            }
         }
         return nullptr;
     }

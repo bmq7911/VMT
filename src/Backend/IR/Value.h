@@ -23,6 +23,7 @@ namespace IR{
         /// </summary>
         
         Value(const char* name, Type const* type, Instruction* ins);
+        Value* clone();
 
         /*
         bool isLagal() const {
@@ -59,7 +60,9 @@ namespace IR{
         const std::string& getOriginName() const {
             return m_name;
         }
-
+        void setInstruction( Instruction* ins) {
+            m_ins = ins;
+        }
         Instruction* getInstruction() {
             return m_ins;
         }
@@ -83,9 +86,9 @@ namespace IR{
     protected:
 
     protected:
-        std::string  m_name;
-        const Type*  m_type;
-        Instruction* m_ins;
+        std::string  m_name;       /// value name
+        const Type*  m_type;       /// value type
+        Instruction* m_ins;        /// the define ins
         uint32_t  m_bLocal    : 1;
         uint32_t  m_bConstant : 1;
         uint32_t  m_bVolatile : 1;

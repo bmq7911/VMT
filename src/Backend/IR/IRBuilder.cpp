@@ -22,74 +22,21 @@ namespace IR {
 
 
     Value* IRBuilder::emitBinaryOpIns(IR::Instruction::OpCode op,  Value* v1, Value* v2) {
+        std::string name = m_context->getCurrentFunction()->getNameAlloc()->allocTemporaryName();
+        IR::Value* t = new IR::Value( name.c_str(),v1->getType(), nullptr );
         auto ins = _AddInsToIRContext(IR::allocator<BinaryOpIns>().alloc(op, nullptr,v1->getType(), v1,v2));
+        t->setInstruction(ins);
         return ins->getRetValue();
     }
 
     Value* IRBuilder::emitUnaryOpIns(IR::Instruction::OpCode op, Value* v) {
+        std::string name = m_context->getCurrentFunction()->getNameAlloc()->allocTemporaryName();
+        IR::Value* t = new IR::Value( name.c_str(),v->getType(), nullptr );
         auto ins = _AddInsToIRContext(IR::allocator<UnaryOpIns>().alloc(op, nullptr, v->getType(), v));
+        t->setInstruction(ins);
         return ins->getRetValue( );
     }
 
-    Value* IRBuilder::emitAlloc(float value) {
-        Type* type = m_context->getTypeManger().getFloatType(sizeof(float));
-        Constant* c = createConstant(type, value);
-        auto cfunc = m_context->getCurrentFunction();
-        std::shared_ptr<NameAlloc> nameAlloc;
-        if (nullptr == cfunc) {
-            nameAlloc = m_context->getNameAlloc();
-        }
-        else {
-            nameAlloc = cfunc->getNameAlloc();
-        }
-        auto ins = _AddInsToIRContext(IR::allocator<AllocIns>().alloc(nameAlloc->allocTemporaryName().c_str(), type, c));
-        return ins->getRetValue();
-    }
-
-    Value* IRBuilder::emitAlloc(float value, const char* name) {
-        Type* type = m_context->getTypeManger().getFloatType(sizeof(float));
-        Constant* c = createConstant(type, value);
-
-        auto cfunc = m_context->getCurrentFunction();
-        std::shared_ptr<NameAlloc> nameAlloc;
-        if (nullptr == cfunc) {
-            nameAlloc = m_context->getNameAlloc();
-        }
-        else {
-            nameAlloc = cfunc->getNameAlloc();
-        }
-
-        auto ins = _AddInsToIRContext(IR::allocator<AllocIns>().alloc(nameAlloc->allocName(name), type, c));
-        return ins->getRetValue();
-    }
-
-    Value* IRBuilder::emitAlloc(Value* v) {
-        Type const* type = v->getType();
-        auto cfunc = m_context->getCurrentFunction();
-        std::shared_ptr<NameAlloc> nameAlloc;
-        if (nullptr == cfunc) {
-            nameAlloc = m_context->getNameAlloc();
-        }
-        else {
-            nameAlloc = cfunc->getNameAlloc();
-        }
-        auto ins = _AddInsToIRContext(IR::allocator<AllocIns>().alloc(nameAlloc->allocTemporaryName(), type, v));
-        return ins->getRetValue();
-    }
-
-    Value* IRBuilder::emitAlloc(Value* v, const char* name) {
-        Type const* type = v->getType();
-        auto cfunc = m_context->getCurrentFunction();
-        std::shared_ptr<NameAlloc> nameAlloc;
-        if (nullptr == cfunc) {
-            nameAlloc = m_context->getNameAlloc();
-        }
-        else {
-            nameAlloc = cfunc->getNameAlloc();
-        }
-        auto ins = _AddInsToIRContext(IR::allocator<AllocIns>().alloc(nameAlloc->allocName(name), type, v));
-        return ins->getRetValue();
-    }
 
     Value* IRBuilder::emitAlloc(const Type* type, const char* name) {
         auto cfunc = m_context->getCurrentFunction();
@@ -103,7 +50,8 @@ namespace IR {
         auto ins = _AddInsToIRContext(IR::allocator<AllocIns>().alloc(nameAlloc->allocName(name), type));
         return ins->getRetValue();
     }
-
+    
+    /// 这条指令很特殊,因为只有这条指令才能向一个命名的value赋值
     Value* IRBuilder::emitAssign(Value* src, Value* dst) {
         auto cfunc = m_context->getCurrentFunction( );
         std::shared_ptr<NameAlloc> nameAlloc;
@@ -115,15 +63,6 @@ namespace IR {
         }
         auto ins = _AddInsToIRContext(IR::allocator<AssignIns>().alloc( src, dst ));
         return ins->getRetValue();
-    }
-
-    Value* IRBuilder::emitAssign(const char* strSrc, const char* strDst) {
-        auto cfunc = m_context->getCurrentFunction();
-        auto scope = cfunc->getFunctionScope();
-        Value* srcValue = scope->findValueByName(strSrc);
-        Value* dstValue = scope->genValueByName(strDst, srcValue->getType());
-        auto ins = _AddInsToIRContext( IR::allocator<AssignIns>().alloc( dstValue, srcValue ));
-        return ins->getResult();
     }
 
     Br* IRBuilder::emitBr(Value* v, const char* trueLabel, const char* falseLabel) {
@@ -182,6 +121,7 @@ namespace IR {
 
     Value* IRBuilder::emitSin(Value* v) {
         return _EmitUnaryIns<UnaryOpIns>(Instruction::OpCode::kSin, v);
+    
     }
 
     Value* IRBuilder::emitSin(Value* v, const char* name) {
