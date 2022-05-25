@@ -23,7 +23,7 @@ namespace IR {
 
     Value* IRBuilder::emitBinaryOpIns(IR::Instruction::OpCode op,  Value* v1, Value* v2) {
         std::string name = m_context->getCurrentFunction()->getNameAlloc()->allocTemporaryName();
-        IR::Value* t = new IR::Value( name.c_str(),v1->getType(), nullptr );
+        IR::Value * t = emitAlloc(v1->getType(),name.c_str() );
         auto ins = _AddInsToIRContext(IR::allocator<BinaryOpIns>().alloc(op, nullptr,v1->getType(), v1,v2));
         t->setInstruction(ins);
         return ins->getRetValue();
@@ -31,7 +31,7 @@ namespace IR {
 
     Value* IRBuilder::emitUnaryOpIns(IR::Instruction::OpCode op, Value* v) {
         std::string name = m_context->getCurrentFunction()->getNameAlloc()->allocTemporaryName();
-        IR::Value* t = new IR::Value( name.c_str(),v->getType(), nullptr );
+        IR::Value* t = emitAlloc( v->getType(), name.c_str());
         auto ins = _AddInsToIRContext(IR::allocator<UnaryOpIns>().alloc(op, nullptr, v->getType(), v));
         t->setInstruction(ins);
         return ins->getRetValue( );
@@ -51,7 +51,7 @@ namespace IR {
         return ins->getRetValue();
     }
     
-    /// ÕâÌõÖ¸ÁîºÜÌØÊâ,ÒòÎªÖ»ÓÐÕâÌõÖ¸Áî²ÅÄÜÏòÒ»¸öÃüÃûµÄvalue¸³Öµ
+    /// ï¿½ï¿½ï¿½ï¿½Ö¸ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½,ï¿½ï¿½ÎªÖ»ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ö¸ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ò»ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½valueï¿½ï¿½Öµ
     Value* IRBuilder::emitAssign(Value* src, Value* dst) {
         auto cfunc = m_context->getCurrentFunction( );
         std::shared_ptr<NameAlloc> nameAlloc;
