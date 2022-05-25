@@ -236,7 +236,7 @@ namespace IR {
             return false;
         }
         Type const* isSupportOp(Instruction::OpCode)  const override {
-            return false;
+            return nullptr;
         }
 
     public:

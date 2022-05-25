@@ -2,9 +2,9 @@
 #include "Backend/IR/IRBuilder.h"
 namespace IR {
 
-    /// 1.Í¨¹ý½Å±¾ÏµÍ³À´ÊµÏÖ
-    /// 2.ÓÅ»¯µÄÖ÷ÒªÄ¿µÄÊÇÊ²Ã´,¾ÍÊÇÔÚ²»Ó°Ïì½á¹ûµÄÇ°ÌáÏÂ¼õÉÙÖ¸ÁîµÄÈßÓà
-    /// ÎÒÃÇÏÈ²»¿¼ÂÇIRBuilder
+    /// 1.Í¨ï¿½ï¿½ï¿½Å±ï¿½ÏµÍ³ï¿½ï¿½Êµï¿½ï¿½
+    /// 2.ï¿½Å»ï¿½ï¿½ï¿½ï¿½ï¿½ÒªÄ¿ï¿½ï¿½ï¿½ï¿½Ê²Ã´,ï¿½ï¿½ï¿½ï¿½ï¿½Ú²ï¿½Ó°ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ç°ï¿½ï¿½ï¿½Â¼ï¿½ï¿½ï¿½Ö¸ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+    /// ï¿½ï¿½ï¿½ï¿½ï¿½È²ï¿½ï¿½ï¿½ï¿½ï¿½IRBuilder
 
     IRBuilder::IRBuilder(std::shared_ptr<IR::IRContext>& context)
         : m_context(context)
@@ -416,7 +416,7 @@ namespace IR {
             return nullptr;
         }
         else {
-            if (auto errorIns = _CheckTypeIsCompatible(op, v1, v2)) {
+            if (auto errorIns = _CheckTypeIsCompatibleWithReturn(op, v1, v2,vResult)) {
                 auto ins = _AddInsToIRContext(errorIns);
                 return ins->getRetValue();
             }
@@ -429,12 +429,7 @@ namespace IR {
                 nameAlloc = cfunc->getNameAlloc();
             }
             std::string valueName;
-            if (nullptr == name) {
-                valueName = nameAlloc->allocTemporaryName();
-            }
-            else {
-                valueName = nameAlloc->allocName(name);
-            }
+            valueName = nameAlloc->allocTemporaryName();
             auto ins = _AddInsToIRContext(IR::allocator<T>().alloc(op, valueName, v1->getType(), v1, v2));
             auto value = ins->getRetValue();
             if (nullptr != value) {
