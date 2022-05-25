@@ -13,6 +13,17 @@ namespace IR {
 	{
 	
 	}
+	Value* Value::clone() {
+		Value* new_value = new Value(m_name.c_str( ), m_type, nullptr);
+		if (nullptr != new_value) {
+			new_value->m_bLocal = m_bLocal;
+			new_value->m_bConstant = m_bConstant;
+			new_value->m_bVolatile = m_bVolatile;
+			new_value->m_bStatic = m_bStatic;
+			new_value->m_nameIndex = m_nameIndex;
+		}
+		return new_value;
+	}
 
 
 

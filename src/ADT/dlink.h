@@ -10,13 +10,13 @@ namespace ADT {
 		{
 
 		}
-		T* getNext() {
+		T* get_next() {
 			return m_next;
 		}
-		T* getPre() {
+		T* get_pre() {
 			return m_pre;
 		}
-		void insertBack( T * v) {
+		void insert_back( T * v) {
 			if (nullptr != m_next) {
 				v->m_next = m_next;
 				v->m_pre = static_cast<T*>(this);
@@ -28,7 +28,7 @@ namespace ADT {
 				v->m_pre = static_cast<T*>(this);
 			}
 		}
-		void insertFront( T * v) {
+		void insert_front( T * v) {
 			if (nullptr != m_pre) {
 				this->m_pre->m_next = v;
 				v->m_pre = this->m_pre;
@@ -42,7 +42,7 @@ namespace ADT {
 		}
 
 		template<typename ... _Args>
-		void insertBack( _Args&& ...args ) {
+		void insert_back( _Args&& ...args ) {
 			T* v = new T(std::forward<_Args>(args) ...);
 			if (nullptr != m_next) {
 				v->m_next = m_next;
@@ -56,7 +56,7 @@ namespace ADT {
 			}
 		}
 		template<typename ... _Args>
-		void insertFront( _Args&& ... args) {
+		void insert_front( _Args&& ... args) {
 			T* v = new T(std::forward<_Args>(args) ...);
 			if (nullptr != m_pre) {
 				this->m_pre->m_next = v;

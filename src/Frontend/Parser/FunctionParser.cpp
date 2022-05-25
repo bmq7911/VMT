@@ -370,7 +370,7 @@ std::shared_ptr<AST::AstExpr>                FunctionParser::parseDeclOrExpr() {
 
 
 std::shared_ptr<AST::AstExpr>            FunctionParser::parseDecl(std::shared_ptr<ENV::TypeId> type) {
-    /*
+    
     Token mark;
     std::shared_ptr<AST::AstExprs> exprs = std::make_shared<AST::AstExprs>();
     do {
@@ -393,7 +393,7 @@ std::shared_ptr<AST::AstExpr>            FunctionParser::parseDecl(std::shared_p
 
 
     return exprs;
-    */
+    
     return nullptr;
 }
 
@@ -417,7 +417,7 @@ std::shared_ptr<AST::AstExpr>                FunctionParser::parseCommaExpr() {
 
 std::shared_ptr<AST::AstExpr>                FunctionParser::parseAssignExpr() {
     std::shared_ptr<AST::AstExpr> expr = parseConditionExpr();
-    Token tok = readToken();
+    Token tok = advanceToken();
 
     switch (tok.getTokenId()){
         case TokenId::kw_equal: {
@@ -446,12 +446,16 @@ std::shared_ptr<AST::AstExpr>                FunctionParser::parseAssignExpr() {
 
 std::shared_ptr<AST::AstExpr>                FunctionParser::parseConditionExpr() {
     std::shared_ptr<AST::AstExpr> condition = parseBool();
-    Token tok = readToken();
+    Token tok = advanceToken();
 
     if (tok.match(TokenId::kw_question)) {
+        tok = readToken();
         std::shared_ptr<AST::AstExpr> True = parseBool();
-        Token tok = readToken();
-        tok.match( TokenId::kw_colon);
+        Token tok = advanceToken();
+        if (tok.notMatch(TokenId::kw_colon)) {
+            Diagnose::expectBut(TokenId::kw_colon, tok);
+            return nullptr;
+        }
         std::shared_ptr<AST::AstExpr> False = parseBool();
         return returnExpr( std::make_shared<AST::AstConditionExpr>(condition, True, False));
     }

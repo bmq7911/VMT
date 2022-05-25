@@ -33,13 +33,8 @@ namespace IR {
         }
         Value* emitBinaryOpIns(IR::Instruction::OpCode op, Value* v1, Value* v2);
         Value* emitUnaryOpIns(IR::Instruction::OpCode op, Value* v);
-        Value* emitAlloc(float value);
-        Value* emitAlloc(float value, const char* name);
-        Value* emitAlloc(Value* v);
-        Value* emitAlloc(Value* v, const char* name);
         Value* emitAlloc(const Type* type, const char* name);
         Value* emitAssign(Value* src, Value* dst);
-        Value* emitAssign(const char* strSrc, const char* strDst);
         Br* emitBr(Value* v, const char* trueLabel, const char* falseLabel);
         Br* emitBr(Value* v, std::string const& trueLabel, std::string const& falseLabel);
         Jmp* emitJmp(const char* label);

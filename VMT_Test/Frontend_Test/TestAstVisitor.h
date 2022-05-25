@@ -170,6 +170,10 @@ public:
 		std::cout << "reduce Assign" << std::endl;
 		return nullptr;
 	}
+	std::shared_ptr<AST::AstObjectExpr> reduceExprs(AST::AstExprs*, AST::ICollectInfoBack*) override {
+		std::cout << "reduce Exprs" << std::endl;
+		return nullptr;
+	}
 private:
 	std::shared_ptr<ENV::Env> getCurrentEnv() {
 		return m_currentEnv;

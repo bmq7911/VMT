@@ -25,7 +25,7 @@ namespace IR {
 
                     auto iter = valueVertexMap.find( r );
                     if (iter != valueVertexMap.end()) {
-                        iter->second->data().insertBack(&vr->data());
+                        iter->second->data().insert_back(&vr->data());
                         valueVertexMap.erase(iter);
                     }
                     valueVertexMap.insert(std::make_pair( r,vr ));
@@ -53,7 +53,7 @@ namespace IR {
                     vr = G.add_vertex(r);
                     auto iter = valueVertexMap.find( r );
                     if (iter != valueVertexMap.end()) {
-                        iter->second->data().insertBack(&vr->data());
+                        iter->second->data().insert_back(&vr->data());
                         valueVertexMap.erase(iter);
                     }
                     valueVertexMap.insert(std::make_pair(r, vr));
@@ -94,7 +94,7 @@ namespace IR {
                         vr = G.add_vertex(r);
                         auto iter = valueVertexMap.find( r );
                         if (iter != valueVertexMap.end()) {
-                            iter->second->data().insertBack(&vr->data());
+                            iter->second->data().insert_back(&vr->data());
                             valueVertexMap.erase(iter);
                         }
                         valueVertexMap.insert(std::make_pair(r, vr));

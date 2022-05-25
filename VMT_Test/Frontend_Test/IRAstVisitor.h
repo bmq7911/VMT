@@ -48,7 +48,7 @@ namespace TS {
         void visitFunction(AST::AstFunction* astFunction, AST::ICollectInfoBack * collect ) {
             std::shared_ptr<ENV::Env> env = std::make_shared<ENV::Env>( );
             env->mount(_GetCurrentEnv());
-
+            _SetCurrentEnv(env);
             auto funNameTok= astFunction->getFunctionName();
             IR::Function* ir_function = IR::IRBuilder(m_context).emitFunction( funNameTok.toStringView().data(), nullptr );
 
@@ -63,10 +63,11 @@ namespace TS {
                 auto param = paramList->at(i);
                 auto typeTok = param.getType();
                 auto envType = env->find(typeTok.toStringView(), ENV::SymbolType::kType);
-               
+                auto name = param.getId( );
                 if (envType) {
                     auto type = m_context->getTypeManger().getTypeFromName( envType->getSymbolName().data() );
-                    IR::Value* value = IR::IRBuilder( m_context ).emitAlloc( type , typeTok.toStringView().data() );
+                    IR::Value* value = IR::IRBuilder( m_context ).emitAlloc( type , std::string(name.toStringView()).c_str() );
+                    env->put(std::string(name.toStringView()), value);
                     ir_function->addArgs(value);
                 }
                 else {
@@ -109,6 +110,8 @@ namespace TS {
         void visitBlock(AST::AstBlock* astBlock, AST::ICollectInfoBack* collect) override {
             std::shared_ptr<ENV::Env> env = std::make_shared<ENV::Env>();
             env->mount(_GetCurrentEnv());
+            _SetCurrentEnv(env);
+            m_currentEnv = env;
             for (auto iter = astBlock->begin(); iter != astBlock->end(); ++iter) {
                 (*iter)->gen( std::enable_shared_from_this<AST_IR_Codegen>::shared_from_this(), collect );
             }
@@ -159,7 +162,15 @@ namespace TS {
         }
         std::shared_ptr<AST::AstObjectExpr> reduceObjectExpr(AST::AstObjectExpr* astObjectExpr, AST::ICollectInfoBack* collect) override {
             /// 这里最重要的逻辑就是查询当前已分配的节点数据,也就是IValue
-            
+            CollectIRValue collectValue;
+            auto env = _GetCurrentEnv();
+            auto value = env->find( std::string(astObjectExpr->getObject().toStringView()));
+            if (nullptr != value) {
+                static_cast<CollectIRValue*>(collect)->setValue(value);
+            }
+            else {
+                Diagnose::errorMsg("can not find the value");
+            }
             return nullptr;
         }
         
@@ -170,22 +181,63 @@ namespace TS {
         }
 
         std::shared_ptr<AST::AstObjectExpr> reduceTemp(AST::AstTemp* astTemp, AST::ICollectInfoBack* collect) override {
-            
+           
             return nullptr;
         }
-
+        // decl ::= type variable;
+        //      ::= type variable = expr
+        //      AstDecl -> type variable AssignExpr( variable,expr )
         std::shared_ptr<AST::AstObjectExpr> reduceDecl(AST::AstDecl* astDecl, AST::ICollectInfoBack* collect) override{
-        
+            auto env = _GetCurrentEnv( );
+            auto envType = env->find(astDecl->getType().toStringView(), ENV::SymbolType::kType);
+            IR::Value* v = nullptr;
+            if (!envType) {
+                Diagnose::errorMsg("can not find the type");
+            }
+            else {
+                auto type = m_context->getTypeManger().getTypeFromName( envType->getSymbolName().data() );
+                std::string str(astDecl->getName().toStringView());
+                v = IR::IRBuilder(m_context).emitAlloc( type, str.c_str() );
+                env->put( str, v );
+            }
+            auto expr = astDecl->getExpr();
+            CollectIRValue collectValue;
+            if (expr) {
+                expr->reduce(std::enable_shared_from_this<AST_IR_Codegen>::shared_from_this(), &collectValue);
+            }
+            static_cast<CollectIRValue*>(collect)->setValue( v );
             return nullptr;
         }
 
         std::shared_ptr<AST::AstObjectExpr> reduceDecls(AST::AstDecls* astDecls, AST::ICollectInfoBack* collect) override {
-        
+            CollectIRValue collectValue;
+            for (auto iter = astDecls->begin(); iter != astDecls->end(); ++iter) {
+                (*iter)->reduce(std::enable_shared_from_this<AST_IR_Codegen>::shared_from_this(),&collectValue );
+            }
+            static_cast<CollectIRValue*>(collect)->setValue(collectValue.getValue());
             return nullptr;
         }
-
+        
+        // 这条语句很特殊,因为完成了定值操作
         std::shared_ptr<AST::AstObjectExpr> reduceAssign(AST::AstAssign* astAssign, AST::ICollectInfoBack* collect) override {
-            
+            auto env = _GetCurrentEnv( );
+            CollectIRValue collectValue;
+            astAssign->getExpr()->reduce(std::enable_shared_from_this<AST_IR_Codegen>::shared_from_this(), &collectValue );
+
+            auto tok = astAssign->getToken( );
+            auto value = env->find( std::string(tok.toStringView()));
+            if (nullptr != value) {
+                auto v = IR::IRBuilder(m_context).emitAssign(value, collectValue.getValue());
+                env->put(std::string(tok.toStringView()), v);
+            }
+            return nullptr;
+        }
+        std::shared_ptr<AST::AstObjectExpr> reduceExprs(AST::AstExprs* astExprs, AST::ICollectInfoBack* collect) override {
+            CollectIRValue collectValue;
+            for (auto iter = astExprs->begin(); iter != astExprs->end(); ++iter) {
+                (*iter)->reduce(std::enable_shared_from_this<AST_IR_Codegen>::shared_from_this(), &collectValue);
+            }
+            static_cast<CollectIRValue*>(collect)->setValue(collectValue.getValue());
             return nullptr;
         }
 
@@ -202,6 +254,10 @@ namespace TS {
         std::shared_ptr<ENV::Env> _GetCurrentEnv() const {
             return m_currentEnv;
         }
+        void _SetCurrentEnv(std::shared_ptr<ENV::Env> env) {
+            m_currentEnv = env;
+        }
+        
     private:
         std::shared_ptr<ENV::Env>      m_env;
         std::shared_ptr<ENV::Env>      m_currentEnv;
