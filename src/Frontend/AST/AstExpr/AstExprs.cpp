@@ -1,4 +1,6 @@
 #include "Frontend/AST/AstExpr/AstExprs.h"
+#include "Frontend/AST/AstExpr/AstObjectExpr.h"
+
 #include "Frontend/AST/AstVisitor.h"
 namespace AST{
 	

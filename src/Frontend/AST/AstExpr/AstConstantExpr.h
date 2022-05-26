@@ -1,7 +1,6 @@
 #pragma once
 #include <memory>
 #include "Frontend/AST/AstExpr/AstObjectExpr.h"
-#include "Frontend/AST/AstExpr/AstTemp.h"
 namespace AST {
 
     template<typename _T>
@@ -9,7 +8,7 @@ namespace AST {
     public:
         using HostType = _T;
         AstConstantExpr(  Token tok,HostType value)
-            : AstObjectExpr( )
+            : AstObjectExpr( tok )
             , m_tok(tok)
             , m_const(value)
         {

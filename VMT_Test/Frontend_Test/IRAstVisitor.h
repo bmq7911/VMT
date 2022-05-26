@@ -109,13 +109,12 @@ namespace TS {
         void visitParamList(AST::AstParamList*, AST::ICollectInfoBack* collect) override {}
         void visitBlock(AST::AstBlock* astBlock, AST::ICollectInfoBack* collect) override {
             std::shared_ptr<ENV::Env> env = std::make_shared<ENV::Env>();
-            env->mount(_GetCurrentEnv());
+            ENV::EnvRAII s( env, _GetCurrentEnv());
             _SetCurrentEnv(env);
             m_currentEnv = env;
             for (auto iter = astBlock->begin(); iter != astBlock->end(); ++iter) {
                 (*iter)->gen( std::enable_shared_from_this<AST_IR_Codegen>::shared_from_this(), collect );
             }
-            env->unmount();
         }
         std::shared_ptr<AST::AstObjectExpr> reduceBinaryOpExpr(AST::AstBinaryOpExpr* astBinaryOpExpr , AST::ICollectInfoBack* collect) override {
             auto leftExpr = astBinaryOpExpr->getLeft( );
@@ -180,10 +179,6 @@ namespace TS {
             return nullptr;
         }
 
-        std::shared_ptr<AST::AstObjectExpr> reduceTemp(AST::AstTemp* astTemp, AST::ICollectInfoBack* collect) override {
-           
-            return nullptr;
-        }
         // decl ::= type variable;
         //      ::= type variable = expr
         //      AstDecl -> type variable AssignExpr( variable,expr )

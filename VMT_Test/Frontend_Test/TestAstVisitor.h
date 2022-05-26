@@ -132,10 +132,6 @@ public:
 		return nullptr;
 	}
 
-	std::shared_ptr<AST::AstObjectExpr> reduceTemp(AST::AstTemp* temp,AST::ICollectInfoBack* ) override {
-		std::cout << "reduceTemp" << std::endl;
-		return nullptr;
-	}
 
 	std::shared_ptr<AST::AstObjectExpr> reduceDecl(AST::AstDecl* decl ,AST::ICollectInfoBack*) override {
 		std::cout << "reduce Decl" << std::endl;

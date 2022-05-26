@@ -12,6 +12,5 @@ public:
     std::shared_ptr<AST::AstFunction> ParseFunction( );
 	
 private:
-    std::shared_ptr<ENV::Env> m_env;
     using ParserProxy::ParserProxy;
 };

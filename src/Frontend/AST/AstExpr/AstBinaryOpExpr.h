@@ -1,6 +1,5 @@
 #pragma once
 #include "Frontend/AST/AstExpr/AstExpr.h"
-#include "Frontend/AST/AstExpr/AstTemp.h"
 
 namespace AST {
     class IASTVisitor;

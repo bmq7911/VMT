@@ -4,7 +4,6 @@
 #include "Frontend/AST/AstExpr/AstConditionExpr.h"
 #include "Frontend/AST/AstExpr/AstObjectExpr.h"
 #include "Frontend/AST/AstExpr/AstVoidExpr.h"
-#include "Frontend/AST/AstExpr/AstTemp.h"
 #include "Frontend/AST/AstExpr/AstVariableObjExpr.h"
 #include "SymbolTable/ObjectId.h"
 
@@ -94,7 +93,7 @@ namespace DECL_AST_SPACE(AstConstantExpr) {
 
 namespace DECL_AST_SPACE(AstVariableObjExpr) {
     AstVariableObjExpr::AstVariableObjExpr(Token id)
-        : AstObjectExpr(  )
+        : AstObjectExpr( id )
         , m_token(id)
     {
     }
@@ -117,14 +116,3 @@ namespace DECL_AST_SPACE( AstVoidExpr) {
 
 }
 
-namespace DECL_AST_SPACE( AstTemp ) {
-    AstTemp::AstTemp( int32_t t)
-        :  m_suffix( t )
-    {
-        //m_object = std::make_shared<AST::ObjectExpr>();
-    }
-
-    std::shared_ptr<AST::AstObjectExpr> AstTemp::reduce( std::shared_ptr<AST::IASTVisitor> visitor,ICollectInfoBack * collect) {
-        return visitor->reduceTemp( this ,collect);
-    }
-}

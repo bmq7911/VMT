@@ -31,6 +31,9 @@ namespace ENV {
     private:
         IR::Value* m_values;
     };
+
+    
+
     // 这个东西不应该是封闭的类
     class Env : public std::enable_shared_from_this<Env> {
     public:
@@ -54,6 +57,18 @@ namespace ENV {
         std::map<std::string, ValueList >                      m_values;
         std::map<ENV::SymbolType, std::unordered_map<std::string_view, std::shared_ptr<ENV::Symbol>> > m_maps;
     };
-
+    class EnvRAII {
+    public:
+        EnvRAII(std::shared_ptr<ENV::Env> env, std::shared_ptr<ENV::Env> parent) 
+            : m_env( env )
+        {
+            m_env->mount(parent);
+        }
+        ~EnvRAII() {
+            m_env->unmount();
+        }
+    private:
+        std::shared_ptr<ENV::Env> m_env;
+    };
     
 }

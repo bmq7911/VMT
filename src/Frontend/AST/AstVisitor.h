@@ -25,7 +25,6 @@ namespace AST {
         virtual std::shared_ptr<AST::AstObjectExpr> reduceConditionExpr( AST::AstConditionExpr*, AST::ICollectInfoBack*) = 0;
         virtual std::shared_ptr<AST::AstObjectExpr> reduceObjectExpr(AST::AstObjectExpr*, AST::ICollectInfoBack*) = 0;
         virtual std::shared_ptr<AST::AstObjectExpr> reduceVoidExpr( AST::AstVoidExpr* , AST::ICollectInfoBack*) = 0;
-        virtual std::shared_ptr<AST::AstObjectExpr> reduceTemp( AST::AstTemp *, AST::ICollectInfoBack*) = 0;
         virtual std::shared_ptr<AST::AstObjectExpr> reduceDecl(AST::AstDecl*, AST::ICollectInfoBack*) = 0;
         virtual std::shared_ptr<AST::AstObjectExpr> reduceDecls(AST::AstDecls*, AST::ICollectInfoBack*) = 0;
         virtual std::shared_ptr<AST::AstObjectExpr> reduceAssign(AST::AstAssign*, AST::ICollectInfoBack*) = 0;

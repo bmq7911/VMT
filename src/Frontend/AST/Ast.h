@@ -12,7 +12,6 @@ namespace AST{
 
 #include "Frontend/AST/AstExpr/AstExpr.h"
 #include "Frontend/AST/AstExpr/AstExprs.h"
-#include "Frontend/AST/AstExpr/AstTemp.h"
 #include "Frontend/AST/AstExpr/AstBinaryOpExpr.h"
 #include "Frontend/AST/AstExpr/AstUnaryOpExpr.h"
 #include "Frontend/AST/AstExpr/AstConstantExpr.h"
