@@ -40,11 +40,16 @@ namespace IR {
             , m_IRContext( nullptr )
             , m_Result( nullptr )
         {
-            if (isInsHaveResult(op)) {
-               
-            }
         }
-
+        Instruction(OpCode op, IR::Value * result)
+            : m_Op(op)
+            , m_BasicBlock(nullptr)
+            , m_IRContext(nullptr )
+            , m_Result( result)
+        {
+            result->setInstruction(this);
+        }
+        
         void setBasicBlock(BasicBlock* block) {
             m_BasicBlock = block;
         }
@@ -141,20 +146,10 @@ namespace IR {
 
     class ArithmeticIns : public Instruction {
     public:
-        ArithmeticIns(Instruction::OpCode op, const char* name, Type const* type )
-            : Instruction( op)
+        ArithmeticIns(Instruction::OpCode op, IR::Value * result)
+            : Instruction( op, result)
         {
-            m_RetValue = new Value(name, type, static_cast<Instruction*>(this));
         }
-
-        ArithmeticIns(Instruction::OpCode op, Value* retValue)
-            : Instruction( op )
-        {
-            m_RetValue = retValue;
-        }
-
-    private:
-        Value* m_RetValue;
     };
         
     /// <summary>
@@ -170,17 +165,10 @@ namespace IR {
     
     class UnaryOpIns : public ArithmeticIns{
     public:
-        explicit UnaryOpIns(OpCode op, char const* name, Type const* type,Value* v) 
-            : ArithmeticIns( op,  name, type )
+        explicit UnaryOpIns(OpCode op,Value* v,Value * result) 
+            : ArithmeticIns( op, result )
             , m_FirstOperand( v )
         {
-        
-        }
-        explicit UnaryOpIns(OpCode op, Type const* type,std::string const& name, Value * v) 
-            : ArithmeticIns( op, name.c_str(), type)
-            , m_FirstOperand( v)
-        {
-        
         }
         Value* getFirstOperand() const {
             return m_FirstOperand;
@@ -197,17 +185,10 @@ namespace IR {
     ///             
     class BinaryOpIns: public ArithmeticIns{
     public:
-        BinaryOpIns(OpCode op,std::string const &name, Type const* type, Value* v1, Value* v2 ) 
-            : ArithmeticIns( op, name.c_str() , type)
+        BinaryOpIns(OpCode op,Value* v1, Value* v2, Value * result ) 
+            : ArithmeticIns( op, result)
             , m_FirstOperand( v1 )
             , m_SecondOperand( v2 ) 
-        {
-            
-        }
-        BinaryOpIns(OpCode op,  const char* name, Type const* type,Value* v1, Value* v2 ) 
-            : ArithmeticIns( op, name , type)
-            , m_FirstOperand( v1 )
-            , m_SecondOperand( v2 )
         {
         }
         Value* getFirstOperand() const {
@@ -233,14 +214,12 @@ namespace IR {
 	public:
         explicit AllocIns(char const* name, Type const* type) 
             : Instruction( OpCode::kAlloc )
-            //, m_RetValue( nullptr )
             , m_FirstOperand( nullptr )
         {
             m_Result = new Value(name, type, nullptr);
         }
         explicit AllocIns(std::string const& name, Type const* type) 
             : Instruction( OpCode::kAlloc )
-            //, m_RetValue( nullptr )
             , m_FirstOperand( nullptr )
         {
             m_Result = new Value(name.c_str( ), type,nullptr);
@@ -259,17 +238,13 @@ namespace IR {
     public:
         explicit AssignIns(Value* ret, Value* v) 
             : Instruction( OpCode::kAssign )
-            , m_RetValue( ret )
-            , m_FirstOperand( v )
         {
+            m_Result = ret;
+        }
+        Value* getFirstOperand() const {
+            return nullptr;
         }
 
-        Value* getFirstOperand() const {
-            return m_FirstOperand;
-        }
-    private:
-        Value* m_RetValue;
-        Value* m_FirstOperand;
     };
 
 

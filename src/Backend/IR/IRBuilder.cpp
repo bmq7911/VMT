@@ -2,9 +2,6 @@
 #include "Backend/IR/IRBuilder.h"
 namespace IR {
 
-    /// 1.ͨ���ű�ϵͳ��ʵ��
-    /// 2.�Ż�����ҪĿ����ʲô,�����ڲ�Ӱ������ǰ���¼���ָ�������
-    /// �����Ȳ�����IRBuilder
 
     IRBuilder::IRBuilder(std::shared_ptr<IR::IRContext>& context)
         : m_context(context)
@@ -22,19 +19,11 @@ namespace IR {
 
 
     Value* IRBuilder::emitBinaryOpIns(IR::Instruction::OpCode op,  Value* v1, Value* v2) {
-        std::string name = m_context->getCurrentFunction()->getNameAlloc()->allocTemporaryName();
-        IR::Value * t = emitAlloc(v1->getType(),name.c_str() );
-        auto ins = _AddInsToIRContext(IR::allocator<BinaryOpIns>().alloc(op, nullptr,v1->getType(), v1,v2));
-        t->setInstruction(ins);
-        return ins->getRetValue();
+        return _EmitBinaryIns<BinaryOpIns>(op, v1, v2);
     }
 
     Value* IRBuilder::emitUnaryOpIns(IR::Instruction::OpCode op, Value* v) {
-        std::string name = m_context->getCurrentFunction()->getNameAlloc()->allocTemporaryName();
-        IR::Value* t = emitAlloc( v->getType(), name.c_str());
-        auto ins = _AddInsToIRContext(IR::allocator<UnaryOpIns>().alloc(op, nullptr, v->getType(), v));
-        t->setInstruction(ins);
-        return ins->getRetValue( );
+        return _EmitUnaryIns<UnaryOpIns>( op, v);
     }
 
 
@@ -50,8 +39,8 @@ namespace IR {
         auto ins = _AddInsToIRContext(IR::allocator<AllocIns>().alloc(nameAlloc->allocName(name), type));
         return ins->getRetValue();
     }
-    
-    /// ����ָ�������,��Ϊֻ������ָ�������һ��������value��ֵ
+
+
     Value* IRBuilder::emitAssign(Value* src, Value* dst) {
         auto cfunc = m_context->getCurrentFunction( );
         std::shared_ptr<NameAlloc> nameAlloc;
@@ -62,6 +51,7 @@ namespace IR {
             nameAlloc = m_context->getNameAlloc( );
         }
         auto ins = _AddInsToIRContext(IR::allocator<AssignIns>().alloc( src, dst ));
+        src->setInstruction(ins);
         return ins->getRetValue();
     }
 
@@ -124,102 +114,66 @@ namespace IR {
     
     }
 
-    Value* IRBuilder::emitSin(Value* v, const char* name) {
-        return _EmitUnaryIns<UnaryOpIns>(Instruction::OpCode::kSin, v, name);
-    }
 
 
     Value* IRBuilder::emitCos(Value* v) {
         return _EmitUnaryIns<UnaryOpIns>(Instruction::OpCode::kCos, v);
     }
 
-    Value* IRBuilder::emitCos(Value* v, const char* name) {
-        return _EmitUnaryIns<UnaryOpIns>(Instruction::OpCode::kCos, v, name);
-    }
 
     Value* IRBuilder::emitTan(Value* v) {
         return _EmitUnaryIns<UnaryOpIns>(Instruction::OpCode::kTan, v);
     }
 
-    Value* IRBuilder::emitTan(Value* v, const char* name) {
-        return _EmitUnaryIns<UnaryOpIns>(Instruction::OpCode::kTan, v, name);
-    }
 
 
     Value* IRBuilder::emitAdd(Value* v1, Value* v2) {
         return _EmitBinaryIns<BinaryOpIns>(Instruction::OpCode::kAdd, v1, v2);
     }
-    Value* IRBuilder::emitAdd(Value* v1, Value* v2, const char* name) {
-        return _EmitBinaryIns<BinaryOpIns>(Instruction::OpCode::kAdd, v1, v2, name);
-    }
 
-    void IRBuilder::emitAdd(Value* v1, Value* v2, Value* result ) {
-
-    }
     Value* IRBuilder::emitMinus(Value* v1, Value* v2) {
         return _EmitBinaryIns<BinaryOpIns>(Instruction::OpCode::kMinus, v1, v2);
 
     }
 
-    Value* IRBuilder::emitMinus(Value* v1, Value* v2, const char* name) {
-        return _EmitBinaryIns<BinaryOpIns>(Instruction::OpCode::kMinus, v1, v2, name);
-    }
 
-    Value* IRBuilder::emitMul(Value* v1, Value* v2, const char* name) {
-        return _EmitBinaryIns<BinaryOpIns>(Instruction::OpCode::kMul, v1, v2, name);
+    Value* IRBuilder::emitMul(Value* v1, Value* v2) {
+        return _EmitBinaryIns<BinaryOpIns>(Instruction::OpCode::kMul, v1, v2);
     }
 
     Value* IRBuilder::emitDiv(Value* v1, Value* v2) {
         return _EmitBinaryIns<BinaryOpIns>(Instruction::OpCode::kDiv, v1, v2);
     }
 
-    Value* IRBuilder::emitDiv(Value* v1, Value* v2, const char* name) {
-        return _EmitBinaryIns<BinaryOpIns>(Instruction::OpCode::kDiv, v1, v2, name);
-    }
 
     Value* IRBuilder::emitMod(Value* v1, Value* v2) {
         return _EmitBinaryIns<BinaryOpIns>(Instruction::OpCode::kMod, v1, v2);
     }
 
-    Value* IRBuilder::emitMod(Value* v1, Value* v2, const char* name) {
-        return _EmitBinaryIns<BinaryOpIns>(Instruction::OpCode::kMod, v1, v2, name);
-    }
 
 
     Value* IRBuilder::emitAnd(Value* v1, Value* v2) {
         return _EmitBinaryIns<BinaryOpIns>(Instruction::OpCode::kAnd, v1, v2);
     }
 
-    Value* IRBuilder::emitAnd(Value* v1, Value* v2, const char* name) {
-        return _EmitBinaryIns<BinaryOpIns>(Instruction::OpCode::kAnd, v1, v2, name);
-    }
 
 
     Value* IRBuilder::emitOr(Value* v1, Value* v2) {
         return _EmitBinaryIns<BinaryOpIns>(Instruction::OpCode::kOr, v1, v2);
     }
 
-    Value* IRBuilder::emitOr(Value* v1, Value* v2, const char* name) {
-        return _EmitBinaryIns<BinaryOpIns>(Instruction::OpCode::kOr, v1, v2, name);
-    }
 
 
     Value* IRBuilder::emitBitAnd(Value* v1, Value* v2) {
         return _EmitBinaryIns<BinaryOpIns>(Instruction::OpCode::kAdd, v1, v2);
     }
 
-    Value* IRBuilder::emitBitAnd(Value* v1, Value* v2, const char* name) {
-        return _EmitBinaryIns<BinaryOpIns>(Instruction::OpCode::kAdd, v1, v2, name);
-    }
 
 
     Value* IRBuilder::emitBitOr(Value* v1, Value* v2) {
         return _EmitBinaryIns<BinaryOpIns>(Instruction::OpCode::kBitOr, v1, v2);
     }
 
-    Value* IRBuilder::emitBitOr(Value* v1, Value* v2, const char* name) {
-        return _EmitBinaryIns<BinaryOpIns>(Instruction::OpCode::kBitOr, v1, v2, name);
-    }
 
 
 
@@ -227,41 +181,26 @@ namespace IR {
         return _EmitBinaryIns<BinaryOpIns>(Instruction::OpCode::kBitXor, v1, v2);
     }
 
-    Value* IRBuilder::emitBitXor(Value* v1, Value* v2, const char* name) {
-        return _EmitBinaryIns<BinaryOpIns>(Instruction::OpCode::kBitXor, v1, v2, name);
-    }
 
     Value* IRBuilder::emitDot(Value* v1, Value* v2) {
         return _EmitBinaryIns<BinaryOpIns>(Instruction::OpCode::kDot, v1, v2);
     }
 
-    Value* IRBuilder::emitDot(Value* v1, Value* v2, const char* name) {
-        return _EmitBinaryIns<BinaryOpIns>(Instruction::OpCode::kDot, v1, v2, name);
-    }
 
     Value* IRBuilder::emitCross(Value* v1, Value* v2) {
         return _EmitBinaryIns<BinaryOpIns>(Instruction::OpCode::kCross, v1, v2);
     }
 
-    Value* IRBuilder::emitCross(Value* v1, Value* v2, const char* name) {
-        return _EmitBinaryIns<BinaryOpIns>(Instruction::OpCode::kCross, v1, v2, name);
-    }
 
     Value* IRBuilder::emitTransposiont(Value* v) {
         return _EmitUnaryIns<UnaryOpIns>(IR::Instruction::OpCode::kT, v);
     }
 
-    Value* IRBuilder::emitTransposiont(Value* v, const char* name) {
-        return _EmitUnaryIns<UnaryOpIns>(IR::Instruction::OpCode::kT, v, name);
-    }
 
     Value* IRBuilder::emitInvert(Value* v) {
         return _EmitUnaryIns<UnaryOpIns>(Instruction::OpCode::kInvert, v);
     }
 
-    Value* IRBuilder::emitInvert(Value* v, const char* name) {
-        return _EmitUnaryIns<UnaryOpIns>(Instruction::kInvert, v, name);
-    }
 
     Function* IRBuilder::emitFunction(const char* name, FunctionType* type) {
         auto func = IR::allocator<Function>().alloc(name, type);
@@ -271,11 +210,6 @@ namespace IR {
 
     template<typename T>
     Value* IRBuilder::_EmitUnaryIns(Instruction::OpCode op, Value* v) {
-        return _EmitUnaryIns<T>(op, v, nullptr);
-    }
-
-    template<typename T>
-    Value* IRBuilder::_EmitUnaryIns(Instruction::OpCode op, Value* v, const char* name) {
         if (false == Instruction::isUnaryOp(op)) {
             return nullptr;
         }
@@ -292,30 +226,37 @@ namespace IR {
             else {
                 nameAlloc = cfunc->getNameAlloc();
             }
-            std::string valueName;
-            if (nullptr == name) {
-                valueName = nameAlloc->allocTemporaryName();
-            }
-            else {
-                valueName = nameAlloc->allocName(name);
-            }
-            auto ins = _AddInsToIRContext(IR::allocator<T>().alloc(op, v->getType(), valueName, v));
-            auto value = ins->getRetValue();
-            if (nullptr != value) {
-                v->addUser(value);
+            std::string valueName = nameAlloc->allocTemporaryName();
+            IR::Value* result = emitAlloc(v->getType(), valueName.c_str());
+            auto ins = _AddInsToIRContext(IR::allocator<T>().alloc(op, v, result));
+            if (nullptr != result) {
+                v->addUser( result);
             }
             return ins->getRetValue();
         }
     }
 
     template<typename T>
-    Value* IRBuilder::_EmitBinaryIns(Instruction::OpCode op, Value* v1, Value* v2) {
-        return _EmitBinaryIns<T>(op, v1, v2, (const char*)nullptr);
+    Value* IRBuilder::_EmitUnaryIns(Instruction::OpCode op, Value* v,Value * result) {
+        if (false == Instruction::isUnaryOp(op)) {
+            return nullptr;
+        }
+        else {
+            if (auto errorIns =_CheckTypeIsCompatibleWithReturn(op, v, v)) {
+                auto ins = _AddInsToIRContext(errorIns);
+                return ins->getRetValue();
+            }
+            auto ins = _AddInsToIRContext(IR::allocator<T>().alloc(op, v, result));
+            auto result = ins->getRetValue();
+            if (nullptr != result) {
+                v->addUser(result);
+            }
+            return ins->getRetValue();
+        }
     }
 
-
     template<typename T>
-    Value* IRBuilder::_EmitBinaryIns(Instruction::OpCode op, Value* v1, Value* v2, const char* name) {
+    Value* IRBuilder::_EmitBinaryIns(Instruction::OpCode op, Value* v1, Value* v2 ) {
         if (false == Instruction::isBinaryOp(op)) {
             return nullptr;
         }
@@ -332,51 +273,34 @@ namespace IR {
             else {
                 nameAlloc = cfunc->getNameAlloc();
             }
-            std::string valueName;
-            if (nullptr == name) {
-                valueName = nameAlloc->allocTemporaryName();
+            std::string valueName = nameAlloc->allocTemporaryName();
+            IR::Value * result = emitAlloc(v1->getType(),valueName.c_str() );
+            auto ins = _AddInsToIRContext(IR::allocator<T>().alloc(op, v1, v2, result));
+            if (nullptr != result) {
+                cfunc->insertValue( result);
+                v1->addUser( result);
+                v2->addUser( result);
             }
-            else {
-                valueName = nameAlloc->allocName(name);
-            }
-            auto ins = _AddInsToIRContext(IR::allocator<T>().alloc(op, valueName, v1->getType(), v1, v2));
-            auto value = ins->getRetValue( );
-            if (nullptr != value) {
-                cfunc->insertValue(value);
-                v1->addUser(value);
-                v2->addUser(value);
-            }
-            return value;
+            return result;
         }
     }
     
     template<typename T>
-    Value* IRBuilder::_EmitBinaryIns( Instruction::OpCode op, Value* v1, Value* v2, Value * vResult ) {
+    Value* IRBuilder::_EmitBinaryIns( Instruction::OpCode op, Value* v1, Value* v2, Value * result ) {
         if (false == Instruction::isBinaryOp(op)) {
             return nullptr;
         }
         else {
-            if (auto errorIns = _CheckTypeIsCompatibleWithReturn(op, v1, v2,vResult)) {
+            if (auto errorIns = _CheckTypeIsCompatibleWithReturn(op, v1, v2,result)) {
                 auto ins = _AddInsToIRContext(errorIns);
                 return ins->getRetValue();
             }
-            auto cfunc = m_context->getCurrentFunction();
-            std::shared_ptr<NameAlloc> nameAlloc;
-            if (nullptr == cfunc) {
-                nameAlloc = m_context->getNameAlloc();
+            auto ins = _AddInsToIRContext(IR::allocator<T>().alloc(op,v1, v2, result));
+            if (nullptr != result) {
+                v1->addUser( result);
+                v2->addUser( result);
             }
-            else {
-                nameAlloc = cfunc->getNameAlloc();
-            }
-            std::string valueName;
-            valueName = nameAlloc->allocTemporaryName();
-            auto ins = _AddInsToIRContext(IR::allocator<T>().alloc(op, valueName, v1->getType(), v1, v2));
-            auto value = ins->getRetValue();
-            if (nullptr != value) {
-                v1->addUser(value);
-                v2->addUser(value);
-            }
-            return value;
+            return result;
         }
     }
 
@@ -385,8 +309,6 @@ namespace IR {
         m_context->_IRBuilder_PushIns( static_cast<IR::Instruction*>(ins) );
         return ins;
     }
-
-
 
 
     Instruction* IRBuilder::_CheckTypeIsCompatibleWithReturn(Instruction::OpCode op, Value* v1, Value* retValue) {

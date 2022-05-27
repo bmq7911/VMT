@@ -3,6 +3,7 @@
 #include "SymbolTable/FunctionId.h"
 #include "SymbolTable/ObjectId.h"
 #include "Frontend/AST/AstOther/AstType.h"
+#include "Frontend/AST/AstExpr/AstAssign.h"
 #include "Diagnose/Diagnose.h"
 
 FunctionParser::FunctionParser(std::shared_ptr<TokenReader> reader)
@@ -11,20 +12,18 @@ FunctionParser::FunctionParser(std::shared_ptr<TokenReader> reader)
 
 /// function_def ::= type attribute func_name "=" func_body
 std::shared_ptr<AST::AstFunction> FunctionParser::begin( ) {
-    std::shared_ptr<AST::AstType> type = parseType( );
-    std::shared_ptr<AST::AstAttribute> atrribuye = parseAttribute();
-    auto name = readToken();
-    if( name.notMatch(TokenId::kw_id)){
-        Diagnose::expectBut( TokenId::kw_id, name );
-    }
-    auto tok = readToken();
-    if( tok.notMatch(TokenId::kw_equal)){
-        Diagnose::expectBut( TokenId::kw_equal, tok);
+    //std::shared_ptr<AST::AstType> type = parseType( );
+    //std::shared_ptr<AST::AstAttribute> atrribuye = parseAttribute();
+
+    auto tok = advanceToken();
+    if (tok.notMatch(TokenId::kw_func)) {
+        Diagnose::expectBut(TokenId::kw_func, tok);
         return nullptr;
     }
     tok = readToken();
-    if (tok.notMatch(TokenId::kw_func)) {
-        Diagnose::expectBut(TokenId::kw_func, tok);
+    auto name = readToken( );
+    if (name.notMatch(TokenId::kw_id)) {
+        Diagnose::expectBut(TokenId::kw_id, name);
         return nullptr;
     }
     std::shared_ptr<AST::AstParamList> paramList = parseParamList();
@@ -33,6 +32,7 @@ std::shared_ptr<AST::AstFunction> FunctionParser::begin( ) {
         Diagnose::expectBut(TokenId::kw_arrow, tok);
         return nullptr;
     }
+    std::shared_ptr<AST::AstType> type = parseType();
     std::shared_ptr<AST::AstBlock> block = parseBlock();
     std::shared_ptr<AST::AstFunction> function = std::make_shared<AST::AstFunction>( name, type,paramList, block);
     return function;
@@ -98,15 +98,27 @@ std::shared_ptr<AST::AstParamList>  FunctionParser::parseParamList() {
     else {
         //2.2 there is a param list
         do {
-            auto type = readToken();
+            auto let = readToken();
             //2.2.1 we except the token is a type(id)
-            if (type.notMatch(TokenId::kw_id)) {
-                Diagnose::expectBut(TokenId::kw_id, type);
+            if ( let.notMatch(TokenId::kw_let)) {
+                Diagnose::expectBut(TokenId::kw_let,let);
+                return nullptr;
             }
             auto id = readToken();
             //2.2.2 we ecpect the token is a id
             if (id.notMatch(TokenId::kw_id)) {
                 Diagnose::expectBut(TokenId::kw_id,id);
+                return nullptr;
+            }
+            auto colon = readToken();
+            if (colon.notMatch(TokenId::kw_colon)) {
+                Diagnose::expectBut(TokenId::kw_colon, colon );
+                return nullptr;
+            }
+            auto type = readToken();
+            if (type.notMatch(TokenId::kw_id)) {
+                Diagnose::expectBut(TokenId::kw_id, type);
+                return nullptr;
             }
             paramList->addParam(type, id );
             //2.2.3 check to see if there is a next param
@@ -196,7 +208,7 @@ std::shared_ptr<AST::AstStmt> FunctionParser::parseStmt() {
         if (expr) {
             stmt = std::make_shared<AST::AstExprStmt>(expr);
             tok = readToken();
-            tok.match( TokenId::kw_semi);
+            tok.match( TokenId::kw_semi );
         }
         else {
             return stmt;
@@ -328,76 +340,48 @@ std::shared_ptr<AST::AstStmt>                FunctionParser::parseReturn() {
 //           这里不回溯,是不行的
 std::shared_ptr<AST::AstExpr>                FunctionParser::parseDeclOrExpr() {
     Token tok = advanceToken();
-    if (tok.match(TokenId::kw_id)) {
-        // 这里就会存在一个问题,那就是
-        // 如果这里引入符号表,问题就不一样了
-        tok = readToken();
-        auto nextToken = advanceToken();
-        if (nextToken.match(TokenId::kw_id)) { // this condition indicate that there is a declaretion express
-            auto type = tok;
-            std::shared_ptr<AST::AstDecls> decls = std::make_shared<AST::AstDecls>( );
-            do {
-                auto name = readToken();
-                tok = readToken();
-                if (tok.notMatch(TokenId::kw_equal)) {
-                
-                }
-                std::shared_ptr<AST::AstExpr>   expr = parseCommaExpr();
-                std::shared_ptr<AST::AstAssign> assignExpr = std::make_shared<AST::AstAssign>( name , expr );
-                std::shared_ptr<AST::AstDecl>   declExpr   = std::make_shared<AST::AstDecl>( type, name, assignExpr );
-                tok = advanceToken();
-                
-                decls->push( declExpr);
-            } while ( tok.match(TokenId::kw_comma));
-            return decls;
-        }
-        else { /// with must a expr
-            /// <summary>
-            nextToken = readToken( );
-            auto leftExpr = std::make_shared<AST::AstVariableObjExpr>(tok);
-            auto rightExpr = parseCommaExpr( );
-            if (nullptr == rightExpr) {
-                return leftExpr;
-            }
-            else {
-                return std::make_shared<AST::AstBinaryOpExpr>( leftExpr, rightExpr, nextToken);
-            }
-            //return 
-        }
+    if (tok.match(TokenId::kw_let)) {
+        return parseDecl( );
     }
     else {
-        return parseExpr( );
+        return parseCommaExpr();
     }
+   
 
 }
 
 
-std::shared_ptr<AST::AstExpr>            FunctionParser::parseDecl(std::shared_ptr<ENV::TypeId> type) {
-    
-    Token mark;
-    std::shared_ptr<AST::AstExprs> exprs = std::make_shared<AST::AstExprs>();
-    do {
-        Token id = readToken();
-        id.match( TokenId::kw_id);
-        mark = readToken();
-        if (mark.match(TokenId::kw_equal)) {
-            std::shared_ptr<AST::AstExpr> assignExpr = parseAssignExpr();
-            std::shared_ptr<AST::AstObjectExpr> objExpr = std::make_shared<AST::AstObjectExpr>(id);
-            std::shared_ptr<AST::AstBinaryOpExpr> assignOp = AST::AstBinaryOpExpr::makeBinaryOpExpr(objExpr, assignExpr, mark);
-            exprs->add(assignOp);
-
-            mark = getToken();
+std::shared_ptr<AST::AstExpr>            FunctionParser::parseDecl( ) {
+    Token let = readToken();
+    if (let.notMatch(TokenId::kw_let)) {
+        Diagnose::expectBut(TokenId::kw_let, let);
+        return nullptr;
+    }
+    auto id = readToken();
+    if (id.notMatch(TokenId::kw_id)) {
+        Diagnose::expectBut(TokenId::kw_id,id);
+        return nullptr;
+    }
+    Token type;
+    auto colon = advanceToken();
+    if (colon.match(TokenId::kw_colon)) {
+        colon = readToken();
+        type = readToken();
+        if (type.notMatch(TokenId::kw_id)) {
+            Diagnose::expectBut(TokenId::kw_id, type);
+            return nullptr;
         }
-        else {
-            std::shared_ptr<AST::AstObjectExpr> objExpr = std::make_shared<AST::AstObjectExpr>(id );
-            exprs->add(objExpr);
-        }
-    } while (mark.match(TokenId::kw_comma));
-
-
-    return exprs;
-    
-    return nullptr;
+        colon = advanceToken();
+    }
+    if (colon.notMatch(TokenId::kw_equal)) {
+        Diagnose::expectBut(TokenId::kw_equal, colon);
+        return nullptr;
+    }
+    readToken( );
+    std::shared_ptr<AST::AstExpr> expr = parseCommaExpr();
+    std::shared_ptr<AST::AstAssign> assignOp = std::make_shared<AST::AstAssign>(id, expr);
+    std::shared_ptr<AST::AstDecl> declExpr = std::make_shared<AST::AstDecl>( type,id, assignOp );
+    return declExpr;
 }
 // comma_expr ::= comma_expr , assigneExpr
 //            -> assignExpr, assignExpr, assignExpr, ... , assignExpr
@@ -514,8 +498,9 @@ std::shared_ptr<AST::AstExpr>                FunctionParser::parseEquality() {
 
 std::shared_ptr<AST::AstExpr>                FunctionParser::parseRel() {
     std::shared_ptr<AST::AstExpr>  binaryOpExpr = parseExpr();
-    Token tok = readToken();
+    Token tok = advanceToken();
     if (tok.match(TokenId::kw_less) || tok.match(TokenId::kw_lessequal) || tok.match(TokenId::kw_greater) || tok.match(TokenId::kw_greaterequal)) {
+        tok = readToken( );
         std::shared_ptr<AST::AstExpr> right = parseExpr();
         //auto type = binaryOpExpr->getTypeId( );
         //binaryOpExpr = std::make_shared<AST::AstBinaryOpExpr>(binaryOpExpr, right, tok);

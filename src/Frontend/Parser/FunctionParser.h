@@ -23,7 +23,7 @@ public:
     std::shared_ptr<AST::AstStmt>            parseReturn();
 
     std::shared_ptr<AST::AstExpr>            parseDeclOrExpr();
-    std::shared_ptr<AST::AstExpr>            parseDecl( std::shared_ptr<ENV::TypeId> type);
+    std::shared_ptr<AST::AstExpr>            parseDecl();
     
     std::shared_ptr<AST::AstExpr>            parseCommaExpr();
     std::shared_ptr<AST::AstExpr>            parseAssignExpr();

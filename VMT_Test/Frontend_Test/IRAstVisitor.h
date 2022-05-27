@@ -9,6 +9,8 @@
 #include "SymbolTable/RealType.h"
 #include "SymbolTable/BoolType.h"
 #include "Backend/IR/IRBuilder.h"
+#include <iostream>
+
 namespace TS {
 
     class CollectIRValue : public AST::ICollectInfoBack {
@@ -47,7 +49,7 @@ namespace TS {
 
         void visitFunction(AST::AstFunction* astFunction, AST::ICollectInfoBack * collect ) {
             std::shared_ptr<ENV::Env> env = std::make_shared<ENV::Env>( );
-            env->mount(_GetCurrentEnv());
+            ENV::EnvRAII lock( env, _GetCurrentEnv());
             _SetCurrentEnv(env);
             auto funNameTok= astFunction->getFunctionName();
             IR::Function* ir_function = IR::IRBuilder(m_context).emitFunction( funNameTok.toStringView().data(), nullptr );
@@ -77,7 +79,13 @@ namespace TS {
             }
             auto block = astFunction->getFunctionBlock();
             block->gen(std::enable_shared_from_this<AST_IR_Codegen>::shared_from_this(), collect );
-            env->unmount();
+
+            {
+                auto function = m_context->getCurrentFunction();
+                for (auto iter = function->begin(); iter != function->end(); iter->getNext()) {
+                    std::cout << iter->getOpStr() << std::endl;
+                }
+            }
         }
 
         void visitForStmt(AST::AstForStmt*, AST::ICollectInfoBack* collect) override {
@@ -103,7 +111,8 @@ namespace TS {
         void visitContinueStmt(AST::AstContinueStmt*, AST::ICollectInfoBack* collect) override {}
         void visitExprStmt(AST::AstExprStmt* astExprStmt, AST::ICollectInfoBack* collect) override {
             auto expr = astExprStmt->getExpr( );
-            expr->reduce( std::enable_shared_from_this<AST_IR_Codegen>::shared_from_this(), collect);
+            CollectIRValue collectValue;
+            expr->reduce( std::enable_shared_from_this<AST_IR_Codegen>::shared_from_this(), &collectValue);
         }
         void visitType(AST::AstType*, AST::ICollectInfoBack* collect) override {}
         void visitParamList(AST::AstParamList*, AST::ICollectInfoBack* collect) override {}
@@ -123,7 +132,10 @@ namespace TS {
             CollectIRValue collectValue2;
             auto rleftExpr = leftExpr->reduce(std::enable_shared_from_this<AST_IR_Codegen>::shared_from_this(), &collectValue1);
             auto rrightExpr = rightExpr->reduce(std::enable_shared_from_this<AST_IR_Codegen>::shared_from_this(),&collectValue2);
-                
+            auto tok = astBinaryOpExpr->getOp();
+            
+
+
             IR::Instruction::OpCode op = _GetBinaryOpCode(astBinaryOpExpr->getOp());
             IR::Value* v = IR::IRBuilder(m_context).emitBinaryOpIns(op,collectValue1.getValue(), collectValue2.getValue());
             static_cast<CollectIRValue*>(collect)->setValue(v);
@@ -254,6 +266,7 @@ namespace TS {
         }
         
     private:
+
         std::shared_ptr<ENV::Env>      m_env;
         std::shared_ptr<ENV::Env>      m_currentEnv;
         std::shared_ptr<IR::IRContext> m_context;

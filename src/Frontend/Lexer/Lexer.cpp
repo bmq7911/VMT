@@ -84,7 +84,7 @@ void Lexer::nextLine() {
 
 ///
 ///
-Token Lexer::_ScanConstant() {
+Token Lexer::_ScanConstant( ) {
     
     int v = 0;
     do { /// 这里没有处理进制问题
@@ -96,6 +96,7 @@ Token Lexer::_ScanConstant() {
         return tok;
     }
     else {
+        m_peek = _Readch( );
         float x = v; float d = 10;
         for (;;) {
             if (!std::isdigit(m_peek)) 

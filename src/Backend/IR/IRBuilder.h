@@ -43,53 +43,35 @@ namespace IR {
         Label* emitLabel(std::string const& label);
         Label* emitLabel(const char* label);
         Value* emitSin(Value* v);
-        Value* emitSin(Value* v, const char* name);
         Value* emitCos(Value* v);
-        Value* emitCos(Value* v, const char* name);
         Value* emitTan(Value* v);
-        Value* emitTan(Value* v, const char* name);
         Value* emitAdd(Value* v1, Value* v2);
-        Value* emitAdd(Value* v1, Value* v2, const char* name);
-        void   emitAdd(Value* v1, Value* v2, Value* result);
+        void emitAdd(Value* v1, Value* v2, Value* result);
         Value* emitMinus(Value* v1, Value* v2);
-        Value* emitMinus(Value* v1, Value* v2, const char * name);
-        Value* emitMul(Value* v1, Value* v2, const char* name);
+        Value* emitMul(Value* v1, Value* v2);
         Value* emitDiv(Value* v1, Value* v2);
-        Value* emitDiv(Value* v1, Value* v2, const char* name);
         Value* emitMod(Value* v1, Value* v2);
-        Value* emitMod(Value* v1, Value* v2, const char* name);
         Value* emitAnd(Value* v1, Value* v2);
-        Value* emitAnd(Value* v1, Value* v2, const char* name);
         Value* emitOr(Value* v1, Value* v2);
-        Value* emitOr(Value* v1, Value* v2, const char* name);
         Value* emitBitAnd(Value* v1, Value* v2);
-        Value* emitBitAnd(Value* v1, Value* v2, const char* name);
         Value* emitBitOr(Value* v1, Value* v2);
-        Value* emitBitOr(Value* v1, Value* v2, const char* name);
         Value* emitBitXor(Value* v1, Value* v2);
-        Value* emitBitXor(Value* v1, Value* v2, const char* name);
         Value* emitDot(Value* v1, Value* v2);
-        Value* emitDot(Value* v1, Value* v2, const char* name);
         Value* emitCross(Value* v1, Value* v2);
-        Value* emitCross(Value* v1, Value* v2, const char* name);
         Value* emitTransposiont(Value* v);
-        Value* emitTransposiont(Value* v, const char* name);
         Value* emitInvert(Value* v);
-        Value* emitInvert(Value* v, const char* name);
         Function* emitFunction(const char* name, FunctionType* type);
     private:
         template<typename T>
         Value* _EmitUnaryIns(Instruction::OpCode op, Value* v);
         template<typename T>
-        Value* _EmitUnaryIns(Instruction::OpCode op, Value* v, const char* name);
+        Value* _EmitUnaryIns(Instruction::OpCode op, Value* v, Value* result);
         template<typename T>
         Value* _EmitBinaryIns(Instruction::OpCode op, Value* v1, Value* v2);
 
         template<typename T>
         Value* _EmitBinaryIns(Instruction::OpCode op, Value* v1, Value* v2, Value* vResult);
 
-        template<typename T>
-        Value* _EmitBinaryIns(Instruction::OpCode op, Value* v1, Value* v2, const char* name);
     private:
         template<typename T, typename U = typename std::enable_if<std::is_base_of<Instruction,T>::value>::type >
         T* _AddInsToIRContext(T* ins);
