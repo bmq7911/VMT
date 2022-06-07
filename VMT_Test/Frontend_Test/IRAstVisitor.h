@@ -133,13 +133,76 @@ namespace TS {
             auto rleftExpr = leftExpr->reduce(std::enable_shared_from_this<AST_IR_Codegen>::shared_from_this(), &collectValue1);
             auto rrightExpr = rightExpr->reduce(std::enable_shared_from_this<AST_IR_Codegen>::shared_from_this(),&collectValue2);
             auto tok = astBinaryOpExpr->getOp();
-            
+            IR::Instruction::OpCode opCode = IR::Instruction::OpCode::kError;
+            std::string op = tok.toString();
+            struct map {
+                const char* str;
+                IR::Instruction::OpCode op;
 
+            };
+            static const map strOpCode[] = {
+                {"+",IR::Instruction::OpCode::kAdd},
+                {"-",IR::Instruction::OpCode::kMinus},
+                {"*",IR::Instruction::OpCode::kMul},
+                {"/",IR::Instruction::OpCode::kDiv},
+                {"%",IR::Instruction::OpCode::kMod},
+                {"**",IR::Instruction::OpCode::kExp},
+            };
+            for (size_t i = 0; i < sizeof(strOpCode) / sizeof(strOpCode[0]); ++i) {
+                if (op == strOpCode[i].str){
+                    opCode = strOpCode[i].op;
+                    break;
+                }
+            }
+            auto f = [this,&collectValue1,&collectValue2,&collect ](IR::Instruction::OpCode op1, IR::Instruction::OpCode op2) {
+                    IR::Value* v = IR::IRBuilder(m_context).emitBinaryOpIns(IR::Instruction::OpCode::kAdd, collectValue1.getValue(), collectValue2.getValue());
+                    IR::Value* v2 = IR::IRBuilder(m_context).emitAssign(collectValue1.getValue(), v);
+                    static_cast<CollectIRValue*>(collect)->setValue(v2);
+            };
+            if (opCode == IR::Instruction::OpCode::kError) {
+                if (op == "+=") {
+                    f( IR::Instruction::OpCode::kAdd, IR::Instruction::OpCode::kAssign);
+                    return nullptr;
+                }
+                else if (op == "-=") {
+                    f(IR::Instruction::OpCode::kMinus, IR::Instruction::OpCode::kAssign);
+                    return nullptr;
+                }
+                else if (op == "*=") {
+                    f(IR::Instruction::OpCode::kMul, IR::Instruction::OpCode::kAssign);
+                    return nullptr;
+                }
+                else if (op == "/=") {
+                    f(IR::Instruction::OpCode::kDiv, IR::Instruction::OpCode::kAssign);
+                    return nullptr;
+                }
+                else if (op == "%=") {
+                    f(IR::Instruction::OpCode::kMod, IR::Instruction::OpCode::kAssign);
+                    return nullptr;
+                }
+                else if (op == "|=") {
+                
+                }
+                else if (op == "&=") {
+                
+                }
+                else if (op == "^=") {
+                    
+                }
+                else if (op == "<<=") {
+                
+                }
+                else if (op == ">>=") {
+                
+                }
+                return nullptr;
+            }
+            else {
 
-            IR::Instruction::OpCode op = _GetBinaryOpCode(astBinaryOpExpr->getOp());
-            IR::Value* v = IR::IRBuilder(m_context).emitBinaryOpIns(op,collectValue1.getValue(), collectValue2.getValue());
-            static_cast<CollectIRValue*>(collect)->setValue(v);
-            return nullptr;
+                IR::Value* v = IR::IRBuilder(m_context).emitBinaryOpIns(opCode, collectValue1.getValue(), collectValue2.getValue());
+                static_cast<CollectIRValue*>(collect)->setValue(v);
+                return nullptr;
+            }
         }
         std::shared_ptr<AST::AstObjectExpr> reduceUnaryOpExpr(AST::AstUnaryOpExpr* astUnaryExpr, AST::ICollectInfoBack* collect) override {
             auto rightExpr = astUnaryExpr->getExpr( );
@@ -174,7 +237,7 @@ namespace TS {
         std::shared_ptr<AST::AstObjectExpr> reduceObjectExpr(AST::AstObjectExpr* astObjectExpr, AST::ICollectInfoBack* collect) override {
             /// 这里最重要的逻辑就是查询当前已分配的节点数据,也就是IValue
             CollectIRValue collectValue;
-            auto env = _GetCurrentEnv();
+            auto env = _GetCurrentEnv( );
             auto value = env->find( std::string(astObjectExpr->getObject().toStringView()));
             if (nullptr != value) {
                 static_cast<CollectIRValue*>(collect)->setValue(value);
@@ -202,7 +265,7 @@ namespace TS {
                 Diagnose::errorMsg("can not find the type");
             }
             else {
-                auto type = m_context->getTypeManger().getTypeFromName( envType->getSymbolName().data() );
+                auto type = m_context->getTypeManger().getTypeFromName(envType->getSymbolName());
                 std::string str(astDecl->getName().toStringView());
                 v = IR::IRBuilder(m_context).emitAlloc( type, str.c_str() );
                 env->put( str, v );

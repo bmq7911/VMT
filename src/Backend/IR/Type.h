@@ -7,7 +7,6 @@ namespace IR {
     /// type系统是很重要的
     class Type {
     public:
-
         virtual bool isVoidType( ) const = 0;
         virtual bool isBoolType( ) const = 0;
         virtual bool isIntegerType( ) const = 0;
@@ -132,10 +131,14 @@ namespace IR {
 
     class VectorType : public Type{
     public:
-        enum RC_TYPE {
-            kRow,
-            kCol,
-        };
+        VectorType(uint32_t dimSize, Type* baseType)
+            : m_dimSize( dimSize )
+            , m_basicType( baseType )
+        {
+        }
+        bool isVoidType() const override {
+            return false;
+        }
         bool isBoolType() const override {
             return false;
         }
@@ -165,11 +168,22 @@ namespace IR {
         
         uint32_t m_dimSize;
         Type* m_basicType;
-        RC_TYPE m_type;
     };
     
     class MatrixType : public Type{
     public:
+        MatrixType(uint32_t x, uint32_t y,uint32_t z, Type* baseType ) 
+            : m_dimSizeX( x)
+            , m_dimSizeY( y)
+            , m_dimSizeZ( z)
+            , m_basicType ( baseType)
+        {}
+        bool isVoidType() const override {
+            return false;
+        }
+        bool isMatrixType() const override {
+            return true;
+        }
         bool isBoolType() const override {
             return false;
         }
@@ -187,33 +201,16 @@ namespace IR {
         }
         Type const* isSupportOp(Instruction::OpCode)  const override;
     public:
-        uint32_t getDimSize() const {
-            return m_dimSize.size();
-        }
-        uint32_t atDim(uint32_t index) const {
-            return m_dimSize.at( index );
-        }
         Type* getType() const {
             return m_basicType;
         }
     private:
-        std::vector<uint32_t> m_dimSize;
+        uint32_t m_dimSizeX;
+        uint32_t m_dimSizeY;
+        uint32_t m_dimSizeZ;
         Type* m_basicType;
     };
 
-    class StructType : public Type {
-
-    };
-    class ClassType : public Type {
-
-    };
-    class EnumType : public Type {
-
-
-    };
-    class UnionType : public Type {
-
-    };
 
     class FunctionType : public Type {
     public:
@@ -261,21 +258,6 @@ namespace IR {
             _InitBasicType();
         }
 
-        Type * getFloatType( uint32_t size) const{
-            auto iter = m_floatTypeMap.find(size);
-            if (iter == m_floatTypeMap.end()) {
-                return nullptr;
-            }
-            return iter->second;
-        }
-
-        Type* getIntegerType(uint32_t size) const {
-            auto iter = m_integerTypeMap.find(size);
-            if (iter == m_integerTypeMap.end()) {
-                return nullptr;
-            }
-            return iter->second;
-        }
         Type* getVoidType() const {
             return m_voidType;
         }
@@ -292,82 +274,167 @@ namespace IR {
             return nullptr;
         }
 
-        Type* getTypeFromName(std::string const& name) const {
-            return nullptr;
-        }
 
-        Type* getTypeFromName(const char* name) const {
-            return nullptr;
-        }
-
-        Type* getVectorType(Type* type, size_t n)  const {
-            return nullptr;
-        }
-
-        void AddVectorType(uint32_t size, Type* type) {
-        
-        }
-
-        void AddMatrixType(uint32_t size, Type* type) {
-        
-        }
-
-        void AddFunctionType(Type* ret, std::vector<Type*> param) {
-        
-        }
-
-        void AddStructType( ){
-        
-        }
     private:
         void _InitBasicType() {
-            _InitIntegerType();
-            _InitFloatType();
             
             m_typeMap.insert(std::make_pair( "bool", m_boolType));
             m_typeMap.insert(std::make_pair( "void", m_voidType));
-
+            
+            _InitType();
 
         }
-        void _InitIntegerType() {
-#define __IR_INSERT_INTEGER_TYPE(x)\
-            auto ptr_##x = new IntegerType( x );\
-            m_integerTypeMap.insert(std::make_pair(x, ptr_##x));\
-            m_typeMap.insert(std::make_pair("i"#x, ptr_##x ));
+        void _InitType() {
+ #define __IR_INSERT_INTEGER_TYPE(x)\
+            auto ptr_i##x = new IntegerType( x );\
+            m_typeMap.insert(std::make_pair("i"#x, ptr_i##x ));
 
-            __IR_INSERT_INTEGER_TYPE(1)
             __IR_INSERT_INTEGER_TYPE(8)
-            __IR_INSERT_INTEGER_TYPE(16)
-            __IR_INSERT_INTEGER_TYPE(32)
-            __IR_INSERT_INTEGER_TYPE(64)
-            __IR_INSERT_INTEGER_TYPE(128)
-            __IR_INSERT_INTEGER_TYPE(256)
-            __IR_INSERT_INTEGER_TYPE(512)
-            __IR_INSERT_INTEGER_TYPE(1024)
-            __IR_INSERT_INTEGER_TYPE(2048)
-            __IR_INSERT_INTEGER_TYPE(4096)
-#undef __INSERT_INTEGER_TYPE
+                __IR_INSERT_INTEGER_TYPE(16)
+                __IR_INSERT_INTEGER_TYPE(32)
+                __IR_INSERT_INTEGER_TYPE(64)
+                __IR_INSERT_INTEGER_TYPE(128)
+                __IR_INSERT_INTEGER_TYPE(256)
+                __IR_INSERT_INTEGER_TYPE(512)
 
-        }
-        void _InitFloatType() {
 #define __IR_INSERT_FLOAT_TYPE(x)\
-            auto ptr_##x = new FloatType( x );\
-            m_floatTypeMap.insert(std::make_pair(x, ptr_##x));\
-            m_typeMap.insert(std::make_pair("f"#x, ptr_##x ));
+            auto ptr_f##x = new FloatType( x );\
+            m_typeMap.insert(std::make_pair("f"#x, ptr_f##x ));
 
                 __IR_INSERT_FLOAT_TYPE(32)
                 __IR_INSERT_FLOAT_TYPE(64)
                 __IR_INSERT_FLOAT_TYPE(128)
-                __IR_INSERT_FLOAT_TYPE(256)
-                __IR_INSERT_FLOAT_TYPE(512)
-                __IR_INSERT_FLOAT_TYPE(1024)
-                __IR_INSERT_FLOAT_TYPE(2048)
-                __IR_INSERT_FLOAT_TYPE(4096)
-#undef __INSERT_INTEGER_TYPE
+
+#define __LINK(x,y) x##_##y
+#define __ELINK(x,y) __LINK(x,y)
+#define __MERAGE(x,y) x##y
+#define __XMERAGE(x,y) __MERAGE(x,y) 
+#define _IR_INSERT_VECTOR_TYPE(n,y,x) auto __LINK(__XMERAGE(__XMERAGE(vec,n),y),x) = new VectorType( x,ptr_##n##y );\
+            m_typeMap.insert(std::make_pair("vec<"#n#y","#x">", __LINK(__XMERAGE(__XMERAGE(vec,n),y),x) ));
+
+
+                _IR_INSERT_VECTOR_TYPE(i,8,2)
+                _IR_INSERT_VECTOR_TYPE(i,16,2)
+                _IR_INSERT_VECTOR_TYPE(i,32,2)
+                _IR_INSERT_VECTOR_TYPE(i,64,2)
+                _IR_INSERT_VECTOR_TYPE(i,128,2)
+                _IR_INSERT_VECTOR_TYPE(i,256,2)
+                _IR_INSERT_VECTOR_TYPE(i,512,2)
+
+
+                _IR_INSERT_VECTOR_TYPE(i,8,3)
+                _IR_INSERT_VECTOR_TYPE(i,16,3)
+                _IR_INSERT_VECTOR_TYPE(i,32,3)
+                _IR_INSERT_VECTOR_TYPE(i,64,3)
+                _IR_INSERT_VECTOR_TYPE(i,128,3)
+                _IR_INSERT_VECTOR_TYPE(i,256,3)
+                _IR_INSERT_VECTOR_TYPE(i,512,3)
+
+
+                _IR_INSERT_VECTOR_TYPE(i,8,4)
+                _IR_INSERT_VECTOR_TYPE(i,16,4)
+                _IR_INSERT_VECTOR_TYPE(i,32,4)
+                _IR_INSERT_VECTOR_TYPE(i,64,4)
+                _IR_INSERT_VECTOR_TYPE(i,128,4)
+                _IR_INSERT_VECTOR_TYPE(i,256,4)
+                _IR_INSERT_VECTOR_TYPE(i,512,4)
+
+
+                _IR_INSERT_VECTOR_TYPE(f,32,2)
+                _IR_INSERT_VECTOR_TYPE(f,64,2)
+                _IR_INSERT_VECTOR_TYPE(f,128,2)
+
+
+                _IR_INSERT_VECTOR_TYPE(f,32,3)
+                _IR_INSERT_VECTOR_TYPE(f,64,3)
+                _IR_INSERT_VECTOR_TYPE(f,128,3)
+
+
+                _IR_INSERT_VECTOR_TYPE(f,32,4)
+                _IR_INSERT_VECTOR_TYPE(f,64,4)
+                _IR_INSERT_VECTOR_TYPE(f,128,4)
+
+#define __XLINK(X,Y,Z) X##x##Y##x##Z
+#define _IR_INSERT_MATRIX_TYPE(n,c,x,y,z) auto __ELINK(__XMERAGE(__XMERAGE(mat,n),c),__XLINK(x,y,z) ) = new MatrixType( x,y,z,ptr_##n##c );\
+            m_typeMap.insert(std::make_pair("vec<"#n#c"," #x "x" #y "x"#z">", __ELINK(__XMERAGE(__XMERAGE(mat,n),c),__XLINK(x,y,z) )));
+            
+            _IR_INSERT_MATRIX_TYPE(i,8,2,2,1)
+            _IR_INSERT_MATRIX_TYPE(i,16,2,2,1)
+            _IR_INSERT_MATRIX_TYPE(i,32,2,2,1)
+            _IR_INSERT_MATRIX_TYPE(i,64,2,2,1)
+            _IR_INSERT_MATRIX_TYPE(i,128,2,2,1)
+            _IR_INSERT_MATRIX_TYPE(i,256,2,2,1)
+            _IR_INSERT_MATRIX_TYPE(i,512,2,2,1)
+
+            _IR_INSERT_MATRIX_TYPE(i, 8, 2, 3, 1)
+            _IR_INSERT_MATRIX_TYPE(i, 16, 2, 3, 1)
+            _IR_INSERT_MATRIX_TYPE(i, 32, 2, 3, 1)
+            _IR_INSERT_MATRIX_TYPE(i, 64, 2, 3, 1)
+            _IR_INSERT_MATRIX_TYPE(i, 128, 2, 3, 1)
+            _IR_INSERT_MATRIX_TYPE(i, 256, 2, 3, 1)
+            _IR_INSERT_MATRIX_TYPE(i, 512, 2, 3, 1)
+
+            _IR_INSERT_MATRIX_TYPE(i,8,2,4,1)
+            _IR_INSERT_MATRIX_TYPE(i,16,2,4,1)
+            _IR_INSERT_MATRIX_TYPE(i,32,2,4,1)
+            _IR_INSERT_MATRIX_TYPE(i,64,2,4,1)
+            _IR_INSERT_MATRIX_TYPE(i,128,2,4,1)
+            _IR_INSERT_MATRIX_TYPE(i,256,2,4,1)
+            _IR_INSERT_MATRIX_TYPE(i,512,2,4,1)
+
+            _IR_INSERT_MATRIX_TYPE(i,8,3,2,1)
+            _IR_INSERT_MATRIX_TYPE(i,8,3,2,1)
+            _IR_INSERT_MATRIX_TYPE(i,8,3,2,1)
+            _IR_INSERT_MATRIX_TYPE(i,8,3,2,1)
+            _IR_INSERT_MATRIX_TYPE(i,8,3,2,1)
+            _IR_INSERT_MATRIX_TYPE(i,8,3,2,1)
+            _IR_INSERT_MATRIX_TYPE(i,8,3,2,1)
+
+            _IR_INSERT_MATRIX_TYPE(i,8,3,3,1)
+            _IR_INSERT_MATRIX_TYPE(i,8,3,3,1)
+            _IR_INSERT_MATRIX_TYPE(i,8,3,3,1)
+            _IR_INSERT_MATRIX_TYPE(i,8,3,3,1)
+            _IR_INSERT_MATRIX_TYPE(i,8,3,3,1)
+            _IR_INSERT_MATRIX_TYPE(i,8,3,3,1)
+            _IR_INSERT_MATRIX_TYPE(i,8,3,3,1)
+
+            _IR_INSERT_MATRIX_TYPE(i,8,3,4,1)
+            _IR_INSERT_MATRIX_TYPE(i,8,3,4,1)
+            _IR_INSERT_MATRIX_TYPE(i,8,3,4,1)
+            _IR_INSERT_MATRIX_TYPE(i,8,3,4,1)
+            _IR_INSERT_MATRIX_TYPE(i,8,3,4,1)
+            _IR_INSERT_MATRIX_TYPE(i,8,3,4,1)
+            _IR_INSERT_MATRIX_TYPE(i,8,3,4,1)
+
+            _IR_INSERT_MATRIX_TYPE(i,8,4,2,1)
+            _IR_INSERT_MATRIX_TYPE(i,8,4,2,1)
+            _IR_INSERT_MATRIX_TYPE(i,8,4,2,1)
+            _IR_INSERT_MATRIX_TYPE(i,8,4,2,1)
+            _IR_INSERT_MATRIX_TYPE(i,8,4,2,1)
+            _IR_INSERT_MATRIX_TYPE(i,8,4,2,1)
+            _IR_INSERT_MATRIX_TYPE(i,8,4,2,1)
+            
+                    
+            _IR_INSERT_MATRIX_TYPE(i,8,4,3,1)
+            _IR_INSERT_MATRIX_TYPE(i,8,4,3,1)
+            _IR_INSERT_MATRIX_TYPE(i,8,4,3,1)
+            _IR_INSERT_MATRIX_TYPE(i,8,4,3,1)
+            _IR_INSERT_MATRIX_TYPE(i,8,4,3,1)
+            _IR_INSERT_MATRIX_TYPE(i,8,4,3,1)
+            _IR_INSERT_MATRIX_TYPE(i,8,4,3,1)
+
+            _IR_INSERT_MATRIX_TYPE(i,8,4,4,1)
+            _IR_INSERT_MATRIX_TYPE(i,8,4,4,1)
+            _IR_INSERT_MATRIX_TYPE(i,8,4,4,1)
+            _IR_INSERT_MATRIX_TYPE(i,8,4,4,1)
+            _IR_INSERT_MATRIX_TYPE(i,8,4,4,1)
+            _IR_INSERT_MATRIX_TYPE(i,8,4,4,1)
+            _IR_INSERT_MATRIX_TYPE(i,8,4,4,1)
+
+
+
         }
     private:
-        std::map<uint32_t, Type*> m_floatTypeMap;
-        std::map<uint32_t, Type*> m_integerTypeMap;
         BoolType*       m_boolType;
         VoidType*       m_voidType;
         std::map<std::string, Type*> m_typeMap;
