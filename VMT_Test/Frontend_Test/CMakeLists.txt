@@ -11,7 +11,6 @@ else()
 add_compile_options("-std=c++17")
 endif()
 
-
 SET(EXECUTABLE_OUTPUT_PATH ${CMAKE_SOURCE_DIR}/bin)
 
 add_executable( "FrontendTest"  ${all_files}  )

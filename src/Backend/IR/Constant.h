@@ -16,6 +16,33 @@ namespace IR {
 		virtual std::string getValueStr() const = 0;
 	private:
 	};
+	class TrueConstant : public Constant {
+	public:
+		TrueConstant(Type const* type) 
+			: Constant( type )
+			, m_value( true )
+		{
+		}
+		std::string getValueStr() const {
+			return "true";
+		}
+	private:
+		bool m_value;
+	};
+
+	class FalseConstant : public Constant {
+	public:
+		FalseConstant(Type const* type) 
+			: Constant( type )
+			, m_value( false )
+		{
+		}
+		std::string getValueStr() const {
+			return "false";
+		}
+	private:
+		bool m_value;
+	};
 
 	class IntegerConstant : public Constant {
 	public:

@@ -574,24 +574,24 @@ std::shared_ptr<AST::AstExpr>                FunctionParser::parseFactor() {
         //std::shared_ptr<ENV::TypeId> type = ENV::TopEnv::getBasicType(ENV::BasicType::kBool);
         //std::shared_ptr<ENV::ObjectId> id = getEnv()->getObjectId("true");
         //std::shared_ptr<ENV::TypeId>   type = id->getObjType();
-        std::shared_ptr<AST::AstConstantExpr<bool>> objExpr = std::make_shared<AST::AstConstantExpr<bool>>( tok,true);
+        std::shared_ptr<AST::AstConstantExpr> objExpr = std::make_shared<AST::AstConstantExpr>( tok);
         return objExpr;
     }break;
     case TokenId::kw_false: {
         //std::shared_ptr<ENV::ObjectId> id = getEnv()->getObjectId("false");
         //std::shared_ptr<ENV::TypeId> type = id->getObjType();
         //std::shared_ptr<ENV::TypeId> type = ENV::TopEnv::getBasicType(ENV::BasicType::kBool);
-        std::shared_ptr<AST::AstConstantExpr<bool>> objExpr = std::make_shared<AST::AstConstantExpr<bool>>(tok,false);
+        std::shared_ptr<AST::AstConstantExpr> objExpr = std::make_shared<AST::AstConstantExpr>(tok);
         return objExpr;
     }break;
     case TokenId::kw_integer: {
         //std::shared_ptr<ENV::TypeId> type = ENV::TopEnv::getBasicType(ENV::BasicType::kI32);
-        std::shared_ptr<AST::AstConstantExpr<int8_t>> constId = std::make_shared<AST::AstConstantExpr<int8_t>>( tok,1 );
+        std::shared_ptr<AST::AstConstantExpr> constId = std::make_shared<AST::AstConstantExpr>( tok );
         return constId;
     }break;
     case TokenId::kw_real: {
         //std::shared_ptr<ENV::TypeId> type = ENV::TopEnv::getBasicType(ENV::BasicType::kF32);
-        std::shared_ptr<AST::AstConstantExpr<float>> constId = std::make_shared<AST::AstConstantExpr<float>>( tok, 1.0f);
+        std::shared_ptr<AST::AstConstantExpr> constId = std::make_shared<AST::AstConstantExpr>( tok);
         return constId;
     }break;
     default: {

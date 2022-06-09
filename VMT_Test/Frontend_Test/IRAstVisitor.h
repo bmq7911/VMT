@@ -125,6 +125,8 @@ namespace TS {
                 (*iter)->gen( std::enable_shared_from_this<AST_IR_Codegen>::shared_from_this(), collect );
             }
         }
+
+
         std::shared_ptr<AST::AstObjectExpr> reduceBinaryOpExpr(AST::AstBinaryOpExpr* astBinaryOpExpr , AST::ICollectInfoBack* collect) override {
             auto leftExpr = astBinaryOpExpr->getLeft( );
             auto rightExpr = astBinaryOpExpr->getRight( );
@@ -234,6 +236,28 @@ namespace TS {
             static_cast<CollectIRValue*>(collect)->setValue(v);
             return nullptr;
         }
+
+        std::shared_ptr<AST::AstObjectExpr> reduceConstantExpr(AST::AstConstantExpr* astObjectExpr, AST::ICollectInfoBack* collect) override {
+            Token tok = astObjectExpr->getToken();
+            if (tok.getTokenId() == TokenId::kw_integer) {
+                //IR::Value* v = IR::IRBuilder(m_context).emitAlloc(  m_context->getTypeManger().getTypeFromName("i32"), );
+                static_cast<CollectIRValue*>(collect)->setValue(new IR::IntegerConstant(m_context->getTypeManger().getTypeFromName("i32"), std::atoi(tok.toString().c_str())));
+            }
+            else if (tok.getTokenId() == TokenId::kw_real) {
+                static_cast<CollectIRValue*>(collect)->setValue(new IR::FloatConstant(m_context->getTypeManger().getTypeFromName("f32"), std::atof(tok.toString().c_str())));
+            }
+            else if (tok.getTokenId() == TokenId::kw_true) {
+                static_cast<CollectIRValue*>(collect)->setValue(new IR::TrueConstant( m_context->getTypeManger().getTypeFromName("bool")));
+            }
+            else if (tok.getTokenId() == TokenId::kw_false) {
+                static_cast<CollectIRValue*>(collect)->setValue(new IR::FalseConstant(m_context->getTypeManger().getTypeFromName("bool")));
+            }
+            else {
+                _ASSERT(false);
+            }
+            return nullptr;
+        }
+
         std::shared_ptr<AST::AstObjectExpr> reduceObjectExpr(AST::AstObjectExpr* astObjectExpr, AST::ICollectInfoBack* collect) override {
             /// 这里最重要的逻辑就是查询当前已分配的节点数据,也就是IValue
             CollectIRValue collectValue;
