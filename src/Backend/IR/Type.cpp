@@ -155,6 +155,217 @@ namespace IR {
 }
 
 namespace IR {
+    
+
+        TypeParse::TypeParse(std::string_view const& name) 
+            : m_src( name )
+        {}
+
+        Type* TypeParse::parse( TypeManger * manger) {
+            std::string_view ss;
+            std::string name;
+            std::string typeName;
+
+            Token tok = _scan( ss );
+            if (tok == TypeParse::Token::kVEC) {
+                name += "vec";
+                tok = _scan(ss);
+                if (tok != TypeParse::Token::kLAB)
+                    return nullptr;
+                name += "<";
+                tok = _scan(ss);
+                if (tok != TypeParse::Token::kTYPE)
+                    return nullptr;
+
+                typeName = std::string(ss.data(),ss.length() );
+                name += std::string( ss.data(), ss.length());
+
+                tok = _scan(ss);
+                if (tok != TypeParse::Token::kComma)
+                    return nullptr;
+                name += ",";
+                
+                tok = _scan(ss);
+                
+                uint32_t row = 1;
+                uint32_t col = 1;
+
+                if (tok != TypeParse::Token::kNUM)
+                    return nullptr;
+                row = std::atoi(ss.data());
+                name += std::string(ss.data(), ss.length());
+
+                tok = _scan(ss);
+
+                if (tok == TypeParse::Token::kRAB) {
+                    if (row <= 1) {
+                        return nullptr;
+                    }
+                    else {
+                        tok = _scan(ss);
+                        name += ",1>";
+                        if (tok != kEOF)
+                            return nullptr;
+                        else { /// 生成新的数据类型
+                            auto type = manger->getTypeFromName( typeName);
+                            if (nullptr == type) {
+                                return nullptr;
+                            }
+                            else {
+                                return manger->addType<VectorType>(typeName, row, col, type);
+                            }
+                        }
+                    }
+                }
+                else if( tok == TypeParse::Token::kComma) {
+                    if (row != 1) {
+                        return nullptr;
+                    }
+                    else {
+                        tok = _scan(ss);
+                        if (tok != TypeParse::Token::kNUM)
+                            return nullptr;
+                        name += ",";
+                        name += std::string(ss.data(), ss.length());
+                        
+                        tok = _scan(ss);
+                        if (tok != TypeParse::Token::kRAB)
+                            return nullptr;
+                        name += ">";
+
+                        tok = _scan(ss);
+                        if (tok != TypeParse::Token::kEOF)
+                            return nullptr;
+                        else {
+                            auto type = manger->getTypeFromName(typeName);
+                            if (nullptr == type) {
+                                return nullptr;
+                            }
+                            else {
+                                return manger->addType<VectorType>( typeName, row,col, type);
+                            }
+                        }
+                    }
+                }
+                else {
+                    return nullptr;
+                }
+            }
+            else if (tok == TypeParse::Token::kMAT) {
+                name += "mat";
+                tok = _scan(ss);
+                if (tok != TypeParse::Token::kLAB)
+                    return nullptr;
+                name += "<";
+                tok = _scan(ss);
+                if (tok != TypeParse::Token::kTYPE)
+                    return nullptr;
+
+                typeName = std::string(ss.data(), ss.length());
+                name += std::string(ss.data(), ss.length());
+
+                tok = _scan(ss);
+                if (tok != TypeParse::Token::kComma)
+                    return nullptr;
+                name += ",";
+
+                tok = _scan(ss);
+
+                uint32_t row = 1;
+                uint32_t col = 1;
+
+                if (tok != TypeParse::Token::kNUM)
+                    return nullptr;
+                row = std::atoi(ss.data());
+                name += std::string(ss.data(), ss.length());
+
+                tok = _scan(ss);
+                if (tok != TypeParse::Token::kComma)
+                    return nullptr;
+                name += ",";
+
+                tok = _scan(ss);
+                if (tok != TypeParse::Token::kNUM)
+                    return nullptr;
+                col = std::atoi(ss.data());
+                name += std::string( ss.data(), ss.length());
+                
+                if (tok != TypeParse::Token::kRAB)
+                    return nullptr;
+                else {
+                    auto type = manger->getTypeFromName(typeName);
+                    if (nullptr == type) {
+                        return nullptr;
+                    }
+                    else {
+                        return manger->addType<MatrixType>(typeName, row, col, type);
+                    }
+                    return nullptr;
+                }
+            }
+            else {
+                return nullptr;
+            }
+        }
+        TypeParse::Token TypeParse::_scan(std::string_view& value) {
+            m_index++;
+            if (m_index == m_src.length()) {
+                return kEOF;
+            }
+            while (' ' == m_src[m_index]) {
+                m_index++;
+            }
+            char ch = m_src[m_index];
+            if (std::isalpha(ch)) {
+                uint32_t startIndex = m_index;
+                while ( std::isalnum(ch) && m_index < m_src.length()) {
+                    m_index++;
+                    ch = m_src[m_index];
+                }
+                m_index--;
+                std::string_view ss(m_src.data() + startIndex, m_index - startIndex + 1);
+                value = ss;
+                if (ss == "vec") {
+                    return TypeParse::Token::kVEC;
+                }
+                else if (ss == "mat") {
+                    return TypeParse::Token::kMAT;
+                }
+                else {
+                    return TypeParse::Token::kTYPE;
+                }
+            }
+            else if ('0' <= ch && ch <= '9') {
+                uint32_t startIndex = m_index;
+                while ( ('0' <= ch && ch <= '9') && m_index < m_src.length()) {
+                    m_index++;
+                    ch = m_src[m_index];
+                }
+                m_index--;
+                std::string_view ss(m_src.data() + startIndex, m_index - startIndex + 1);
+                value = ss;
+                return TypeParse::Token::kNUM;
+            }
+            else if (',' == ch) {
+                return TypeParse::Token::kComma;
+            }
+            else if ('<' == ch) {
+                return TypeParse::Token::kLAB;
+            }
+            else if ('>' == ch) {
+                return TypeParse::Token::kRAB;
+            }
+            else {
+                return TypeParse::Token::kERROR;
+            }
+        
+        }
+
+
+}
+
+
+namespace IR {
     void TypeManger::_InitType() {
 #define __IR_INSERT_INTEGER_TYPE(x)\
             auto ptr_i##x = new IntegerType( x );\
@@ -181,7 +392,7 @@ namespace IR {
 #define __MERAGE(x,y) x##y
 #define __XMERAGE(x,y) __MERAGE(x,y) 
 
-#define _IR_INSERT_VECTOR_TYPE(n,y,x) IR::VectorType* __ELINK(__XMERAGE(__XMERAGE(vec,n),y),x) = new IR::VectorType( x,ptr_##n##y );\
+#define _IR_INSERT_VECTOR_TYPE(n,y,x) IR::VectorType* __ELINK(__XMERAGE(__XMERAGE(vec,n),y),x) = new IR::VectorType( x,1,ptr_##n##y );\
             m_typeMap.insert(std::make_pair("vec<"#n#y","#x">" , __ELINK(__XMERAGE(__XMERAGE(vec,n),y),x) ));
 
 
@@ -227,83 +438,83 @@ namespace IR {
             _IR_INSERT_VECTOR_TYPE(f,64,4)
             _IR_INSERT_VECTOR_TYPE(f,128,4)
 
-#define __XLINK(X,Y,Z) X##x##Y##x##Z
+#define __XLINK(X,Y) X##x##Y
 
-#define _IR_INSERT_MATRIX_TYPE(n,c,x,y,z) auto __ELINK(__XMERAGE(__XMERAGE(mat,n),c),__XLINK(x,y,z) ) = new MatrixType( x,y,z,ptr_##n##c );\
-            m_typeMap.insert(std::make_pair("mat<"#n#c"," #x "x" #y "x"#z">", __ELINK(__XMERAGE(__XMERAGE(mat,n),c),__XLINK(x,y,z) )));
+#define _IR_INSERT_MATRIX_TYPE(n,c,x,y) auto __ELINK(__XMERAGE(__XMERAGE(mat,n),c),__XLINK(x,y) ) = new MatrixType( x,y,ptr_##n##c );\
+            m_typeMap.insert(std::make_pair("mat<"#n#c"," #x "x" #y">", __ELINK(__XMERAGE(__XMERAGE(mat,n),c),__XLINK(x,y) )));
 
-            _IR_INSERT_MATRIX_TYPE(i,8,2,2,1)
-            _IR_INSERT_MATRIX_TYPE(i,16,2,2,1)
-            _IR_INSERT_MATRIX_TYPE(i,32,2,2,1)
-            _IR_INSERT_MATRIX_TYPE(i,64,2,2,1)
-            _IR_INSERT_MATRIX_TYPE(i,128,2,2,1)
-            _IR_INSERT_MATRIX_TYPE(i,256,2,2,1)
-            _IR_INSERT_MATRIX_TYPE(i,512,2,2,1)
+            _IR_INSERT_MATRIX_TYPE(i,8,2,2)
+            _IR_INSERT_MATRIX_TYPE(i,16,2,2)
+            _IR_INSERT_MATRIX_TYPE(i,32,2,2)
+            _IR_INSERT_MATRIX_TYPE(i,64,2,2)
+            _IR_INSERT_MATRIX_TYPE(i,128,2,2)
+            _IR_INSERT_MATRIX_TYPE(i,256,2,2)
+            _IR_INSERT_MATRIX_TYPE(i,512,2,2)
 
-            _IR_INSERT_MATRIX_TYPE(i, 8, 2, 3, 1)
-            _IR_INSERT_MATRIX_TYPE(i, 16, 2, 3, 1)
-            _IR_INSERT_MATRIX_TYPE(i, 32, 2, 3, 1)
-            _IR_INSERT_MATRIX_TYPE(i, 64, 2, 3, 1)
-            _IR_INSERT_MATRIX_TYPE(i, 128, 2, 3, 1)
-            _IR_INSERT_MATRIX_TYPE(i, 256, 2, 3, 1)
-            _IR_INSERT_MATRIX_TYPE(i, 512, 2, 3, 1)
+            _IR_INSERT_MATRIX_TYPE(i, 8, 2, 3)
+            _IR_INSERT_MATRIX_TYPE(i, 16, 2, 3)
+            _IR_INSERT_MATRIX_TYPE(i, 32, 2, 3)
+            _IR_INSERT_MATRIX_TYPE(i, 64, 2, 3)
+            _IR_INSERT_MATRIX_TYPE(i, 128, 2, 3)
+            _IR_INSERT_MATRIX_TYPE(i, 256, 2, 3)
+            _IR_INSERT_MATRIX_TYPE(i, 512, 2, 3)
 
-            _IR_INSERT_MATRIX_TYPE(i,8,2,4,1)
-            _IR_INSERT_MATRIX_TYPE(i,16,2,4,1)
-            _IR_INSERT_MATRIX_TYPE(i,32,2,4,1)
-            _IR_INSERT_MATRIX_TYPE(i,64,2,4,1)
-            _IR_INSERT_MATRIX_TYPE(i,128,2,4,1)
-            _IR_INSERT_MATRIX_TYPE(i,256,2,4,1)
-            _IR_INSERT_MATRIX_TYPE(i,512,2,4,1)
+            _IR_INSERT_MATRIX_TYPE(i,8,2,4)
+            _IR_INSERT_MATRIX_TYPE(i,16,2,4)
+            _IR_INSERT_MATRIX_TYPE(i,32,2,4)
+            _IR_INSERT_MATRIX_TYPE(i,64,2,4)
+            _IR_INSERT_MATRIX_TYPE(i,128,2,4)
+            _IR_INSERT_MATRIX_TYPE(i,256,2,4)
+            _IR_INSERT_MATRIX_TYPE(i,512,2,4)
 
-            _IR_INSERT_MATRIX_TYPE(i,8,3,2,1)
-            _IR_INSERT_MATRIX_TYPE(i,16,3,2,1)
-            _IR_INSERT_MATRIX_TYPE(i,32,3,2,1)
-            _IR_INSERT_MATRIX_TYPE(i,64,3,2,1)
-            _IR_INSERT_MATRIX_TYPE(i,128,3,2,1)
-            _IR_INSERT_MATRIX_TYPE(i,256,3,2,1)
-            _IR_INSERT_MATRIX_TYPE(i,512,3,2,1)
+            _IR_INSERT_MATRIX_TYPE(i,8,3,2)
+            _IR_INSERT_MATRIX_TYPE(i,16,3,2)
+            _IR_INSERT_MATRIX_TYPE(i,32,3,2)
+            _IR_INSERT_MATRIX_TYPE(i,64,3,2)
+            _IR_INSERT_MATRIX_TYPE(i,128,3,2)
+            _IR_INSERT_MATRIX_TYPE(i,256,3,2)
+            _IR_INSERT_MATRIX_TYPE(i,512,3,2)
 
-            _IR_INSERT_MATRIX_TYPE(i,8,3,3,1)
-            _IR_INSERT_MATRIX_TYPE(i,16,3,3,1)
-            _IR_INSERT_MATRIX_TYPE(i,32,3,3,1)
-            _IR_INSERT_MATRIX_TYPE(i,64,3,3,1)
-            _IR_INSERT_MATRIX_TYPE(i,128,3,3,1)
-            _IR_INSERT_MATRIX_TYPE(i,256,3,3,1)
-            _IR_INSERT_MATRIX_TYPE(i,512,3,3,1)
+            _IR_INSERT_MATRIX_TYPE(i,8,3,3)
+            _IR_INSERT_MATRIX_TYPE(i,16,3,3)
+            _IR_INSERT_MATRIX_TYPE(i,32,3,3)
+            _IR_INSERT_MATRIX_TYPE(i,64,3,3)
+            _IR_INSERT_MATRIX_TYPE(i,128,3,3)
+            _IR_INSERT_MATRIX_TYPE(i,256,3,3)
+            _IR_INSERT_MATRIX_TYPE(i,512,3,3)
 
-            _IR_INSERT_MATRIX_TYPE(i,8,3,4,1)
-            _IR_INSERT_MATRIX_TYPE(i,16,3,4,1)
-            _IR_INSERT_MATRIX_TYPE(i,32,3,4,1)
-            _IR_INSERT_MATRIX_TYPE(i,64,3,4,1)
-            _IR_INSERT_MATRIX_TYPE(i,128,3,4,1)
-            _IR_INSERT_MATRIX_TYPE(i,256,3,4,1)
-            _IR_INSERT_MATRIX_TYPE(i,512,3,4,1)
+            _IR_INSERT_MATRIX_TYPE(i,8,3,4)
+            _IR_INSERT_MATRIX_TYPE(i,16,3,4)
+            _IR_INSERT_MATRIX_TYPE(i,32,3,4)
+            _IR_INSERT_MATRIX_TYPE(i,64,3,4)
+            _IR_INSERT_MATRIX_TYPE(i,128,3,4)
+            _IR_INSERT_MATRIX_TYPE(i,256,3,4)
+            _IR_INSERT_MATRIX_TYPE(i,512,3,4)
 
-            _IR_INSERT_MATRIX_TYPE(i,8,4,2,1)
-            _IR_INSERT_MATRIX_TYPE(i,16,4,2,1)
-            _IR_INSERT_MATRIX_TYPE(i,32,4,2,1)
-            _IR_INSERT_MATRIX_TYPE(i,64,4,2,1)
-            _IR_INSERT_MATRIX_TYPE(i,128,4,2,1)
-            _IR_INSERT_MATRIX_TYPE(i,256,4,2,1)
-            _IR_INSERT_MATRIX_TYPE(i,512,4,2,1)
+            _IR_INSERT_MATRIX_TYPE(i,8,4,2)
+            _IR_INSERT_MATRIX_TYPE(i,16,4,2)
+            _IR_INSERT_MATRIX_TYPE(i,32,4,2)
+            _IR_INSERT_MATRIX_TYPE(i,64,4,2)
+            _IR_INSERT_MATRIX_TYPE(i,128,4,2)
+            _IR_INSERT_MATRIX_TYPE(i,256,4,2)
+            _IR_INSERT_MATRIX_TYPE(i,512,4,2)
 
 
-            _IR_INSERT_MATRIX_TYPE(i,8,4,3,1)
-            _IR_INSERT_MATRIX_TYPE(i,16,4,3,1)
-            _IR_INSERT_MATRIX_TYPE(i,32,4,3,1)
-            _IR_INSERT_MATRIX_TYPE(i,64,4,3,1)
-            _IR_INSERT_MATRIX_TYPE(i,128,4,3,1)
-            _IR_INSERT_MATRIX_TYPE(i,256,4,3,1)
-            _IR_INSERT_MATRIX_TYPE(i,512,4,3,1)
+            _IR_INSERT_MATRIX_TYPE(i,8,4,3)
+            _IR_INSERT_MATRIX_TYPE(i,16,4,3)
+            _IR_INSERT_MATRIX_TYPE(i,32,4,3)
+            _IR_INSERT_MATRIX_TYPE(i,64,4,3)
+            _IR_INSERT_MATRIX_TYPE(i,128,4,3)
+            _IR_INSERT_MATRIX_TYPE(i,256,4,3)
+            _IR_INSERT_MATRIX_TYPE(i,512,4,3)
 
-            _IR_INSERT_MATRIX_TYPE(i,8,4,4,1)
-            _IR_INSERT_MATRIX_TYPE(i,16,4,4,1)
-            _IR_INSERT_MATRIX_TYPE(i,32,4,4,1)
-            _IR_INSERT_MATRIX_TYPE(i,64,4,4,1)
-            _IR_INSERT_MATRIX_TYPE(i,128,4,4,1)
-            _IR_INSERT_MATRIX_TYPE(i,256,4,4,1)
-            _IR_INSERT_MATRIX_TYPE(i,512,4,4,1)
+            _IR_INSERT_MATRIX_TYPE(i,8,4,4)
+            _IR_INSERT_MATRIX_TYPE(i,16,4,4)
+            _IR_INSERT_MATRIX_TYPE(i,32,4,4)
+            _IR_INSERT_MATRIX_TYPE(i,64,4,4)
+            _IR_INSERT_MATRIX_TYPE(i,128,4,4)
+            _IR_INSERT_MATRIX_TYPE(i,256,4,4)
+            _IR_INSERT_MATRIX_TYPE(i,512,4,4)
 
             
 

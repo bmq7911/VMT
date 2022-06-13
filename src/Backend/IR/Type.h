@@ -5,8 +5,15 @@
 
 namespace {
     bool begin_with(std::string_view const& str, std::string_view const& with) {
-        if (with.size() >= str.size()) {
-            
+        if (with.size() > str.size()) {
+            return false;
+        }
+        else {
+            for (size_t i = 0; i < with.length(); ++i) {
+                if (str[i] != with[i])
+                    return false;
+            }
+            return true;
         }
     }
 
@@ -141,8 +148,9 @@ namespace IR {
 
     class VectorType : public Type{
     public:
-        VectorType(uint32_t dimSize, Type* baseType)
-            : m_dimSize( dimSize )
+        VectorType(uint32_t rowSize, uint32_t colSize,  Type* baseType)
+            : m_rowSize( rowSize )
+            , m_colSize( colSize )
             , m_basicType( baseType )
         {
         }
@@ -167,25 +175,27 @@ namespace IR {
         Type const* isSupportOp(Instruction::OpCode)  const override;
     public:
 
-        uint32_t getDimSize() const {
-            return m_dimSize;
+        uint32_t getRowSize() const {
+            return m_rowSize;
+        }
+        uint32_t getColSize() const {
+            return m_colSize;
         }
         const Type* getBasicType() const {
             return m_basicType;
         }
 
     private:
-        
-        uint32_t m_dimSize;
+        uint32_t m_rowSize;
+        uint32_t m_colSize;
         Type* m_basicType;
     };
     
     class MatrixType : public Type{
     public:
-        MatrixType(uint32_t x, uint32_t y,uint32_t z, Type* baseType ) 
+        MatrixType(uint32_t x, uint32_t y, Type* baseType ) 
             : m_dimSizeX( x)
             , m_dimSizeY( y)
-            , m_dimSizeZ( z)
             , m_basicType ( baseType)
         {}
         bool isVoidType() const override {
@@ -214,7 +224,6 @@ namespace IR {
     private:
         uint32_t m_dimSizeX;
         uint32_t m_dimSizeY;
-        uint32_t m_dimSizeZ;
         Type* m_basicType;
     };
 
@@ -253,6 +262,31 @@ namespace IR {
         Type* m_retType;
         std::vector<Type*> m_paramsType;
     };
+   
+    class TypeManger;
+    class TypeParse {
+    enum Token {
+            kVEC,
+            kMAT,
+            kTYPE,
+            kComma,
+            kLAB,
+            kRAB,
+            kNUM,
+            kEOF,
+            kERROR,
+        };
+    public:
+        TypeParse(std::string_view const& name);
+        Type* parse( TypeManger * typeManger);
+    private:
+        Token _scan(std::string_view& value);
+    private:
+        
+        uint32_t m_index{ uint32_t(-1) };
+        std::string_view m_src;
+    };
+    
     /*
      * 容器类,支持当前Context之中所有的类型
      */
@@ -271,15 +305,22 @@ namespace IR {
         Type* getBoolType() const {
             return m_boolType;
         }
+        template<typename T,typename ... _Args>
+        Type *addType( std::string const& name, _Args && ... args ) {
+            auto type = new T( std::forward<_Args>(args) ...);
+            m_typeMap.insert(std::make_pair(name, type));
+            return type;
+        }
 
-        Type* getTypeFromName(std::string_view const& name) const {
+        Type* getTypeFromName(std::string_view const& name) {
             std::string strName(name);
             auto iter = m_typeMap.find(strName);
             if (iter != m_typeMap.end()) {
                 return iter->second;
             }
             else {
-                
+                TypeParse parse(name);
+                return parse.parse( this );
             }
             return nullptr;
         }

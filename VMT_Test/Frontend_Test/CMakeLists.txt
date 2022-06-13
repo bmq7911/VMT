@@ -15,6 +15,6 @@ SET(EXECUTABLE_OUTPUT_PATH ${CMAKE_SOURCE_DIR}/bin)
 
 add_executable( "FrontendTest"  ${all_files}  )
 set_property(TARGET "FrontendTest" PROPERTY FOLDER "VMTTest")
-target_link_libraries("FrontendTest" libDiagnose libAST libParser libSymbols libLexer libAST libIR )
+target_link_libraries("FrontendTest" libDiagnose libAST libParser libSymbols libLexer libAST libIR libIRWriter )
 
 

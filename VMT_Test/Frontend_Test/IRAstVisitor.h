@@ -9,6 +9,8 @@
 #include "SymbolTable/RealType.h"
 #include "SymbolTable/BoolType.h"
 #include "Backend/IR/IRBuilder.h"
+#include "Backend/IRWriter/TextIRWriteVisitor.h"
+
 #include <iostream>
 
 namespace TS {
@@ -82,7 +84,10 @@ namespace TS {
 
             {
                 auto function = m_context->getCurrentFunction();
-                for (auto iter = function->begin(); iter != function->end(); iter->getNext()) {
+                IR::TextIRWriteVisitor writer;
+                writer.writeFunction(function );
+                std::cout << writer.getTextStr() << std::endl;
+                for (auto iter = function->begin(); iter != function->end(); iter = iter->getNext()) {
                     std::cout << iter->getOpStr() << std::endl;
                 }
             }
@@ -183,20 +188,25 @@ namespace TS {
                     return nullptr;
                 }
                 else if (op == "|=") {
-                
+                    f(IR::Instruction::OpCode::kOr, IR::Instruction::OpCode::kAssign);
+                    return nullptr;
                 }
                 else if (op == "&=") {
-                
+                    f(IR::Instruction::OpCode::kAnd, IR::Instruction::OpCode::kAssign);
+                    return nullptr;
                 }
                 else if (op == "^=") {
-                    
+                    f(IR::Instruction::OpCode::kXor, IR::Instruction::OpCode::kAssign);
+                    return nullptr;
                 }
-                else if (op == "<<=") {
-                
-                }
-                else if (op == ">>=") {
-                
-                }
+                //else if (op == "<<=") {
+                //    f(IR::Instruction::OpCode::k, IR::Instruction::OpCode::kAssign);
+                //    return nullptr;
+                //}
+                //else if (op == ">>=") {
+                //    f(IR::Instruction::OpCode::kOr, IR::Instruction::OpCode::kAssign);
+                //    return nullptr;
+                //}
                 return nullptr;
             }
             else {
@@ -240,7 +250,6 @@ namespace TS {
         std::shared_ptr<AST::AstObjectExpr> reduceConstantExpr(AST::AstConstantExpr* astObjectExpr, AST::ICollectInfoBack* collect) override {
             Token tok = astObjectExpr->getToken();
             if (tok.getTokenId() == TokenId::kw_integer) {
-                //IR::Value* v = IR::IRBuilder(m_context).emitAlloc(  m_context->getTypeManger().getTypeFromName("i32"), );
                 static_cast<CollectIRValue*>(collect)->setValue(new IR::IntegerConstant(m_context->getTypeManger().getTypeFromName("i32"), std::atoi(tok.toString().c_str())));
             }
             else if (tok.getTokenId() == TokenId::kw_real) {

@@ -27,7 +27,7 @@ namespace IR {
 				m_ss << ", ";
 			}
 		}
-		m_ss << ")->" << _GetTypeName(func->getFunctionType()->getReturnType()) << "\r\n{\r\n";
+		//m_ss << ")->" << _GetTypeName(func->getFunctionType()->getReturnType()) << "\r\n{\r\n";
 		for (auto iter = func->begin(); iter != func->end(); iter = iter->getNext()) {
 			dispatchIns(iter);
 		}
@@ -171,6 +171,9 @@ namespace IR {
 
 	void TextIRWriteVisitor::writeCross(IR::Instruction* ins) {
 		_WriteBinaryIns(static_cast<IR::BinaryOpIns*>(ins));
+	}
+	void TextIRWriteVisitor::writePhi(IR::Instruction* ins) {
+		
 	}
 
 	void TextIRWriteVisitor::writeAlloc(IR::Instruction* ins) {
