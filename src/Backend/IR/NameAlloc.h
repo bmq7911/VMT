@@ -23,7 +23,8 @@ namespace IR {
             uint32_t id = m_temporaryId.load();
             do {
                 if (true == m_temporaryId.compare_exchange_strong(id, id+1)) {
-                    std::string name = std::string("%") + std::to_string(id);
+                    //std::string name = std::string("%") +std::to_string(id);
+                    std::string name = std::to_string(id);
                     m_allocedName.insert(name);
                     return name;
                 }
@@ -52,7 +53,7 @@ namespace IR {
         bool _IsFullNum(const char* name) {
             size_t i = 0;
             char ch = char(0);
-            for ( ch = name[0]; ch != char(0); ++i) {
+            for ( ch = name[0]; ch != char(0); name ++, ch = *name) {
                 if (!('0' <= ch && ch <= '9')) {
                     return true;
                 }

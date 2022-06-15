@@ -183,7 +183,7 @@ namespace IR {
 			m_ss<< "\t" << _GetTypeNamePair(allocIns->getRetValue()) << " = " << allocIns->getOpStr() << " " << _GetTypeNamePair(value) << "\r\n";
 		}
 		else {
-			m_ss << "\t" << _GetTypeNamePair(allocIns->getRetValue()) << " = " << allocIns->getOpStr() << "\r\n";
+			m_ss << "\t" << _GetTypeNamePair(allocIns->getRetValue()) << " = " << allocIns->getOpStr() << " " << _GetTypeName(allocIns->getRetValue()->getType()) << "\r\n";
 		}
 	}
 	
@@ -215,7 +215,7 @@ namespace IR {
 	}
 	std::string TextIRWriteVisitor::_GetTypeNamePair(IR::Value* value) const {
 		if (true == value->isLocal()) {
-			return _GetTypeName( value->getType()) + ":%" + value->getValueName();
+			return   "%"+value->getValueName() + ":" + _GetTypeName(value->getType());
 		}
 		else {
 			return _GetTypeName( value->getType()) + ":@" + value->getValueName();

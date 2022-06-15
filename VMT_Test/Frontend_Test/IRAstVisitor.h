@@ -335,6 +335,7 @@ namespace TS {
             }
             return nullptr;
         }
+
         std::shared_ptr<AST::AstObjectExpr> reduceExprs(AST::AstExprs* astExprs, AST::ICollectInfoBack* collect) override {
             CollectIRValue collectValue;
             for (auto iter = astExprs->begin(); iter != astExprs->end(); ++iter) {

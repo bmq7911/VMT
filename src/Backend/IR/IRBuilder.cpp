@@ -36,7 +36,7 @@ namespace IR {
         else {
             nameAlloc = cfunc->getNameAlloc();
         }
-        auto ins = _AddInsToIRContext(IR::allocator<AllocIns>().alloc(nameAlloc->allocName(name), type));
+        auto ins = _AddInsToIRContext(IR::allocator<AllocIns>().alloc( name, type));
         return ins->getRetValue();
     }
 
