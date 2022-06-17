@@ -17,7 +17,11 @@ namespace IR {
         return new FloatConstant(type, value);
     }
 
-
+    
+    void IRBuilder::emitBinaryOpIns(IR::Instruction::OpCode op, Value* result, Value* op1, Value* op2) {
+        
+        _EmitBinaryIns<BinaryOpIns>(op, op1, op2, result );
+    }
     Value* IRBuilder::emitBinaryOpIns(IR::Instruction::OpCode op,  Value* v1, Value* v2) {
         return _EmitBinaryIns<BinaryOpIns>(op, v1, v2);
     }
@@ -29,27 +33,12 @@ namespace IR {
 
     Value* IRBuilder::emitAlloc(const Type* type, const char* name) {
         auto cfunc = m_context->getCurrentFunction();
-        std::shared_ptr<NameAlloc> nameAlloc;
-        if (nullptr == cfunc) {
-            nameAlloc = m_context->getNameAlloc();
-        }
-        else {
-            nameAlloc = cfunc->getNameAlloc();
-        }
         auto ins = _AddInsToIRContext(IR::allocator<AllocIns>().alloc( name, type));
         return ins->getRetValue();
     }
-
-
+    
     Value* IRBuilder::emitAssign(Value* src, Value* dst) {
         auto cfunc = m_context->getCurrentFunction( );
-        std::shared_ptr<NameAlloc> nameAlloc;
-        if (nullptr == cfunc) {
-            nameAlloc = m_context->getNameAlloc( );
-        }
-        else {
-            nameAlloc = m_context->getNameAlloc( );
-        }
         auto ins = _AddInsToIRContext(IR::allocator<AssignIns>().alloc( src, dst ));
         src->setInstruction(ins);
         return ins->getRetValue();
@@ -219,14 +208,8 @@ namespace IR {
                 return ins->getRetValue();
             }
             auto cfunc = m_context->getCurrentFunction();
-            std::shared_ptr<NameAlloc> nameAlloc;
-            if (nullptr == cfunc) {
-                nameAlloc = m_context->getNameAlloc();
-            }
-            else {
-                nameAlloc = cfunc->getNameAlloc();
-            }
-            std::string valueName = nameAlloc->allocTemporaryName();
+        
+            std::string valueName = "valueName";
             IR::Value* result = emitAlloc(v->getType(), valueName.c_str());
             auto ins = _AddInsToIRContext(IR::allocator<T>().alloc(op, v, result));
             if (nullptr != result) {
@@ -265,15 +248,8 @@ namespace IR {
                 auto ins = _AddInsToIRContext(errorIns);
                 return ins->getRetValue();
             }
-            auto cfunc = m_context->getCurrentFunction();
-            std::shared_ptr<NameAlloc> nameAlloc;
-            if (nullptr == cfunc) {
-                nameAlloc = m_context->getNameAlloc();
-            }
-            else {
-                nameAlloc = cfunc->getNameAlloc();
-            }
-            std::string valueName = nameAlloc->allocTemporaryName();
+            auto cfunc = m_context->getCurrentFunction( );
+            std::string valueName = "valueName";
             IR::Value * result = emitAlloc(v1->getType(),valueName.c_str() );
             auto ins = _AddInsToIRContext(IR::allocator<T>().alloc(op, v1, v2, result));
             if (nullptr != result) {

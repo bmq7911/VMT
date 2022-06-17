@@ -5,7 +5,6 @@
 #include <list>
 
 #include "Backend/IR/Scope.h"
-#include "Backend/IR/NameAlloc.h"
 #include "Backend/IR/ConstantTable.h"
 #include "Backend/IR/LabelTable.h"
 #include "Backend/IR/FlowGraphs.h"
@@ -32,7 +31,6 @@ namespace IR {
 
         void addArgs(Value * value);
         std::string const& getFunctionName() const;
-        std::shared_ptr<NameAlloc> getNameAlloc() const;
         Label* findLabel(std::string const& label) const;
         bool   insertLabel(std::string const& name, Label* label);
         void   insertValue( Value * value);
@@ -59,7 +57,6 @@ namespace IR {
         std::vector<Value*>            m_args;
         std::shared_ptr<Scope>         m_functionScope;
 
-        std::shared_ptr<NameAlloc>     m_nameAlloc;
         std::shared_ptr<ConstantTable> m_constantTable;
         std::shared_ptr<LabelTable>    m_labelTable;
         FunctionType const*            m_type;

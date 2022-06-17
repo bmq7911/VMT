@@ -103,26 +103,33 @@ EMIT_IR_INS( 29, BitXor,          true,           BINARY )
 EMIT_IR_INS( 30, Dot,             true,           BINARY )
 EMIT_IR_INS( 31, Length2,         true,           BINARY )
 EMIT_IR_INS( 32, Cross,           true,           BINARY )
-LAST_BINARY_IR_INS(32, BinaryIRInsEnd )
-LAST_EMIT_IR_INS(32, ArithmeticIRInsEnd )
+
+EMIT_IR_INS( 33, Equal,           true,           BINARY )
+EMIT_IR_INS( 34, NotEqual,        true,           BINARY )
+EMIT_IR_INS( 35, Less,            true,           BINARY )
+EMIT_IR_INS( 36, LessEqual,       true,           BINARY )
+EMIT_IR_INS( 37, Greater,         true,           BINARY )
+EMIT_IR_INS( 38, GreaterEqual,    true,           BINARY )
+LAST_BINARY_IR_INS(38, BinaryIRInsEnd )
+LAST_EMIT_IR_INS(38, ArithmeticIRInsEnd )
 
 
-FIRST_MEMORY_IR_INS( 33, MemoryIRInsBeg )
-EMIT_IR_INS( 33, Alloc,          true )
-EMIT_IR_INS( 34, Assign,         true )
-LAST_MEMORY_IR_INS(34, MemoryIRInsEnd)
+FIRST_MEMORY_IR_INS( 39, MemoryIRInsBeg )
+EMIT_IR_INS( 39, Alloc,          true )
+EMIT_IR_INS( 40, Assign,         true )
+LAST_MEMORY_IR_INS(40, MemoryIRInsEnd)
 
 
-FIRST_CAST_IR_INS(35, CastIRInsBeg)
-EMIT_IR_INS(35, Cast,            true )
-LAST_CAST_IR_INS(35, CastIRInsEnd)
+FIRST_CAST_IR_INS(41, CastIRInsBeg)
+EMIT_IR_INS(41, Cast,            true )
+LAST_CAST_IR_INS(41, CastIRInsEnd)
 
 
-FIRST_PSEUDO_IR_INS( 36, PseudoIRInsBeg)
-EMIT_IR_INS( 36, Label,          false)
-EMIT_IR_INS( 37, Error,          true )
-EMIT_IR_INS( 38, Phi,            true)
-LAST_PSEUDO_IR_INS(38, PseudoIRInsEnd )
+FIRST_PSEUDO_IR_INS( 42, PseudoIRInsBeg)
+EMIT_IR_INS( 42, Label,          false)
+EMIT_IR_INS( 43, Error,          true )
+EMIT_IR_INS( 44, Phi,            true)
+LAST_PSEUDO_IR_INS(44, PseudoIRInsEnd )
 
 #undef EMIT_IR_INS
 #undef DEFINE_IR_RANGE_BEG

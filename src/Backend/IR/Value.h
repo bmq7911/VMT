@@ -50,7 +50,7 @@ namespace IR{
             return m_type;
         }
 
-        std::string getValueName() const {
+        virtual std::string getValueName() const {
             if (0 == m_nameIndex)
                 return m_name;
             else

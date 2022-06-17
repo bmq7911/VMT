@@ -5,6 +5,7 @@ set(all_files ${project_headers} ${project_cpps})
 source_group_by_dir(all_files)
 include_directories( ${CMAKE_SOURCE_DIR}/src )
 
+
 if (MSVC)
 add_compile_options("/std:c++17")
 else()

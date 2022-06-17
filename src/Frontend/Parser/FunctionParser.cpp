@@ -238,7 +238,7 @@ std::shared_ptr<AST::AstBlock>                FunctionParser::parseBlock( ) {
 }
 
 std::shared_ptr<AST::AstIfStmt>                  FunctionParser::parseIf( ) {
-    Token tok = getToken();
+    Token tok = readToken();
     tok.match( TokenId::kw_if);
     tok = readToken();
     tok.match( TokenId::kw_l_paren);
@@ -246,7 +246,7 @@ std::shared_ptr<AST::AstIfStmt>                  FunctionParser::parseIf( ) {
     tok = readToken();
     tok.match(TokenId::kw_r_paren);
     std::shared_ptr<AST::AstStmt> stmt = parseStmt();
-    tok = readToken();
+    tok = advanceToken();
     std::shared_ptr<AST::AstElseStmt>  elseStmt;
     if (tok.match(TokenId::kw_else)) {
         elseStmt = parseElse();
@@ -363,6 +363,7 @@ std::shared_ptr<AST::AstExpr>            FunctionParser::parseDecl( ) {
         return nullptr;
     }
     Token type;
+    Token equal;
     auto colon = advanceToken();
     if (colon.match(TokenId::kw_colon)) {
         colon = readToken();
@@ -373,13 +374,15 @@ std::shared_ptr<AST::AstExpr>            FunctionParser::parseDecl( ) {
         }
         colon = advanceToken();
     }
+    equal = colon;
     if (colon.notMatch(TokenId::kw_equal)) {
         Diagnose::expectBut(TokenId::kw_equal, colon);
         return nullptr;
     }
     readToken( );
     std::shared_ptr<AST::AstExpr> expr = parseCommaExpr();
-    std::shared_ptr<AST::AstAssign> assignOp = std::make_shared<AST::AstAssign>(id, expr);
+    std::shared_ptr<AST::AstObjectExpr> obj = std::make_shared<AST::AstObjectExpr>( id);
+    std::shared_ptr<AST::AstAssign> assignOp = std::make_shared<AST::AstAssign>(equal,obj, expr);
     std::shared_ptr<AST::AstDecl> declExpr = std::make_shared<AST::AstDecl>( type,id, assignOp );
     return declExpr;
 }
@@ -413,7 +416,9 @@ std::shared_ptr<AST::AstExpr>                FunctionParser::parseAssignExpr() {
         case TokenId::kw_equal: {
             tok = readToken( );
             std::shared_ptr<AST::AstExpr> right = parseAssignExpr(); ///
-            return returnExpr(AST::AstBinaryOpExpr::makeBinaryOpExpr(expr, right, tok));
+            //return returnExpr(AST::AstBinaryOpExpr::makeBinaryOpExpr(expr, right, tok));
+            return returnExpr(std::make_shared<AST::AstAssign>(tok,expr, right));
+
         }break;
         case TokenId::kw_starequal:
         case TokenId::kw_slashequal:
@@ -424,9 +429,7 @@ std::shared_ptr<AST::AstExpr>                FunctionParser::parseAssignExpr() {
         case TokenId::kw_greatergreaterequal: {
             tok = readToken( );
             std::shared_ptr<AST::AstExpr> right = parseConditionExpr();
-
-            //std::shared_ptr<AST::AstBinaryOpExpr> binaryOpExpr = std::make_shared<AST::AstBinaryOpExpr>( expr, binaryOpExpr, tok );
-            auto binaryOpExpr = AST::AstBinaryOpExpr::makeBinaryOpExpr(expr, right, tok);
+            return returnExpr(std::make_shared<AST::AstAssign>(tok,expr, right));
         }break;
         default: {
             return returnExpr(expr);

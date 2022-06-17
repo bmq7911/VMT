@@ -31,6 +31,7 @@ namespace IR {
             IR::Phi * phi = new IR::Phi( std::forward<_Args>( args) ... );
             return phi->getRetValue();
         }
+        void emitBinaryOpIns(IR::Instruction::OpCode op, Value* result, Value* op1, Value* op2);
         Value* emitBinaryOpIns(IR::Instruction::OpCode op, Value* v1, Value* v2);
         Value* emitUnaryOpIns(IR::Instruction::OpCode op, Value* v);
         Value* emitAlloc(const Type* type, const char* name);
@@ -68,7 +69,7 @@ namespace IR {
         Value* _EmitUnaryIns(Instruction::OpCode op, Value* v, Value* result);
         template<typename T>
         Value* _EmitBinaryIns(Instruction::OpCode op, Value* v1, Value* v2);
-
+    
         template<typename T>
         Value* _EmitBinaryIns(Instruction::OpCode op, Value* v1, Value* v2, Value* vResult);
 

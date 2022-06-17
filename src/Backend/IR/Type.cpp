@@ -58,6 +58,12 @@ namespace IR {
             Instruction::OpCode::kAdd,
             Instruction::OpCode::kMul,
             Instruction::OpCode::kDiv,
+            Instruction::OpCode::kEqual,
+            Instruction::OpCode::kNotEqual,
+            Instruction::OpCode::kLess,
+            Instruction::OpCode::kLessEqual,
+            Instruction::OpCode::kGreater,
+            Instruction::OpCode::kGreaterEqual,
         };
 
         for (size_t i = 0; i < utils::array_size(SupportOp); ++i) {

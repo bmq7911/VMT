@@ -13,6 +13,7 @@ namespace IR {
 			m_bVolatile = false;
 			m_bStatic = true;
 		}
+
 		virtual std::string getValueStr() const = 0;
 	private:
 	};
@@ -22,6 +23,9 @@ namespace IR {
 			: Constant( type )
 			, m_value( true )
 		{
+		}
+		std::string getValueName() const {
+			return "true";
 		}
 		std::string getValueStr() const {
 			return "true";
@@ -37,6 +41,9 @@ namespace IR {
 			, m_value( false )
 		{
 		}
+		std::string getValueName() const {
+			return "false";
+		}
 		std::string getValueStr() const {
 			return "false";
 		}
@@ -50,6 +57,9 @@ namespace IR {
 			: Constant( type)
 			, m_value( value )
 		{}
+		std::string getValueName() const override {
+			return std::to_string(m_value);
+		}
 		std::string getValueStr() const override {
 			return std::to_string(m_value);
 		}
@@ -68,11 +78,14 @@ namespace IR {
 			: Constant( type )
 			, m_value( value )
 		{}
+		std::string getValueName() const override {
+			return std::to_string(m_value);
+		}
 		std::string getValueStr() const override {
 			return std::to_string(m_value);
 		}
 	private:
-		float m_value;
+		double m_value;
 	};
 
 	class StringConstant : public Constant {

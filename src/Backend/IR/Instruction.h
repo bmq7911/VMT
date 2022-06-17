@@ -238,13 +238,15 @@ namespace IR {
     public:
         explicit AssignIns(Value* ret, Value* v) 
             : Instruction( OpCode::kAssign )
+            , m_FirstOperand( v )
         {
             m_Result = ret;
         }
         Value* getFirstOperand() const {
-            return nullptr;
+            return m_FirstOperand;
         }
-
+    private:
+        Value* m_FirstOperand;
     };
 
 
@@ -258,7 +260,6 @@ namespace IR {
         {
             
         }
-        
         
         std::string getLabelName() const {
             return m_label;

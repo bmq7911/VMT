@@ -19,7 +19,7 @@ namespace IR {
 	}
 
 	void TextIRWriteVisitor::writeFunction(IR::Function* func) {
-		m_ss << "func" << func->getFunctionName() << "(";
+		m_ss << "func " << func->getFunctionName() << "(";
 		for (size_t i = 0; i < func->getArgsSize(); ++i) {
 			Value* v = func->getArgsAt(i);
 			m_ss << _GetTypeName(v->getType()) << ":" << v->getValueName();
@@ -27,7 +27,7 @@ namespace IR {
 				m_ss << ", ";
 			}
 		}
-		//m_ss << ")->" << _GetTypeName(func->getFunctionType()->getReturnType()) << "\r\n{\r\n";
+		m_ss << ")"<<"\r\n{\r\n";
 		for (auto iter = func->begin(); iter != func->end(); iter = iter->getNext()) {
 			dispatchIns(iter);
 		}
@@ -188,8 +188,35 @@ namespace IR {
 	}
 	
 	void TextIRWriteVisitor::writeAssign(IR::Instruction* ins) {
-	
+		auto assignIns = static_cast<AssignIns*>(ins);
+		auto ret = assignIns->getRetValue();
+		auto value = assignIns->getFirstOperand();
+		m_ss << "\t" << _GetTypeNamePair(ret) << " = " << assignIns->getOpStr() << " " << _GetTypeNamePair(value) << "\r\n";
 	}
+	void TextIRWriteVisitor::writeEqual(IR::Instruction* ins) {
+		_WriteBinaryIns(static_cast<IR::BinaryOpIns*>(ins));
+	}
+	void TextIRWriteVisitor::writeNotEqual(IR::Instruction* ins) {
+		_WriteBinaryIns(static_cast<IR::BinaryOpIns*>(ins));
+	}
+	void TextIRWriteVisitor::writeLess(IR::Instruction* ins) {
+		_WriteBinaryIns(static_cast<IR::BinaryOpIns*>(ins));
+	}
+	void TextIRWriteVisitor::writeGreater(IR::Instruction* ins) {
+		_WriteBinaryIns(static_cast<IR::BinaryOpIns*>(ins));
+	}
+	void TextIRWriteVisitor::writeLessEqual(IR::Instruction* ins) {
+		_WriteBinaryIns(static_cast<IR::BinaryOpIns*>(ins));
+	}
+	void TextIRWriteVisitor::writeGreaterEqual(IR::Instruction* ins) {
+		_WriteBinaryIns(static_cast<IR::BinaryOpIns*>(ins));
+	}
+
+
+
+
+
+
 
 	void TextIRWriteVisitor::writeCast(IR::Instruction* ins) {
 	

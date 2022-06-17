@@ -16,7 +16,6 @@ namespace IR {
         , m_type(funcType)
     {
         m_functionScope         = std::make_shared<Scope>();
-        m_nameAlloc     = std::make_shared<NameAlloc>();
         m_constantTable = std::make_shared<ConstantTable>();
         m_labelTable    = std::make_shared<LabelTable>();
     }
@@ -26,7 +25,6 @@ namespace IR {
         , m_type(funcType)
     {
         m_functionScope = std::make_shared<Scope>(up);
-        m_nameAlloc     = std::make_shared<NameAlloc>();
         m_constantTable = std::make_shared<ConstantTable>();
         m_labelTable    = std::make_shared<LabelTable>();
     }
@@ -43,9 +41,6 @@ namespace IR {
         return m_name;
     }
 
-    std::shared_ptr<NameAlloc> Function::getNameAlloc() const {
-        return m_nameAlloc;
-    }
 
     Label* Function::findLabel(std::string const& label) const {
         return m_labelTable->findLabel(label);

@@ -19,7 +19,7 @@ namespace AST {
     public:
         AstFunction( Token name, std::shared_ptr<AstType> type,
                      std::shared_ptr<AST::AstParamList>param, std::shared_ptr<AST::AstBlock> block) 
-            : m_funName( name)
+            : m_funName( name )
             , m_type( type )
             , m_paramList( param )
             , m_functionBody( block )
