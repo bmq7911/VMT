@@ -256,7 +256,7 @@ std::shared_ptr<AST::AstIfStmt>                  FunctionParser::parseIf( ) {
 }
 
 std::shared_ptr<AST::AstElseStmt>                FunctionParser::parseElse() {
-    Token tok = getToken();
+    Token tok = readToken();
     tok.match( TokenId::kw_else);
     std::shared_ptr<AST::AstStmt> stmt = parseStmt();
     
@@ -266,10 +266,12 @@ std::shared_ptr<AST::AstElseStmt>                FunctionParser::parseElse() {
 std::shared_ptr<AST::AstForStmt>             FunctionParser::parseFor(){
     _EntryLoop();
     Token tok = readToken();
+    tok.match(TokenId::kw_for);
+    tok = advanceToken( );
     tok.match( TokenId::kw_l_paren );
     readToken();
     std::shared_ptr< AST::AstExpr> initExpr = parseDeclOrExpr();
-    tok = readToken();
+    tok = advanceToken();
     tok.match( TokenId::kw_semi);
     readToken();
     std::shared_ptr<AST::AstExpr> boolExpr = parseDeclOrExpr();
@@ -277,13 +279,13 @@ std::shared_ptr<AST::AstForStmt>             FunctionParser::parseFor(){
     //if (boolType != ENV::getTopEnv()->getBasicType(ENV::BasicType::kBool)) {
     //    std::cout <<"the bool expr must bool type in for loop stmt" <<std::endl;
     //}
-    tok = readToken();
+    tok = advanceToken();
     tok.match( TokenId::kw_semi);
     readToken();
     std::shared_ptr<AST::AstExpr> tailExpr = parseDeclOrExpr();
-    tok = readToken();
+    tok = advanceToken();
     tok.match( TokenId::kw_r_paren);
-
+    readToken( );
     std::shared_ptr<AST::AstStmt> stmt = parseStmt();
 
     std::shared_ptr<AST::AstForStmt> forLoop = std::make_shared<AST::AstForStmt>(initExpr, boolExpr, tailExpr, stmt);

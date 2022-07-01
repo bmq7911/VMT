@@ -38,12 +38,25 @@ namespace IR {
             Instruction::OpCode::kMul,
             Instruction::OpCode::kDiv,
             Instruction::OpCode::kMod,
+
+
         };
         for (size_t i = 0; i < utils::array_size(SupportOp); ++i) {
             if (SupportOp[i] == op)
                 return this;
         }
-
+        static const Instruction::OpCode BoolSupportOp[] = {
+            Instruction::OpCode::kEqual,
+            Instruction::OpCode::kNotEqual,
+            Instruction::OpCode::kLess,
+            Instruction::OpCode::kLessEqual,
+            Instruction::OpCode::kGreater,
+            Instruction::OpCode::kGreaterEqual,
+        };
+        for (size_t i = 0; i < utils::array_size(BoolSupportOp); ++i) {
+            if (BoolSupportOp[i] == op)
+                return this;
+        }
         return nullptr;
     }
 }

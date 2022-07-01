@@ -39,7 +39,6 @@ namespace TS {
     }
 
     void AST_IR_Codegen::visitFunction(AST::AstFunction* astFunction, AST::ICollectInfoBack* collect) {
-        
         EnvRAII lock(this);
 
         auto astType = astFunction->getFunctionType();
@@ -79,14 +78,43 @@ namespace TS {
             std::cout << writer.getTextStr() << std::endl;
         }
     }
-
+    
     void AST_IR_Codegen::visitForStmt(AST::AstForStmt* forstmt, AST::ICollectInfoBack* collect) {
+        std::string for_start = _GenLabel();
+        std::string for_end   = _GenLabel();
+        IR::IRBuilder(m_context).emitLabel(for_start);
+        auto initExpr = forstmt->getLoopExpr();
+        if (initExpr) {
+            CollectIRValue collectValue;
+            initExpr->reduce(std::enable_shared_from_this<AST_IR_Codegen>::shared_from_this(), &collectValue);
+        }
 
-
+        std::string for_bool = _GenLabel();
+        std::string for_body_begin = _GenLabel();
+        IR::IRBuilder(m_context).emitLabel( for_bool);
+        auto bool_expr = forstmt->getLoopExpr();
+        CollectIRValue collectConditionValue;
+        bool_expr->reduce(std::enable_shared_from_this<AST_IR_Codegen>::shared_from_this(), &collectConditionValue);
+        IR::IRBuilder(m_context).emitBr( collectConditionValue.getValue(),for_body_begin, for_end );
+        IR::IRBuilder(m_context).emitLabel(for_body_begin);
+        auto stmt = forstmt->getStmt();
+        CollectIRValue collectForBodyValue;
+        stmt->gen(std::enable_shared_from_this<AST_IR_Codegen>::shared_from_this(), &collectForBodyValue );
+        std::string for_tail = _GenLabel();
+        IR::IRBuilder(m_context).emitLabel(for_tail);
+        auto tailExpr = forstmt->getTailExpr();
+        if (tailExpr) {
+            CollectIRValue collectTailValue;
+            tailExpr->reduce(std::enable_shared_from_this<AST_IR_Codegen>::shared_from_this(), &collectTailValue);
+        }
+        IR::IRBuilder(m_context).emitJmp(for_bool);
+        IR::IRBuilder(m_context).emitLabel(for_end);
     }
-
-    void AST_IR_Codegen::visitWhileStmt(AST::AstWhileStmt*, AST::ICollectInfoBack* collect) {
-
+    
+    void AST_IR_Codegen::visitWhileStmt(AST::AstWhileStmt* whileStmt, AST::ICollectInfoBack* collect) {
+        std::string while_start = _GenLabel( );
+        std::string while_end   = _GenLabel( );
+        auto boolExpr = whileStmt->getLoopExpr();
     }
 
     void AST_IR_Codegen::visitDoWhileStmt(AST::AstDoWhileStmt*, AST::ICollectInfoBack* collect) {
@@ -124,23 +152,46 @@ namespace TS {
             else_stmt->gen(std::enable_shared_from_this<AST_IR_Codegen>::shared_from_this(), &collectBack);
             IR::IRBuilder(m_context).emitJmp(if_end);
         }
-        else {
-            IR::IRBuilder(m_context).emitLabel(if_end);
+        IR::IRBuilder(m_context).emitLabel(if_end);
+    }
+
+    void AST_IR_Codegen::visitElseStmt(AST::AstElseStmt* elseStmt, AST::ICollectInfoBack* collect) {
+        CollectIRValue collectBack;
+        elseStmt->getStmt()->gen(std::enable_shared_from_this<AST_IR_Codegen>::shared_from_this(), &collectBack);
+        if (nullptr != collect) {
+            static_cast<CollectIRValue*>( collect)->setValue( collectBack.getValue());
         }
     }
 
-    void AST_IR_Codegen::visitElseStmt(AST::AstElseStmt*, AST::ICollectInfoBack* collect) {}
-    void AST_IR_Codegen::visitStmts(AST::AstStmts*, AST::ICollectInfoBack* collect) {}
-    void AST_IR_Codegen::visitReturnStmt(AST::AstReturnStmt*, AST::ICollectInfoBack* collect) {}
-    void AST_IR_Codegen::visitBreakStmt(AST::AstBreakStmt*, AST::ICollectInfoBack* collect) {}
-    void AST_IR_Codegen::visitContinueStmt(AST::AstContinueStmt*, AST::ICollectInfoBack* collect) {}
+    void AST_IR_Codegen::visitStmts(AST::AstStmts*, AST::ICollectInfoBack* collect) {
+    
+    }
+
+    void AST_IR_Codegen::visitReturnStmt(AST::AstReturnStmt*, AST::ICollectInfoBack* collect) {
+    
+    }
+
+    void AST_IR_Codegen::visitBreakStmt(AST::AstBreakStmt*, AST::ICollectInfoBack* collect) {
+        
+    }
+
+    void AST_IR_Codegen::visitContinueStmt(AST::AstContinueStmt*, AST::ICollectInfoBack* collect) {
+        
+    }
+
     void AST_IR_Codegen::visitExprStmt(AST::AstExprStmt* astExprStmt, AST::ICollectInfoBack* collect) {
         auto expr = astExprStmt->getExpr();
         CollectIRValue collectValue;
         expr->reduce(std::enable_shared_from_this<AST_IR_Codegen>::shared_from_this(), &collectValue);
     }
-    void AST_IR_Codegen::visitType(AST::AstType*, AST::ICollectInfoBack* collect) {}
-    void AST_IR_Codegen::visitParamList(AST::AstParamList*, AST::ICollectInfoBack* collect) {}
+    void AST_IR_Codegen::visitType(AST::AstType*, AST::ICollectInfoBack* collect) {
+    
+    }
+
+    void AST_IR_Codegen::visitParamList(AST::AstParamList*, AST::ICollectInfoBack* collect) {
+    
+    }
+
     void AST_IR_Codegen::visitBlock(AST::AstBlock* astBlock, AST::ICollectInfoBack* collect) {
         std::shared_ptr<ENV::Env> env = std::make_shared<ENV::Env>();
         EnvRAII s(this);
@@ -204,6 +255,7 @@ namespace TS {
         static_cast<CollectIRValue*>(collect)->setValue(v);
         return nullptr;
     }
+
     std::shared_ptr<AST::AstObjectExpr> AST_IR_Codegen::reduceConditionExpr(AST::AstConditionExpr* astConditionExpr, AST::ICollectInfoBack* collect) {
         auto contitionExpr = astConditionExpr->getCondition();
         auto trueExpr = astConditionExpr->getTrueExpr();

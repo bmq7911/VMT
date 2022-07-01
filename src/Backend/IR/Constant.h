@@ -79,12 +79,29 @@ namespace IR {
 			, m_value( value )
 		{}
 		std::string getValueName() const override {
-			return std::to_string(m_value);
+			return _ToValue();
 		}
 		std::string getValueStr() const override {
-			return std::to_string(m_value);
+			return _ToValue();
 		}
 	private:
+
+		std::string _ToValue() const {
+			std::string value = std::to_string(m_value);
+			auto rbegin = value.rbegin( );
+			auto rend = value.rend( );
+			for (auto iter = rbegin; iter != rend; ++iter) {
+				if ('0' != *iter) {
+					if ('.' == *iter) {
+						return value.substr(0, std::distance(iter, rend) - 1);
+					}
+					else {
+						return value.substr(0, std::distance(iter, rend));
+					}
+				}
+			}
+
+		}
 		double m_value;
 	};
 
