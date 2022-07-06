@@ -19,9 +19,9 @@ namespace IR {
 
     
     void IRBuilder::emitBinaryOpIns(IR::Instruction::OpCode op, Value* result, Value* op1, Value* op2) {
-        
         _EmitBinaryIns<BinaryOpIns>(op, op1, op2, result );
     }
+
     Value* IRBuilder::emitBinaryOpIns(IR::Instruction::OpCode op,  Value* v1, Value* v2) {
         return _EmitBinaryIns<BinaryOpIns>(op, v1, v2);
     }
@@ -302,8 +302,9 @@ namespace IR {
         const Type* t1 = v1->getType( );
         const Type* t2 = v2->getType( );
         const Type* retType = retValue->getType( );
+
         if (t1 == t2) {
-            auto ttype= t1->isSupportOp(op);
+            auto ttype= t1->isSupportOp( op );
             if (retType == ttype) {
                 return nullptr;
             }

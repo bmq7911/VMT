@@ -20,6 +20,8 @@ namespace {
 }
 
 namespace IR {
+    class IRContext;
+
     /// 只能支持基础数据类型和简单复合数据类型
     /// type系统是很重要的
     class Type {
@@ -30,7 +32,6 @@ namespace IR {
         virtual bool isFloatType( ) const = 0;
         virtual bool isVectorType( ) const = 0;
         virtual bool isMatrixType( ) const = 0;
-        virtual Type const* isSupportOp(Instruction::OpCode) const = 0;
     };
 
     class VoidType : public Type {
@@ -53,7 +54,6 @@ namespace IR {
         bool isMatrixType() const override {
             return false;
         }
-        Type const* isSupportOp(Instruction::OpCode) const override;
     };
 
     class BoolType : public Type {
@@ -76,14 +76,20 @@ namespace IR {
         bool isMatrixType() const override {
             return false;
         }
-        Type const* isSupportOp(Instruction::OpCode)  const override;
     };
 
     class IntegerType : public Type {
     public:
         IntegerType(uint32_t size) 
             : m_size( size )
+            , m_isSigned( false )
         {}
+        IntegerType(uint32_t size, bool isSigned) 
+            : m_size( size )
+            , m_isSigned( isSigned )
+        {
+        }
+
         bool isVoidType() const override {
             return false;
         }
@@ -102,15 +108,14 @@ namespace IR {
         bool isMatrixType() const override {
             return false;
         }
-        Type const* isSupportOp(Instruction::OpCode)  const override;
     public:
         uint32_t getSize() const {
             return m_size;
         }
-        
+
     private:
         uint32_t m_size;
-        
+        uint32_t m_isSigned : 1;
     };
 
     class FloatType : public Type{
@@ -136,7 +141,6 @@ namespace IR {
         bool isMatrixType() const override {
             return false;
         }
-        Type const* isSupportOp(Instruction::OpCode)  const override;
 
     public:
         uint32_t getSize() const {
@@ -172,7 +176,6 @@ namespace IR {
         bool isMatrixType() const override {
             return false;
         }
-        Type const* isSupportOp(Instruction::OpCode)  const override;
     public:
 
         uint32_t getRowSize() const {
@@ -216,7 +219,6 @@ namespace IR {
         bool isMatrixType() const override {
             return true;
         }
-        Type const* isSupportOp(Instruction::OpCode)  const override;
     public:
         Type* getType() const {
             return m_basicType;
@@ -247,9 +249,6 @@ namespace IR {
         }
         bool isMatrixType() const override {
             return false;
-        }
-        Type const* isSupportOp(Instruction::OpCode)  const override {
-            return nullptr;
         }
 
     public:
@@ -343,5 +342,16 @@ namespace IR {
 
     };
 
+
+    class TypeChecker {
+    public:
+        static Type* checkOp( IR::IRContext & context, IR::Instruction::OpCode op,  IR::Value* v1, IR::Value * v2  );
+        static Type* checkOp(IR::IRContext& context, IR::Instruction::OpCode op, IR::Value* v);
+    private:
+        static Type* _CheckIntegerBinaryOp(IR::IRContext& context,IR::Type* type, IR::Instruction::OpCode);
+        static Type* _CheckIntegerUnaryOp(IR::IRContext& context, IR::Type* type, IR::Instruction::OpCode);
+        static Type* _CheckRealBinaryOp(IR::IRContext& context, IR::Type* type, IR::Instruction::OpCode);
+        static Type* _CheckRealUnaryOp(IR::IRContext& context, IR::Type* type, IR::Instruction::OpCode);
+    };
 
 }

@@ -220,17 +220,17 @@ namespace TS {
 
         // language support binary operation 
         static const map strOpCode[] = {
-            {"+",IR::Instruction::OpCode::kAdd},
-            {"-",IR::Instruction::OpCode::kMinus},
-            {"*",IR::Instruction::OpCode::kMul},
-            {"/",IR::Instruction::OpCode::kDiv},
-            {"%",IR::Instruction::OpCode::kMod},
-            {"**",IR::Instruction::OpCode::kExp},
+            {"+",  IR::Instruction::OpCode::kAdd},
+            {"-",  IR::Instruction::OpCode::kMinus},
+            {"*",  IR::Instruction::OpCode::kMul},
+            {"/",  IR::Instruction::OpCode::kDiv},
+            {"%",  IR::Instruction::OpCode::kMod},
+            {"**", IR::Instruction::OpCode::kExp},
             {"==", IR::Instruction::OpCode::kEqual},
             {"!=", IR::Instruction::OpCode::kNotEqual},
-            {"<", IR::Instruction::OpCode::kLess},
+            {"<",  IR::Instruction::OpCode::kLess},
             {"<=", IR::Instruction::OpCode::kLessEqual},
-            {">", IR::Instruction::OpCode::kGreater},
+            {">",  IR::Instruction::OpCode::kGreater},
             {">=", IR::Instruction::OpCode::kGreaterEqual},
         };
         for (size_t i = 0; i < sizeof(strOpCode) / sizeof(strOpCode[0]); ++i) {
@@ -239,8 +239,9 @@ namespace TS {
                 break;
             }
         }
+               
+        IR::Value* result = _GenTempValue( collectValue1.getValue()->getType( ) );
 
-        IR::Value* result = _GenTempValue( collectValue1.getValue()->getType());
         IR::IRBuilder(m_context).emitBinaryOpIns(opCode, result, collectValue1.getValue(), collectValue2.getValue());
 
         static_cast<CollectIRValue*>(collect)->setValue(result);
@@ -431,11 +432,13 @@ namespace TS {
     void AST_IR_Codegen::_StartVisitFunction() {
         m_localValueIndex = 0;
     }
+
     IR::Value* AST_IR_Codegen::_GenTempValue(IR::Type const* type) {
         IR::Value* v= IR::IRBuilder(m_context).emitAlloc(type, std::to_string(m_localValueIndex).c_str());
         m_localValueIndex++;
         return v;
     }
+
     std::string AST_IR_Codegen::_GenLabel() {
         std::string label = "L"+std::to_string(m_localValueIndex);
         m_localValueIndex++;

@@ -2,66 +2,23 @@
 #include "Backend/IR/Function.h"
 #include "Backend/IR/Type.h"
 #include "utils/utils.h"
-
+#include "Backend/IR/IRContext.h"
 
 namespace IR {
     //
-    Type const* VoidType::isSupportOp(Instruction::OpCode ) const {
-        return nullptr;
-    }
 }
 
 namespace IR {
 
-    Type const* BoolType::isSupportOp(Instruction::OpCode op) const {
-        static const Instruction::OpCode SupportOp[] = {
-            Instruction::OpCode::kAnd,
-            Instruction::OpCode::kOr,
-            Instruction::OpCode::kXor,
-        };
-        for (size_t i = 0; i < utils::array_size(SupportOp); ++i) {
-            if (SupportOp[i] == op)
-                return this;
-        }
-
-        return nullptr;
-    }
 
 }
 
 namespace IR {
 
-    Type const* IntegerType::isSupportOp(Instruction::OpCode op) const {
-        static const Instruction::OpCode SupportOp[] = {
-            Instruction::OpCode::kAdd,
-            Instruction::OpCode::kMinus,
-            Instruction::OpCode::kMul,
-            Instruction::OpCode::kDiv,
-            Instruction::OpCode::kMod,
-
-
-        };
-        for (size_t i = 0; i < utils::array_size(SupportOp); ++i) {
-            if (SupportOp[i] == op)
-                return this;
-        }
-        static const Instruction::OpCode BoolSupportOp[] = {
-            Instruction::OpCode::kEqual,
-            Instruction::OpCode::kNotEqual,
-            Instruction::OpCode::kLess,
-            Instruction::OpCode::kLessEqual,
-            Instruction::OpCode::kGreater,
-            Instruction::OpCode::kGreaterEqual,
-        };
-        for (size_t i = 0; i < utils::array_size(BoolSupportOp); ++i) {
-            if (BoolSupportOp[i] == op)
-                return this;
-        }
-        return nullptr;
-    }
 }
 
 namespace IR {
+
     Type const* FloatType::isSupportOp(Instruction::OpCode op) const {
         static const Instruction::OpCode SupportOp[] = {
             Instruction::OpCode::kMinus,
@@ -85,6 +42,7 @@ namespace IR {
         }
         return nullptr;
     }
+
 }
 namespace IR{
     /// 数乘等
@@ -537,6 +495,122 @@ namespace IR {
 
             
 
+    }
+
+}
+
+
+namespace IR {
+    
+    Type* TypeChecker::checkOp(IR::IRContext& context, IR::Instruction::OpCode op, IR::Value* v1, IR::Value* v2) {
+        /// <summary>
+        /// 复杂数据类型
+        /// </summary>
+        if (v1->getType() != v2->getType()) {
+            if (v1->getType()->isMatrixType() && v1->getType()->isVectorType()) {
+                
+            }
+        }
+        else {
+            
+        }
+    }
+
+    Type* TypeChecker::checkOp(IR::IRContext& context, IR::Instruction::OpCode op, IR::Value* v) {
+    
+    }
+
+    Type* TypeChecker::_CheckIntegerBinaryOp(IR::IRContext& context,IR::Type* type, IR::Instruction::OpCode op) {
+
+        static const Instruction::OpCode supportOp[] = {
+            Instruction::OpCode::kAdd,
+            Instruction::OpCode::kMinus,
+            Instruction::OpCode::kMul,
+            Instruction::OpCode::kDiv,
+            Instruction::OpCode::kMod,
+        };
+
+        for (size_t i = 0; i < utils::array_size(supportOp); ++i) {
+            if (supportOp[i] == op)
+                return type;
+        }
+
+        static const Instruction::OpCode boolSupportOp[] = {
+            Instruction::OpCode::kEqual,
+            Instruction::OpCode::kNotEqual,
+            Instruction::OpCode::kLess,
+            Instruction::OpCode::kLessEqual,
+            Instruction::OpCode::kGreater,
+            Instruction::OpCode::kGreaterEqual,
+        };
+
+        for (size_t i = 0; i < utils::array_size(boolSupportOp); ++i) {
+            if (boolSupportOp[i] == op)
+                return context.getTypeManger().getBoolType( );
+        }
+        return nullptr;
+    }
+    
+    Type* TypeChecker::_CheckIntegerUnaryOp(IR::IRContext& context,IR::Type * type, IR::Instruction::OpCode op) {
+        static const Instruction::OpCode supportOp[] = {
+            Instruction::OpCode::kMinus,
+        };
+
+        for (size_t i = 0; i < utils::array_size(supportOp); ++i) {
+            if (supportOp[i] == op)
+                return type;
+        }
+        static const Instruction::OpCode boolSupportOp[] = {
+            Instruction::OpCode::kNot,
+        };
+        for (size_t i = 0; i < utils::array_size(boolSupportOp); ++i) {
+            if (boolSupportOp[i] == op)
+                return context.getTypeManger().getBoolType( );
+        }
+        return nullptr;
+    }
+    
+    Type* TypeChecker::_CheckRealBinaryOp(IR::IRContext& context, IR::Type* type, IR::Instruction::OpCode op) {
+        static const Instruction::OpCode supportOp[] = {
+            Instruction::OpCode::kMinus,
+            Instruction::OpCode::kSin,
+            Instruction::OpCode::kCos,
+            Instruction::OpCode::kTan,
+            Instruction::OpCode::kAdd,
+            Instruction::OpCode::kMul,
+            Instruction::OpCode::kDiv,
+        };
+
+        for (size_t i = 0; i < utils::array_size(supportOp); ++i) {
+            if (supportOp[i] == op)
+                return type;
+        }
+
+        static const Instruction::OpCode boolSupportOp[] = {
+            Instruction::OpCode::kEqual,
+            Instruction::OpCode::kNotEqual,
+            Instruction::OpCode::kLess,
+            Instruction::OpCode::kLessEqual,
+            Instruction::OpCode::kGreater,
+            Instruction::OpCode::kGreaterEqual,
+        };
+        for (size_t i = 0; i < utils::array_size(boolSupportOp); ++i) {
+            if (boolSupportOp[i] == op)
+                return context.getTypeManger().getBoolType( );
+        }
+        return nullptr;
+    }
+
+    Type* TypeChecker::_CheckRealUnaryOp(IR::IRContext& context, IR::Type* type, IR::Instruction::OpCode op) {
+        static const Instruction::OpCode supportOp[] = {
+            Instruction::OpCode::kMinus,
+        };
+
+        for (size_t i = 0; i < utils::array_size(supportOp); ++i) {
+            if (supportOp[i] == op)
+                return type;
+        }
+        return nullptr;
     }
 
 }
