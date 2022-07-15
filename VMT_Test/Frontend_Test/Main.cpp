@@ -4,7 +4,6 @@
 #include "Frontend/Lexer/FileLexer.h"
 #include "Frontend/Parser/ProgramParser.h"
 #include "Frontend/Parser/FunctionParser.h"
-#include "TestAstVisitor.h"
 #include "IRAstVisitor.h"
 
 int main( int argc, char * argv[]) {

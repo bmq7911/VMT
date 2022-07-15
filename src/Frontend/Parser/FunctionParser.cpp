@@ -1,7 +1,5 @@
 
 #include "Frontend/Parser/FunctionParser.h"
-#include "SymbolTable/FunctionId.h"
-#include "SymbolTable/ObjectId.h"
 #include "Frontend/AST/AstOther/AstType.h"
 #include "Frontend/AST/AstExpr/AstAssign.h"
 #include "Diagnose/Diagnose.h"

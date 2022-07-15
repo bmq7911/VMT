@@ -1,8 +1,9 @@
 #pragma once
 #include <string>
+#include <memory>
+
 #include "Frontend/AST/AstTree.h"
 #include "Frontend/Lexer/Token.h"
-#include "SymbolTable/TypeId.h"
 
 namespace AST {
     ///

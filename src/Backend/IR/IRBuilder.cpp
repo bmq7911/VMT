@@ -203,10 +203,6 @@ namespace IR {
             return nullptr;
         }
         else {
-            if (auto errorIns =_CheckTypeIsCompatibleWithReturn(op, v, v)) {
-                auto ins = _AddInsToIRContext(errorIns);
-                return ins->getRetValue();
-            }
             auto cfunc = m_context->getCurrentFunction();
         
             std::string valueName = "valueName";
@@ -225,10 +221,6 @@ namespace IR {
             return nullptr;
         }
         else {
-            if (auto errorIns =_CheckTypeIsCompatibleWithReturn(op, v, v)) {
-                auto ins = _AddInsToIRContext(errorIns);
-                return ins->getRetValue();
-            }
             auto ins = _AddInsToIRContext(IR::allocator<T>().alloc(op, v, result));
             auto result = ins->getRetValue();
             if (nullptr != result) {
@@ -244,10 +236,6 @@ namespace IR {
             return nullptr;
         }
         else {
-            if (auto errorIns = _CheckTypeIsCompatibleWithReturn(op, v1, v2, v1)) {
-                auto ins = _AddInsToIRContext(errorIns);
-                return ins->getRetValue();
-            }
             auto cfunc = m_context->getCurrentFunction( );
             std::string valueName = "valueName";
             IR::Value * result = emitAlloc(v1->getType(),valueName.c_str() );
@@ -267,10 +255,6 @@ namespace IR {
             return nullptr;
         }
         else {
-            if (auto errorIns = _CheckTypeIsCompatibleWithReturn(op, v1, v2,result)) {
-                auto ins = _AddInsToIRContext(errorIns);
-                return ins->getRetValue();
-            }
             auto ins = _AddInsToIRContext(IR::allocator<T>().alloc(op,v1, v2, result));
             if (nullptr != result) {
                 v1->addUser( result);
@@ -287,51 +271,5 @@ namespace IR {
     }
 
 
-    Instruction* IRBuilder::_CheckTypeIsCompatibleWithReturn(Instruction::OpCode op, Value* v1, Value* retValue) {
-        const Type* t1 = v1->getType();
-        Type const* retType = retValue->getType();
-        if (retType != t1->isSupportOp(op)) {
-            return IR::allocator<ErrorIns>().alloc( );
-        }
-        else {
-            return nullptr;
-        }
-    }
-    
-    Instruction* IRBuilder::_CheckTypeIsCompatibleWithReturn(Instruction::OpCode op, Value* v1, Value* v2, Value* retValue) {
-        const Type* t1 = v1->getType( );
-        const Type* t2 = v2->getType( );
-        const Type* retType = retValue->getType( );
-
-        if (t1 == t2) {
-            auto ttype= t1->isSupportOp( op );
-            if (retType == ttype) {
-                return nullptr;
-            }
-        }
-        return IR::allocator<ErrorIns>().alloc();
-    }
-    
-    bool IRBuilder::_CheckTypeIsCompatibleWithReturn(Instruction::OpCode op, Type* t1, Type* retType) {
-        if (retType != t1->isSupportOp(op)) {
-            return false;
-        }
-        else {
-            return true;
-        }
-
-    }
-
-    bool IRBuilder::_CheckTypeIsCompatibleWithReturn(Instruction::OpCode op, Type* t1, Type* t2, Type* retType) {
-        if (t1 != t2) {
-            return false;
-        }
-        if (retType != t1->isSupportOp(op)) {
-            return false;
-        }
-        else {
-            return true;
-        }
-    }
  
 }

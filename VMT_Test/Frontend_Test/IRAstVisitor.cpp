@@ -1,5 +1,7 @@
 #pragma once
 #include "IRAstVisitor.h"
+#include "Env.h"
+
 
 namespace TS {
     class AST_IR_Codegen;
@@ -22,17 +24,16 @@ namespace TS {
     // translate ast to ir,we need so much help component
     AST_IR_Codegen::AST_IR_Codegen() {
         m_context = std::make_shared<IR::IRContext>();
-        m_env = std::make_shared<ENV::Env>();
-        std::shared_ptr<ENV::BoolType>              typeBool = std::make_shared<ENV::BoolType>(std::string_view("bool"));
-        std::shared_ptr<ENV::IntegerType<int32_t>>  typeI32  = std::make_shared<ENV::IntegerType<int32_t>>(std::string_view("i32"), typeBool);
-        std::shared_ptr<ENV::IntegerType<uint32_t>> typeUI32 = std::make_shared<ENV::IntegerType<uint32_t>>(std::string_view("ui32"), typeBool);
-        std::shared_ptr<ENV::RealType<float>>       typeF32  = std::make_shared<ENV::RealType<float>>(std::string_view("f32"), typeBool);
-        std::shared_ptr<ENV::RealType<double>>      typeF64  = std::make_shared<ENV::RealType<double>>(std::string_view("f64"), typeBool);
-        m_env->put(typeI32);
-        m_env->put(typeUI32);
-        m_env->put(typeF32);
-        m_env->put(typeF64);
-        m_env->put(typeBool);
+        m_env = std::make_shared<SymTable>();
+        
+        m_env->put( "bool", m_context->getTypeManger().getBoolType());
+        m_env->put( "i32",  m_context->getTypeManger().getTypeFromName("i32"));
+        m_env->put( "ui32", m_context->getTypeManger().getTypeFromName("ui32"));
+        m_env->put( "i64",  m_context->getTypeManger().getTypeFromName("i64"));
+        m_env->put( "ui64", m_context->getTypeManger().getTypeFromName("ui64"));
+        m_env->put( "f32",  m_context->getTypeManger().getTypeFromName("f32"));
+        m_env->put( "f64",  m_context->getTypeManger().getTypeFromName("f64"));
+
         m_currentEnv = m_env;
         m_localValueIndex = 0;
 
@@ -40,12 +41,11 @@ namespace TS {
 
     void AST_IR_Codegen::visitFunction(AST::AstFunction* astFunction, AST::ICollectInfoBack* collect) {
         EnvRAII lock(this);
-
         auto astType = astFunction->getFunctionType();
-        auto envType = _GetCurrentEnv()->find(astType->getType().toStringView(), ENV::SymbolType::kType);
-        if (!envType) {
-            Diagnose::errorMsg("cann't find the type");
-            return;
+        std::string ss(astType->getType().toStringView());
+        auto ttype = _Find(ss);
+        if ( !(ttype == SymType::kType || ttype == SymType::kClass)) {
+            Diagnose::errorMsg( "cann't find the type");
         }
         auto funNameTok = astFunction->getFunctionName();
         IR::Function* ir_function = IR::IRBuilder(m_context).emitFunction(funNameTok.toString().data(), nullptr);
@@ -83,7 +83,7 @@ namespace TS {
         std::string for_start = _GenLabel();
         std::string for_end   = _GenLabel();
         IR::IRBuilder(m_context).emitLabel(for_start);
-        auto initExpr = forstmt->getLoopExpr();
+        auto initExpr = forstmt->getLoopExpr( );
         if (initExpr) {
             CollectIRValue collectValue;
             initExpr->reduce(std::enable_shared_from_this<AST_IR_Codegen>::shared_from_this(), &collectValue);
@@ -193,7 +193,6 @@ namespace TS {
     }
 
     void AST_IR_Codegen::visitBlock(AST::AstBlock* astBlock, AST::ICollectInfoBack* collect) {
-        std::shared_ptr<ENV::Env> env = std::make_shared<ENV::Env>();
         EnvRAII s(this);
         for (auto iter = astBlock->begin(); iter != astBlock->end(); ++iter) {
             (*iter)->gen(std::enable_shared_from_this<AST_IR_Codegen>::shared_from_this(), collect);
@@ -207,44 +206,49 @@ namespace TS {
 
         CollectIRValue collectValue1;
         CollectIRValue collectValue2;
-        auto rleftExpr = leftExpr->reduce(std::enable_shared_from_this<AST_IR_Codegen>::shared_from_this(), &collectValue1);
+        auto rleftExpr  = leftExpr->reduce(std::enable_shared_from_this<AST_IR_Codegen>::shared_from_this(), &collectValue1);
         auto rrightExpr = rightExpr->reduce(std::enable_shared_from_this<AST_IR_Codegen>::shared_from_this(), &collectValue2);
         auto tok = astBinaryOpExpr->getOp();
+        
         IR::Instruction::OpCode opCode = IR::Instruction::OpCode::kError;
-        std::string op = tok.toString();
+        TokenId op = tok.getTokenId();
         struct map {
-            const char* str;
+            TokenId tok;
             IR::Instruction::OpCode op;
 
         };
 
         // language support binary operation 
         static const map strOpCode[] = {
-            {"+",  IR::Instruction::OpCode::kAdd},
-            {"-",  IR::Instruction::OpCode::kMinus},
-            {"*",  IR::Instruction::OpCode::kMul},
-            {"/",  IR::Instruction::OpCode::kDiv},
-            {"%",  IR::Instruction::OpCode::kMod},
-            {"**", IR::Instruction::OpCode::kExp},
-            {"==", IR::Instruction::OpCode::kEqual},
-            {"!=", IR::Instruction::OpCode::kNotEqual},
-            {"<",  IR::Instruction::OpCode::kLess},
-            {"<=", IR::Instruction::OpCode::kLessEqual},
-            {">",  IR::Instruction::OpCode::kGreater},
-            {">=", IR::Instruction::OpCode::kGreaterEqual},
+            { TokenId::kw_plus,         IR::Instruction::OpCode::kAdd          },
+            { TokenId::kw_minus,        IR::Instruction::OpCode::kMinus        },
+            { TokenId::kw_star ,        IR::Instruction::OpCode::kMul          },
+            { TokenId::kw_slash,        IR::Instruction::OpCode::kDiv          },
+            { TokenId::kw_percent,      IR::Instruction::OpCode::kMod          },
+            { TokenId::kw_starstar,     IR::Instruction::OpCode::kExp          },
+            { TokenId::kw_equalequal,   IR::Instruction::OpCode::kEqual        },
+            { TokenId::kw_exclaimequal, IR::Instruction::OpCode::kNotEqual     },
+            { TokenId::kw_less,         IR::Instruction::OpCode::kLess         },
+            { TokenId::kw_lessequal,    IR::Instruction::OpCode::kLessEqual    },
+            { TokenId::kw_greater,      IR::Instruction::OpCode::kGreater      },
+            { TokenId::kw_greaterequal, IR::Instruction::OpCode::kGreaterEqual },
         };
         for (size_t i = 0; i < sizeof(strOpCode) / sizeof(strOpCode[0]); ++i) {
-            if (op == strOpCode[i].str) {
+            if (op == strOpCode[i].tok) {
                 opCode = strOpCode[i].op;
                 break;
             }
         }
-               
-        IR::Value* result = _GenTempValue( collectValue1.getValue()->getType( ) );
-
-        IR::IRBuilder(m_context).emitBinaryOpIns(opCode, result, collectValue1.getValue(), collectValue2.getValue());
-
-        static_cast<CollectIRValue*>(collect)->setValue(result);
+        auto resultType = IR::TypeChecker::checkOp(*m_context, opCode, collectValue1.getValue(), collectValue2.getValue() );
+        if ( nullptr == resultType) {
+            
+        }
+        else {
+        
+            IR::Value* result = _GenTempValue( resultType );
+            IR::IRBuilder(m_context).emitBinaryOpIns(opCode, result, collectValue1.getValue(), collectValue2.getValue());
+            static_cast<CollectIRValue*>(collect)->setValue(result);
+        }
         return nullptr;
     }
     std::shared_ptr<AST::AstObjectExpr> AST_IR_Codegen::reduceUnaryOpExpr(AST::AstUnaryOpExpr* astUnaryExpr, AST::ICollectInfoBack* collect) {
@@ -373,8 +377,6 @@ namespace TS {
             return nullptr;
         }
         else {
-
-
             if (op == "+=") {
                 f(IR::Instruction::OpCode::kAdd, IR::Instruction::OpCode::kAssign);
                 return nullptr;
@@ -429,6 +431,10 @@ namespace TS {
         return nullptr;
     }
 
+    SymType AST_IR_Codegen::_Find(std::string const& sym) const {
+        return m_currentEnv->find(sym);
+    }
+
     void AST_IR_Codegen::_StartVisitFunction() {
         m_localValueIndex = 0;
     }
@@ -438,6 +444,7 @@ namespace TS {
         m_localValueIndex++;
         return v;
     }
+    
 
     std::string AST_IR_Codegen::_GenLabel() {
         std::string label = "L"+std::to_string(m_localValueIndex);
@@ -453,10 +460,10 @@ namespace TS {
     IR::Type* AST_IR_Codegen::_GetType(std::string_view const& str_view) const {
         return m_context->getTypeManger().getTypeFromName(str_view);
     }
-    std::shared_ptr<ENV::Env> AST_IR_Codegen::_GetCurrentEnv() const {
+    std::shared_ptr<SymTable> AST_IR_Codegen::_GetCurrentEnv() const {
         return m_currentEnv;
     }
-    void AST_IR_Codegen::_SetCurrentEnv(std::shared_ptr<ENV::Env> env) {
+    void AST_IR_Codegen::_SetCurrentEnv(std::shared_ptr<SymTable> env) {
         m_currentEnv = env;
     }
 

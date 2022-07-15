@@ -77,11 +77,6 @@ namespace IR {
         template<typename T, typename U = typename std::enable_if<std::is_base_of<Instruction,T>::value>::type >
         T* _AddInsToIRContext(T* ins);
 
-        Instruction* _CheckTypeIsCompatibleWithReturn(Instruction::OpCode op, Value* v1, Value* v2);
-        Instruction* _CheckTypeIsCompatibleWithReturn(Instruction::OpCode op, Value* v1, Value* v2, Value* retValue);
-        
-        bool _CheckTypeIsCompatibleWithReturn(Instruction::OpCode op, Type* t1,Type*  retType );
-        bool _CheckTypeIsCompatibleWithReturn(Instruction::OpCode op, Type* t1,Type* t2, Type* retType);
     private:
         std::shared_ptr<IR::IRContext> m_context;
     };

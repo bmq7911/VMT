@@ -345,13 +345,16 @@ namespace IR {
 
     class TypeChecker {
     public:
-        static Type* checkOp( IR::IRContext & context, IR::Instruction::OpCode op,  IR::Value* v1, IR::Value * v2  );
-        static Type* checkOp(IR::IRContext& context, IR::Instruction::OpCode op, IR::Value* v);
+        static const Type* checkOp( IR::IRContext & context, IR::Instruction::OpCode op,  IR::Value* v1, IR::Value * v2  );
+        static const Type* checkOp(IR::IRContext& context, IR::Instruction::OpCode op, IR::Value* v);
     private:
-        static Type* _CheckIntegerBinaryOp(IR::IRContext& context,IR::Type* type, IR::Instruction::OpCode);
-        static Type* _CheckIntegerUnaryOp(IR::IRContext& context, IR::Type* type, IR::Instruction::OpCode);
-        static Type* _CheckRealBinaryOp(IR::IRContext& context, IR::Type* type, IR::Instruction::OpCode);
-        static Type* _CheckRealUnaryOp(IR::IRContext& context, IR::Type* type, IR::Instruction::OpCode);
+        
+        static const Type* _CheckIntegerBinaryOp(IR::IRContext& context,IR::Type const * type, IR::Instruction::OpCode);
+        static const Type* _CheckIntegerUnaryOp(IR::IRContext& context, IR::Type const * type, IR::Instruction::OpCode);
+        static const Type* _CheckRealBinaryOp(IR::IRContext& context, IR::Type const * type, IR::Instruction::OpCode);
+        static const Type* _CheckRealUnaryOp(IR::IRContext& context, IR::Type const* type, IR::Instruction::OpCode);
+        static const Type* _CheckBoolBinaryOp(IR::IRContext& context, IR::Type const * type, IR::Instruction::OpCode);
+        static const Type* _CheckBoolUnaryOp(IR::IRContext& context, IR::Type const* type, IR::Instruction::OpCode);
     };
 
 }

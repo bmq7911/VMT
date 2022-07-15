@@ -4,108 +4,7 @@
 #include "utils/utils.h"
 #include "Backend/IR/IRContext.h"
 
-namespace IR {
-    //
-}
 
-namespace IR {
-
-
-}
-
-namespace IR {
-
-}
-
-namespace IR {
-
-    Type const* FloatType::isSupportOp(Instruction::OpCode op) const {
-        static const Instruction::OpCode SupportOp[] = {
-            Instruction::OpCode::kMinus,
-            Instruction::OpCode::kSin,
-            Instruction::OpCode::kCos,
-            Instruction::OpCode::kTan,
-            Instruction::OpCode::kAdd,
-            Instruction::OpCode::kMul,
-            Instruction::OpCode::kDiv,
-            Instruction::OpCode::kEqual,
-            Instruction::OpCode::kNotEqual,
-            Instruction::OpCode::kLess,
-            Instruction::OpCode::kLessEqual,
-            Instruction::OpCode::kGreater,
-            Instruction::OpCode::kGreaterEqual,
-        };
-
-        for (size_t i = 0; i < utils::array_size(SupportOp); ++i) {
-            if (SupportOp[i] == op)
-                return this;
-        }
-        return nullptr;
-    }
-
-}
-namespace IR{
-    /// 数乘等
-    Type const * VectorType::isSupportOp(Instruction::OpCode op) const {
-        return nullptr;
-        /*
-        if (this != v) {
-            /// 以矩阵形式看两个向量的乘积
-            if ( v->isVectorType()  ) {
-                VectorType const* tv = static_cast<VectorType const*>(v);
-                if ( (tv->getBasicType() == this->getBasicType() ) || 
-                     tv->getDimSize() == this->getDimSize() ) {
-                    if (op == Instruction::OpCode::kMul) {
-                        return true;
-                    }
-                    else {
-                        return false;
-                    }
-                }
-            }
-            else {
-                /// 数乘形式
-                if ( this->getBasicType() == v && Instruction::OpCode::kMul == op) {
-                    return true;
-                }
-            }
-            return false;
-        }
-        else {
-            const Type * basicType = this->getBasicType();
-            if ( op == Instruction::OpCode::kDot ||
-                 op == Instruction::OpCode::kLength2){
-                if (basicType->isFloatType()) {
-                    return true;
-                }
-                else {
-                    return false;
-                }
-            }
-            if (op == Instruction::OpCode::kCross) {
-                if (basicType->isFloatType() && 3 == getDimSize()) {
-                    return true;
-                }
-                else {
-                    return false;
-                }
-            }
-            return basicType->isSupportOp(op, basicType);
-        }
-        return false;
-        */
-    }
-}
-
-
-namespace IR {
-        
-        
-    Type const* MatrixType::isSupportOp(Instruction::OpCode op ) const {
-        return nullptr;
-    }
-
-}
 
 namespace IR {
 
@@ -502,25 +401,67 @@ namespace IR {
 
 namespace IR {
     
-    Type* TypeChecker::checkOp(IR::IRContext& context, IR::Instruction::OpCode op, IR::Value* v1, IR::Value* v2) {
+    const Type* TypeChecker::checkOp(IR::IRContext& context, IR::Instruction::OpCode op, IR::Value* v1, IR::Value* v2) {
+        if (nullptr == v1 || nullptr == v2)
+            return nullptr;
+        if (nullptr == v1->getType() || nullptr == v2->getType())
+            return nullptr;
         /// <summary>
         /// 复杂数据类型
         /// </summary>
         if (v1->getType() != v2->getType()) {
             if (v1->getType()->isMatrixType() && v1->getType()->isVectorType()) {
-                
+                return nullptr;
             }
         }
         else {
-            
+            /// <summary>
+            if (v1->getType()->isIntegerType()) {
+                return _CheckIntegerBinaryOp(context, v1->getType(), op);
+            }
+            else if (v1->getType()->isFloatType()) {
+                return _CheckRealBinaryOp(context, v1->getType(), op);
+            }
+            else if (v1->getType()->isBoolType()) {
+                return _CheckBoolBinaryOp(context, v1->getType(), op);
+            }
+            else if (v1->getType()->isVectorType()) {
+                return nullptr;
+            }
+            else if (v1->getType()->isMatrixType()) {
+                return nullptr;
+            }
+            else {
+                return nullptr;
+            }
         }
     }
 
-    Type* TypeChecker::checkOp(IR::IRContext& context, IR::Instruction::OpCode op, IR::Value* v) {
-    
+    Type const* TypeChecker::checkOp(IR::IRContext& context, IR::Instruction::OpCode op, IR::Value* v) {
+        if (nullptr == v || nullptr == v->getType())
+            return nullptr;
+        if (v->getType()->isIntegerType()) {
+            return _CheckIntegerUnaryOp(context, v->getType(), op);
+        }
+        else if (v->getType()->isFloatType()) {
+            return _CheckRealUnaryOp(context, v->getType(), op);
+        }
+        else if (v->getType()->isBoolType()) {
+            return _CheckBoolUnaryOp(context, v->getType(), op);
+        }
+        else if (v->getType()->isVectorType()) {
+            return nullptr;
+        }
+        else if (v->getType()->isMatrixType()) {
+            return nullptr;
+        }
+        else {
+            return nullptr;
+        }
+          
     }
 
-    Type* TypeChecker::_CheckIntegerBinaryOp(IR::IRContext& context,IR::Type* type, IR::Instruction::OpCode op) {
+    Type const* TypeChecker::_CheckIntegerBinaryOp(IR::IRContext& context,IR::Type const* type, IR::Instruction::OpCode op) {
 
         static const Instruction::OpCode supportOp[] = {
             Instruction::OpCode::kAdd,
@@ -551,7 +492,7 @@ namespace IR {
         return nullptr;
     }
     
-    Type* TypeChecker::_CheckIntegerUnaryOp(IR::IRContext& context,IR::Type * type, IR::Instruction::OpCode op) {
+    Type const* TypeChecker::_CheckIntegerUnaryOp(IR::IRContext& context,IR::Type const* type, IR::Instruction::OpCode op) {
         static const Instruction::OpCode supportOp[] = {
             Instruction::OpCode::kMinus,
         };
@@ -570,7 +511,7 @@ namespace IR {
         return nullptr;
     }
     
-    Type* TypeChecker::_CheckRealBinaryOp(IR::IRContext& context, IR::Type* type, IR::Instruction::OpCode op) {
+    Type const* TypeChecker::_CheckRealBinaryOp(IR::IRContext& context, IR::Type const* type, IR::Instruction::OpCode op) {
         static const Instruction::OpCode supportOp[] = {
             Instruction::OpCode::kMinus,
             Instruction::OpCode::kSin,
@@ -601,7 +542,7 @@ namespace IR {
         return nullptr;
     }
 
-    Type* TypeChecker::_CheckRealUnaryOp(IR::IRContext& context, IR::Type* type, IR::Instruction::OpCode op) {
+    Type const* TypeChecker::_CheckRealUnaryOp(IR::IRContext& context, IR::Type const* type, IR::Instruction::OpCode op) {
         static const Instruction::OpCode supportOp[] = {
             Instruction::OpCode::kMinus,
         };
@@ -612,5 +553,32 @@ namespace IR {
         }
         return nullptr;
     }
+
+    const Type* TypeChecker::_CheckBoolBinaryOp(IR::IRContext& context, IR::Type const* type, IR::Instruction::OpCode op) {
+        static const Instruction::OpCode supportOp[] = {
+            Instruction::OpCode::kAnd,
+            Instruction::OpCode::kOr,
+            Instruction::OpCode::kXor,
+        };
+        for (size_t i = 0; i < utils::array_size(supportOp); ++i) {
+            if (supportOp[i] == op)
+                return type;
+        }
+        return nullptr;
+
+    }
+    
+    const Type* TypeChecker::_CheckBoolUnaryOp(IR::IRContext& context, IR::Type const* type, IR::Instruction::OpCode op) {
+        static const Instruction::OpCode supportOp[] = {
+            Instruction::OpCode::kNot,
+        };
+
+        for (size_t i = 0; i < utils::array_size(supportOp); ++i) {
+            if (supportOp[i] == op)
+                return type;
+        }
+        return nullptr;
+    }
+
 
 }

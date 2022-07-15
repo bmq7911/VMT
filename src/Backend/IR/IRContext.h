@@ -13,8 +13,9 @@ namespace IR {
         IRContext& operator=(IRContext &&) = delete;
 
         IR::TypeManger& getTypeManger();
-        IR::Function* getCurrentFunction() const;
-        void          addFunction(IR::Function* function );
+        IR::Function*   getCurrentFunction() const;
+            
+        void            addFunction(IR::Function* function );
     private:
 		friend class IRBuilder;
 		void _IRBuilder_PushIns( IR::Instruction * );

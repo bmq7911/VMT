@@ -5,7 +5,6 @@
 #include "Frontend/AST/AstExpr/AstObjectExpr.h"
 #include "Frontend/AST/AstExpr/AstVoidExpr.h"
 #include "Frontend/AST/AstExpr/AstVariableObjExpr.h"
-#include "SymbolTable/ObjectId.h"
 
 
 #define DECL_AST_SPACE( x) AST
