@@ -38,14 +38,14 @@ namespace TS {
         m_localValueIndex = 0;
 
     }
-
+    
     void AST_IR_Codegen::visitFunction(AST::AstFunction* astFunction, AST::ICollectInfoBack* collect) {
         EnvRAII lock(this);
         auto astType = astFunction->getFunctionType();
         std::string ss(astType->getType().toStringView());
         auto ttype = _Find(ss);
-        if ( !(ttype == SymType::kType || ttype == SymType::kClass)) {
-            Diagnose::errorMsg( "cann't find the type");
+        if (nullptr == ttype) {
+            Diagnose::errorMsg("cann't find the type");
         }
         auto funNameTok = astFunction->getFunctionName();
         IR::Function* ir_function = IR::IRBuilder(m_context).emitFunction(funNameTok.toString().data(), nullptr);
@@ -55,17 +55,28 @@ namespace TS {
         for (size_t i = 0; i < paramList->size(); ++i) {
             auto param = paramList->at(i);
             auto typeTok = param.getType();
-            auto envType = _GetCurrentEnv()->find(typeTok.toStringView(), ENV::SymbolType::kType);
+            std::string ss(typeTok.toStringView());
+            auto envType = _GetCurrentEnv()->find( ss );
             auto name = param.getId();
-            if (envType) {
-                auto type = m_context->getTypeManger().getTypeFromName(envType->getSymbolName().data());
-                IR::Value* value = IR::IRBuilder(m_context).emitAlloc(type, std::string(name.toStringView()).c_str());
-                _GetCurrentEnv()->put(std::string(name.toStringView()), value);
-                ir_function->addArgs(value);
-            }
-            else {
+            if (nullptr == envType) {
                 Diagnose::errorMsg("cann't find the type");
                 return;
+            }
+            else {
+                auto symtype = envType->getSymType();
+                if (symtype == SymType::kClass) {
+                
+                }
+                else if (symtype == SymType::kType) {
+                    auto type = _GetCurrentEnv()->get<IR::Type>(ss);
+                    IR::Value* value = IR::IRBuilder(m_context).emitAlloc(type, std::string(name.toStringView()).c_str());
+                    _GetCurrentEnv()->put(std::string(name.toStringView()), value);
+                    ir_function->addArgs(value);
+                }
+                else {
+                    Diagnose::errorMsg("cann't find the type");
+                    return;
+                }
             }
         }
         auto block = astFunction->getFunctionBlock();
@@ -307,12 +318,17 @@ namespace TS {
         /// 这里最重要的逻辑就是查询当前已分配的节点数据,也就是IValue
         CollectIRValue collectValue;
         auto env = _GetCurrentEnv();
-        auto value = env->find(std::string(astObjectExpr->getObject().toStringView()));
-        if (nullptr != value) {
-            static_cast<CollectIRValue*>(collect)->setValue(value);
+        auto type = env->find(std::string(astObjectExpr->getObject().toStringView()));
+        if ( nullptr == type) {
+            Diagnose::errorMsg("can not find the value");
         }
         else {
-            Diagnose::errorMsg("can not find the value");
+            if (SymType::kValue == type->getSymType()) {
+                static_cast<CollectIRValue*>(collect)->setValue( env->get<IR::Value>(  std::string(astObjectExpr->getObject().toStringView()) ));
+            }
+            else {
+                Diagnose::errorMsg("can not find the value");
+            }
         }
         return nullptr;
     }
@@ -328,16 +344,25 @@ namespace TS {
     //      AstDecl -> type variable AssignExpr( variable,expr )
     std::shared_ptr<AST::AstObjectExpr> AST_IR_Codegen::reduceDecl(AST::AstDecl* astDecl, AST::ICollectInfoBack* collect) {
         auto env = _GetCurrentEnv();
-        auto envType = env->find(astDecl->getType().toStringView(), ENV::SymbolType::kType);
+        auto envType = env->find(std::string(astDecl->getType().toStringView()));
         IR::Value* v = nullptr;
-        if (!envType) {
+        if (nullptr == envType) {
             Diagnose::errorMsg("can not find the type");
+            return nullptr;
         }
         else {
-            auto type = m_context->getTypeManger().getTypeFromName(envType->getSymbolName());
-            std::string str(astDecl->getName().toStringView());
-            v = IR::IRBuilder(m_context).emitAlloc(type, str.c_str());
-            env->put(str, v);
+            if (SymType::kClass == envType->getSymType()) {
+
+            }
+            else if (SymType::kType == envType->getSymType()) {
+                auto type = env->get<IR::Type>(std::string(astDecl->getType().toStringView()));
+                std::string str(astDecl->getName().toStringView());
+                v = IR::IRBuilder(m_context).emitAlloc(type, str.c_str());
+                env->put(str, v);
+            }
+            else {
+                Diagnose::errorMsg("can not find the type");
+            }
         }
         auto expr = astDecl->getExpr();
         CollectIRValue collectValue;
@@ -431,7 +456,7 @@ namespace TS {
         return nullptr;
     }
 
-    SymType AST_IR_Codegen::_Find(std::string const& sym) const {
+    Symbol const* AST_IR_Codegen::_Find(std::string const& sym) const {
         return m_currentEnv->find(sym);
     }
 

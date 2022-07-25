@@ -49,7 +49,7 @@ public:
 	}
 	template<typename T>
 	T* get( ) const {
-		return _Is_equal<__Symbol_traits<T>::stype>(m_type) ? (T*)m_value, (T*)nullptr;
+		return _Is_equal<__Symbol_traits<T>::stype>(m_type) ? (T*)m_value : (T*)nullptr;
 	}
 private:
 	template<typename T>
@@ -123,12 +123,12 @@ public:
 	std::shared_ptr<SymTable> getParent() const {
 		return m_lpParent;
 	}
-	SymType find(std::string const& sym) const {
+	Symbol const *find(std::string const& sym) const {
 		auto iter = m_symTypes.find( sym );
 		if ( m_symTypes.end() == iter) {
-			return SymType::kUnknown;
+			return nullptr;
 		}
-		return iter->second.getSymType( );
+		return &iter->second;
 	}
 	template<typename T>
 	T* get( std::string const & sym ) const {
@@ -158,7 +158,6 @@ public:
 		auto pair = m_symTypes.insert(std::make_pair(sym, Symbol<T>(std::forward<_Args>(args) ...)));
 		return pair.second( );
 	}
-private:
 	SymTable() { }
 	SymTable(std::shared_ptr<SymTable> parent ) 
 		: m_lpParent( parent )

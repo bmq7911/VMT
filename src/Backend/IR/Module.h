@@ -6,6 +6,7 @@
 
 #include "Backend/IR/Value.h"
 #include "Backend/IR/Function.h"
+#include "Backend/IR/Type.h"
 
 namespace IR {
 	class Module {
@@ -15,6 +16,7 @@ namespace IR {
 		std::string            m_mudleName;
 		std::vector<Value*>    m_globalValue;
 		std::vector<Function*> m_globalFunctions;
+		std::vector<Type*>     m_type;
 	};
 
 }

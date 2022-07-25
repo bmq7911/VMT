@@ -195,8 +195,8 @@ namespace IR {
             if (std::isalpha(ch)) {
                 uint32_t startIndex = m_index;
                 while ( std::isalnum(ch) && m_index < m_src.length()) {
-                    m_index++;
                     ch = m_src[m_index];
+                    m_index++;
                 }
                 m_index--;
                 std::string_view ss(m_src.data() + startIndex, m_index - startIndex + 1);

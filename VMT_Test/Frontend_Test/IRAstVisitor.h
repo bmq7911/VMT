@@ -71,7 +71,7 @@ namespace TS {
         std::shared_ptr<AST::AstObjectExpr> reduceExprs(AST::AstExprs* astExprs, AST::ICollectInfoBack* collect) override;
 
     private:
-        SymType _Find(std::string const& sym) const;
+        Symbol const* _Find(std::string const& sym) const;
         template<typename T>
         T* _Cast(std::string const& sym) const {
             return m_currentEnv->get<T>(sym);

@@ -262,6 +262,18 @@ namespace IR {
         std::vector<Type*> m_paramsType;
     };
    
+    class StructType : public Type {
+    public:
+        struct Member {
+            std::string memberName;
+            Type* type;
+        };
+        
+    private:
+        std::string         m_typeName;
+        std::vector<Member> m_members;
+    };
+
     class TypeManger;
     class TypeParse {
     enum Token {
@@ -348,7 +360,6 @@ namespace IR {
         static const Type* checkOp( IR::IRContext & context, IR::Instruction::OpCode op,  IR::Value* v1, IR::Value * v2  );
         static const Type* checkOp(IR::IRContext& context, IR::Instruction::OpCode op, IR::Value* v);
     private:
-        
         static const Type* _CheckIntegerBinaryOp(IR::IRContext& context,IR::Type const * type, IR::Instruction::OpCode);
         static const Type* _CheckIntegerUnaryOp(IR::IRContext& context, IR::Type const * type, IR::Instruction::OpCode);
         static const Type* _CheckRealBinaryOp(IR::IRContext& context, IR::Type const * type, IR::Instruction::OpCode);
